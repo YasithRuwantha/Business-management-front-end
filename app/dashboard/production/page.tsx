@@ -10,8 +10,15 @@ import { Trash2, Plus } from "lucide-react"
 import { ModalOverlay } from "@/components/modal-overlay"
 
 const initialProduction = [
-  { id: 1, product: "Bread", quantity: 50, date: "2024-11-20" },
-  { id: 2, product: "Cake", quantity: 10, date: "2024-11-20" },
+  { id: 1, product: "Bread", quantity: 50, material: "Flour", date: "2024-11-20" },
+  { id: 2, product: "Cake", quantity: 10, material: "Butter", date: "2024-11-20" },
+]
+
+const materialOptions = [
+  { id: 1, name: "Flour" },
+  { id: 2, name: "Sugar" },
+  { id: 3, name: "Butter" },
+  { id: 4, name: "Eggs" },
 ]
 
 export default function ProductionPage() {
@@ -20,20 +27,22 @@ export default function ProductionPage() {
   const [formData, setFormData] = useState({
     product: "",
     quantity: "",
+    material: "",
     date: new Date().toISOString().split("T")[0],
   })
 
   const handleAddProduction = (e: React.FormEvent) => {
     e.preventDefault()
-    if (formData.product && formData.quantity) {
+    if (formData.product && formData.quantity && formData.material) {
       const newRecord = {
         id: production.length + 1,
         product: formData.product,
         quantity: Number.parseFloat(formData.quantity),
+        material: formData.material,
         date: formData.date,
       }
       setProduction([...production, newRecord])
-      setFormData({ product: "", quantity: "", date: new Date().toISOString().split("T")[0] })
+      setFormData({ product: "", quantity: "", material: "", date: new Date().toISOString().split("T")[0] })
       setIsModalOpen(false)
     }
   }
@@ -59,7 +68,7 @@ export default function ProductionPage() {
         isOpen={isModalOpen}
         onClose={() => {
           setIsModalOpen(false)
-          setFormData({ product: "", quantity: "", date: new Date().toISOString().split("T")[0] })
+          setFormData({ product: "", quantity: "", material: "", date: new Date().toISOString().split("T")[0] })
         }}
         title="Record Production"
       >
@@ -83,6 +92,21 @@ export default function ProductionPage() {
             />
           </div>
           <div>
+            <label className="block text-sm font-medium text-foreground mb-2">Material Used *</label>
+            <select
+              value={formData.material}
+              onChange={(e) => setFormData({ ...formData, material: e.target.value })}
+              className="w-full px-3 py-2 border border-input rounded-md bg-background text-foreground placeholder-foreground/40 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
+            >
+              <option value="">Select a material...</option>
+              {materialOptions.map((material) => (
+                <option key={material.id} value={material.name}>
+                  {material.name}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div>
             <label className="block text-sm font-medium text-foreground mb-2">Date</label>
             <Input
               type="date"
@@ -95,7 +119,7 @@ export default function ProductionPage() {
               type="button"
               onClick={() => {
                 setIsModalOpen(false)
-                setFormData({ product: "", quantity: "", date: new Date().toISOString().split("T")[0] })
+                setFormData({ product: "", quantity: "", material: "", date: new Date().toISOString().split("T")[0] })
               }}
               className="flex-1 bg-secondary hover:bg-secondary/80 text-foreground"
             >
@@ -116,6 +140,7 @@ export default function ProductionPage() {
               <tr className="border-b">
                 <th className="text-left py-3 px-4 text-sm font-semibold text-foreground">Product</th>
                 <th className="text-left py-3 px-4 text-sm font-semibold text-foreground">Quantity</th>
+                <th className="text-left py-3 px-4 text-sm font-semibold text-foreground">Material Used</th>
                 <th className="text-left py-3 px-4 text-sm font-semibold text-foreground">Date</th>
                 <th className="text-left py-3 px-4 text-sm font-semibold text-foreground">Actions</th>
               </tr>
@@ -125,6 +150,11 @@ export default function ProductionPage() {
                 <tr key={record.id} className="border-b hover:bg-secondary/50 transition-colors">
                   <td className="py-3 px-4 text-sm">{record.product}</td>
                   <td className="py-3 px-4 text-sm font-semibold">{record.quantity}</td>
+                  <td className="py-3 px-4 text-sm">
+                    <span className="px-3 py-1 bg-primary/10 text-primary rounded-full text-xs font-medium">
+                      {record.material}
+                    </span>
+                  </td>
                   <td className="py-3 px-4 text-sm">{record.date}</td>
                   <td className="py-3 px-4 text-sm">
                     <button
