@@ -39,12 +39,12 @@ export default function CustomersPage() {
   }
 
   return (
-    <div className="p-8 space-y-8">
-      <div className="flex justify-between items-center">
-        <h1 className="text-4xl font-bold text-foreground">Customers</h1>
+    <div className="p-4 md:p-8 space-y-6 md:space-y-8">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <h1 className="text-2xl md:text-4xl font-bold text-foreground">Customers</h1>
         <Button
           onClick={() => setIsModalOpen(true)}
-          className="bg-primary hover:bg-primary/90 text-primary-foreground gap-2"
+          className="w-full sm:w-auto bg-primary hover:bg-primary/90 text-primary-foreground gap-2"
         >
           <Plus size={20} />
           Add Customer
@@ -85,45 +85,45 @@ export default function CustomersPage() {
               onChange={(e) => setFormData({ ...formData, address: e.target.value })}
             />
           </div>
-          <div className="flex gap-3 pt-4">
+          <div className="flex flex-col sm:flex-row gap-3 pt-4">
             <Button
               type="button"
               onClick={() => {
                 setIsModalOpen(false)
                 setFormData({ name: "", phone: "", address: "" })
               }}
-              className="flex-1 bg-secondary hover:bg-secondary/80 text-foreground"
+              className="sm:flex-1 bg-secondary hover:bg-secondary/80 text-foreground"
             >
               Cancel
             </Button>
-            <Button type="submit" className="flex-1 bg-primary hover:bg-primary/90 text-primary-foreground">
+            <Button type="submit" className="sm:flex-1 bg-primary hover:bg-primary/90 text-primary-foreground">
               Add Customer
             </Button>
           </div>
         </form>
       </ModalOverlay>
 
-      <Card className="p-6">
-        <h2 className="text-xl font-bold text-foreground mb-6">Customer List</h2>
-        <div className="overflow-x-auto">
-          <table className="w-full">
+      <Card className="p-4 md:p-6">
+        <h2 className="text-lg md:text-xl font-bold text-foreground mb-4 md:mb-6">Customer List</h2>
+        <div className="overflow-x-auto -mx-4 md:mx-0">
+          <table className="w-full min-w-max md:min-w-full">
             <thead>
               <tr className="border-b">
-                <th className="text-left py-3 px-4 text-sm font-semibold text-foreground">Name</th>
-                <th className="text-left py-3 px-4 text-sm font-semibold text-foreground">Phone</th>
-                <th className="text-left py-3 px-4 text-sm font-semibold text-foreground">Address</th>
-                <th className="text-left py-3 px-4 text-sm font-semibold text-foreground">Total Spent</th>
-                <th className="text-left py-3 px-4 text-sm font-semibold text-foreground">Actions</th>
+                <th className="text-left py-3 px-4 text-xs md:text-sm font-semibold text-foreground">Name</th>
+                <th className="text-left py-3 px-4 text-xs md:text-sm font-semibold text-foreground">Phone</th>
+                <th className="text-left py-3 px-4 text-xs md:text-sm font-semibold text-foreground">Address</th>
+                <th className="text-left py-3 px-4 text-xs md:text-sm font-semibold text-foreground">Total Spent</th>
+                <th className="text-left py-3 px-4 text-xs md:text-sm font-semibold text-foreground">Actions</th>
               </tr>
             </thead>
             <tbody>
               {customers.map((customer) => (
                 <tr key={customer.id} className="border-b hover:bg-secondary/50 transition-colors">
-                  <td className="py-3 px-4 text-sm">{customer.name}</td>
-                  <td className="py-3 px-4 text-sm">{customer.phone}</td>
-                  <td className="py-3 px-4 text-sm">{customer.address}</td>
-                  <td className="py-3 px-4 text-sm font-semibold text-primary">${customer.totalSpent}</td>
-                  <td className="py-3 px-4 text-sm">
+                  <td className="py-3 px-4 text-xs md:text-sm">{customer.name}</td>
+                  <td className="py-3 px-4 text-xs md:text-sm">{customer.phone}</td>
+                  <td className="py-3 px-4 text-xs md:text-sm">{customer.address}</td>
+                  <td className="py-3 px-4 text-xs md:text-sm font-semibold text-primary">${customer.totalSpent}</td>
+                  <td className="py-3 px-4 text-xs md:text-sm">
                     <button
                       onClick={() => handleDelete(customer.id)}
                       className="inline-flex items-center gap-1 text-red-600 hover:text-red-700 transition-colors"

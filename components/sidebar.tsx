@@ -15,6 +15,10 @@ import {
   LogOut,
 } from "lucide-react"
 
+interface SidebarProps {
+  onClose?: () => void
+}
+
 const menuItems = [
   { label: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
   { label: "Customers", href: "/dashboard/customers", icon: Users },
@@ -27,7 +31,7 @@ const menuItems = [
   { label: "Settings", href: "/dashboard/settings", icon: Settings },
 ]
 
-export default function Sidebar() {
+export default function Sidebar({ onClose }: SidebarProps) {
   const pathname = usePathname()
   const router = useRouter()
 
@@ -38,13 +42,13 @@ export default function Sidebar() {
   }
 
   return (
-    <aside className="w-64 bg-card border-r border-border h-full flex flex-col">
-      <div className="p-6 border-b border-border">
+    <aside className="w-full bg-card border-r border-border h-full flex flex-col overflow-hidden">
+      <div className="p-4 md:p-6 border-b border-border hidden md:block">
         <h1 className="text-2xl font-bold text-primary">Business Manager</h1>
         <p className="text-xs text-muted-foreground mt-1">Admin Panel</p>
       </div>
 
-      <nav className="flex-1 p-4 space-y-2 overflow-y-auto">
+      <nav className="flex-1 p-2 md:p-4 space-y-1 md:space-y-2 overflow-y-auto">
         {menuItems.map((item) => {
           const Icon = item.icon
           const isActive = pathname === item.href
@@ -52,23 +56,24 @@ export default function Sidebar() {
             <Link
               key={item.href}
               href={item.href}
-              className={`flex items-center gap-3 px-4 py-2 rounded-lg transition-colors ${
+              onClick={onClose}
+              className={`flex items-center gap-3 px-3 md:px-4 py-2 md:py-2 rounded-lg transition-colors text-sm md:text-base ${
                 isActive ? "bg-primary text-primary-foreground" : "text-foreground hover:bg-secondary"
               }`}
             >
-              <Icon size={20} />
+              <Icon size={20} className="flex-shrink-0" />
               <span className="font-medium">{item.label}</span>
             </Link>
           )
         })}
       </nav>
 
-      <div className="p-4 border-t border-border">
+      <div className="p-2 md:p-4 border-t border-border">
         <button
           onClick={handleLogout}
-          className="flex items-center gap-3 w-full px-4 py-2 rounded-lg text-foreground hover:bg-secondary transition-colors"
+          className="flex items-center gap-3 w-full px-3 md:px-4 py-2 rounded-lg text-foreground hover:bg-secondary transition-colors text-sm md:text-base"
         >
-          <LogOut size={20} />
+          <LogOut size={20} className="flex-shrink-0" />
           <span className="font-medium">Logout</span>
         </button>
       </div>

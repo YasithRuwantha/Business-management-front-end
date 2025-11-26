@@ -42,54 +42,54 @@ const COLORS = ["#3b82f6", "#10b981", "#f59e0b", "#ef4444", "#8b5cf6"]
 
 export default function DashboardPage() {
   return (
-    <div className="p-8 space-y-8">
-      <h1 className="text-4xl font-bold text-foreground">Dashboard</h1>
+    <div className="p-4 md:p-8 space-y-6 md:space-y-8">
+      <h1 className="text-2xl md:text-4xl font-bold text-foreground">Dashboard</h1>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
-        <Card className="p-6">
-          <p className="text-sm text-muted-foreground">Total Raw Materials</p>
-          <p className="text-3xl font-bold text-primary mt-2">247</p>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-3 md:gap-4">
+        <Card className="p-4 md:p-6">
+          <p className="text-xs md:text-sm text-muted-foreground">Total Raw Materials</p>
+          <p className="text-2xl md:text-3xl font-bold text-primary mt-2">247</p>
         </Card>
-        <Card className="p-6">
-          <p className="text-sm text-muted-foreground">Total Products</p>
-          <p className="text-3xl font-bold text-primary mt-2">52</p>
+        <Card className="p-4 md:p-6">
+          <p className="text-xs md:text-sm text-muted-foreground">Total Products</p>
+          <p className="text-2xl md:text-3xl font-bold text-primary mt-2">52</p>
         </Card>
-        <Card className="p-6">
-          <p className="text-sm text-muted-foreground">Sales Today</p>
-          <p className="text-3xl font-bold text-primary mt-2">$12,450</p>
+        <Card className="p-4 md:p-6">
+          <p className="text-xs md:text-sm text-muted-foreground">Sales Today</p>
+          <p className="text-2xl md:text-3xl font-bold text-primary mt-2">$12,450</p>
         </Card>
-        <Card className="p-6">
-          <p className="text-sm text-muted-foreground">Sales This Month</p>
-          <p className="text-3xl font-bold text-primary mt-2">$284,650</p>
+        <Card className="p-4 md:p-6">
+          <p className="text-xs md:text-sm text-muted-foreground">Sales This Month</p>
+          <p className="text-2xl md:text-3xl font-bold text-primary mt-2">$284,650</p>
         </Card>
-        <Card className="p-6">
-          <p className="text-sm text-muted-foreground">Total Profit</p>
-          <p className="text-3xl font-bold text-green-600 mt-2">$85,240</p>
+        <Card className="p-4 md:p-6">
+          <p className="text-xs md:text-sm text-muted-foreground">Total Profit</p>
+          <p className="text-2xl md:text-3xl font-bold text-green-600 mt-2">$85,240</p>
         </Card>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-8">
         {/* Monthly Sales Chart */}
-        <Card className="p-6">
-          <h2 className="text-xl font-bold text-foreground mb-4">Monthly Sales</h2>
-          <ResponsiveContainer width="100%" height={300}>
+        <Card className="p-4 md:p-6">
+          <h2 className="text-lg md:text-xl font-bold text-foreground mb-4">Monthly Sales</h2>
+          <ResponsiveContainer width="100%" height={250}>
             <LineChart data={data.monthlyData}>
               <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="month" />
-              <YAxis />
+              <XAxis dataKey="month" tick={{ fontSize: 12 }} />
+              <YAxis tick={{ fontSize: 12 }} />
               <Tooltip />
               <Legend />
-              <Line type="monotone" dataKey="sales" stroke="#3b82f6" />
-              <Line type="monotone" dataKey="profit" stroke="#10b981" />
+              <Line type="monotone" dataKey="sales" stroke="#3b82f6" strokeWidth={2} />
+              <Line type="monotone" dataKey="profit" stroke="#10b981" strokeWidth={2} />
             </LineChart>
           </ResponsiveContainer>
         </Card>
 
         {/* Top Products Pie Chart */}
-        <Card className="p-6">
-          <h2 className="text-xl font-bold text-foreground mb-4">Top Selling Products</h2>
-          <ResponsiveContainer width="100%" height={300}>
+        <Card className="p-4 md:p-6">
+          <h2 className="text-lg md:text-xl font-bold text-foreground mb-4">Top Selling Products</h2>
+          <ResponsiveContainer width="100%" height={250}>
             <PieChart>
               <Pie
                 data={data.topProducts}
@@ -97,7 +97,7 @@ export default function DashboardPage() {
                 cy="50%"
                 labelLine={false}
                 label={({ name, sales }) => `${name}: ${sales}`}
-                outerRadius={80}
+                outerRadius={70}
                 fill="#8884d8"
                 dataKey="sales"
               >
@@ -112,23 +112,27 @@ export default function DashboardPage() {
       </div>
 
       {/* Low Stock Alerts */}
-      <Card className="p-6">
-        <h2 className="text-xl font-bold text-foreground mb-4">Low Stock Alerts</h2>
+      <Card className="p-4 md:p-6">
+        <h2 className="text-lg md:text-xl font-bold text-foreground mb-4">Low Stock Alerts</h2>
         <div className="overflow-x-auto">
-          <table className="w-full">
+          <table className="w-full text-sm">
             <thead>
               <tr className="border-b">
-                <th className="text-left py-3 px-4 text-sm font-semibold text-foreground">Material Name</th>
-                <th className="text-left py-3 px-4 text-sm font-semibold text-foreground">Quantity</th>
-                <th className="text-left py-3 px-4 text-sm font-semibold text-foreground">Unit</th>
+                <th className="text-left py-3 px-2 md:px-4 text-xs md:text-sm font-semibold text-foreground">
+                  Material Name
+                </th>
+                <th className="text-left py-3 px-2 md:px-4 text-xs md:text-sm font-semibold text-foreground">
+                  Quantity
+                </th>
+                <th className="text-left py-3 px-2 md:px-4 text-xs md:text-sm font-semibold text-foreground">Unit</th>
               </tr>
             </thead>
             <tbody>
               {data.lowStock.map((item, index) => (
                 <tr key={index} className="border-b hover:bg-secondary">
-                  <td className="py-3 px-4 text-sm">{item.name}</td>
-                  <td className="py-3 px-4 text-sm font-semibold text-orange-600">{item.quantity}</td>
-                  <td className="py-3 px-4 text-sm">{item.unit}</td>
+                  <td className="py-3 px-2 md:px-4 text-sm">{item.name}</td>
+                  <td className="py-3 px-2 md:px-4 text-sm font-semibold text-orange-600">{item.quantity}</td>
+                  <td className="py-3 px-2 md:px-4 text-sm">{item.unit}</td>
                 </tr>
               ))}
             </tbody>

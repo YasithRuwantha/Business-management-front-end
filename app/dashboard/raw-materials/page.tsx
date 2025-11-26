@@ -105,22 +105,22 @@ export default function RawMaterialsPage() {
   }
 
   return (
-    <div className="p-8 space-y-8">
-      <div className="flex justify-between items-center">
-        <h1 className="text-4xl font-bold text-foreground">Raw Materials</h1>
+    <div className="p-4 md:p-8 space-y-6 md:space-y-8">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <h1 className="text-2xl md:text-4xl font-bold text-foreground">Raw Materials</h1>
         <Button
           onClick={() => setIsModalOpen(true)}
-          className="bg-primary hover:bg-primary/90 text-primary-foreground gap-2"
+          className="w-full sm:w-auto bg-primary hover:bg-primary/90 text-primary-foreground gap-2"
         >
           <Plus size={20} />
           Add Material
         </Button>
       </div>
 
-      <div className="flex gap-2 border-b">
+      <div className="flex gap-2 border-b overflow-x-auto">
         <button
           onClick={() => setActiveTab("inventory")}
-          className={`px-6 py-3 font-medium transition-colors ${
+          className={`px-4 md:px-6 py-3 font-medium transition-colors whitespace-nowrap ${
             activeTab === "inventory"
               ? "text-primary border-b-2 border-primary"
               : "text-foreground/60 hover:text-foreground"
@@ -130,7 +130,7 @@ export default function RawMaterialsPage() {
         </button>
         <button
           onClick={() => setActiveTab("history")}
-          className={`px-6 py-3 font-medium transition-colors flex items-center gap-2 ${
+          className={`px-4 md:px-6 py-3 font-medium transition-colors flex items-center gap-2 whitespace-nowrap ${
             activeTab === "history"
               ? "text-primary border-b-2 border-primary"
               : "text-foreground/60 hover:text-foreground"
@@ -159,7 +159,7 @@ export default function RawMaterialsPage() {
               autoFocus
             />
           </div>
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
               <label className="block text-sm font-medium text-foreground mb-2">Quantity *</label>
               <Input
@@ -196,18 +196,18 @@ export default function RawMaterialsPage() {
               onChange={(e) => setFormData({ ...formData, supplier: e.target.value })}
             />
           </div>
-          <div className="flex gap-3 pt-4">
+          <div className="flex flex-col sm:flex-row gap-3 pt-4">
             <Button
               type="button"
               onClick={() => {
                 setIsModalOpen(false)
                 setFormData({ name: "", quantity: "", unit: "", costPerUnit: "", supplier: "" })
               }}
-              className="flex-1 bg-secondary hover:bg-secondary/80 text-foreground"
+              className="sm:flex-1 bg-secondary hover:bg-secondary/80 text-foreground"
             >
               Cancel
             </Button>
-            <Button type="submit" className="flex-1 bg-primary hover:bg-primary/90 text-primary-foreground">
+            <Button type="submit" className="sm:flex-1 bg-primary hover:bg-primary/90 text-primary-foreground">
               Add Material
             </Button>
           </div>
@@ -215,31 +215,31 @@ export default function RawMaterialsPage() {
       </ModalOverlay>
 
       {activeTab === "inventory" && (
-        <Card className="p-6">
-          <h2 className="text-xl font-bold text-foreground mb-6">Materials Inventory</h2>
-          <div className="overflow-x-auto">
-            <table className="w-full">
+        <Card className="p-4 md:p-6">
+          <h2 className="text-lg md:text-xl font-bold text-foreground mb-4 md:mb-6">Materials Inventory</h2>
+          <div className="overflow-x-auto -mx-4 md:mx-0">
+            <table className="w-full min-w-max md:min-w-full">
               <thead>
                 <tr className="border-b">
-                  <th className="text-left py-3 px-4 text-sm font-semibold text-foreground">Name</th>
-                  <th className="text-left py-3 px-4 text-sm font-semibold text-foreground">Quantity</th>
-                  <th className="text-left py-3 px-4 text-sm font-semibold text-foreground">Unit</th>
-                  <th className="text-left py-3 px-4 text-sm font-semibold text-foreground">Cost Per Unit</th>
-                  <th className="text-left py-3 px-4 text-sm font-semibold text-foreground">Total Value</th>
-                  <th className="text-left py-3 px-4 text-sm font-semibold text-foreground">Actions</th>
+                  <th className="text-left py-3 px-4 text-xs md:text-sm font-semibold text-foreground">Name</th>
+                  <th className="text-left py-3 px-4 text-xs md:text-sm font-semibold text-foreground">Qty</th>
+                  <th className="text-left py-3 px-4 text-xs md:text-sm font-semibold text-foreground">Unit</th>
+                  <th className="text-left py-3 px-4 text-xs md:text-sm font-semibold text-foreground">Cost/Unit</th>
+                  <th className="text-left py-3 px-4 text-xs md:text-sm font-semibold text-foreground">Total</th>
+                  <th className="text-left py-3 px-4 text-xs md:text-sm font-semibold text-foreground">Actions</th>
                 </tr>
               </thead>
               <tbody>
                 {materials.map((material) => (
                   <tr key={material.id} className="border-b hover:bg-secondary/50 transition-colors">
-                    <td className="py-3 px-4 text-sm">{material.name}</td>
-                    <td className="py-3 px-4 text-sm">{material.quantity}</td>
-                    <td className="py-3 px-4 text-sm">{material.unit}</td>
-                    <td className="py-3 px-4 text-sm">${material.costPerUnit.toFixed(2)}</td>
-                    <td className="py-3 px-4 text-sm font-semibold text-primary">
+                    <td className="py-3 px-4 text-xs md:text-sm">{material.name}</td>
+                    <td className="py-3 px-4 text-xs md:text-sm">{material.quantity}</td>
+                    <td className="py-3 px-4 text-xs md:text-sm">{material.unit}</td>
+                    <td className="py-3 px-4 text-xs md:text-sm">${material.costPerUnit.toFixed(2)}</td>
+                    <td className="py-3 px-4 text-xs md:text-sm font-semibold text-primary">
                       ${(material.quantity * material.costPerUnit).toFixed(2)}
                     </td>
-                    <td className="py-3 px-4 text-sm">
+                    <td className="py-3 px-4 text-xs md:text-sm">
                       <button
                         onClick={() => handleDelete(material.id)}
                         className="inline-flex items-center gap-1 text-red-600 hover:text-red-700 transition-colors"
@@ -256,31 +256,33 @@ export default function RawMaterialsPage() {
       )}
 
       {activeTab === "history" && (
-        <Card className="p-6">
-          <h2 className="text-xl font-bold text-foreground mb-6">Purchase History</h2>
-          <div className="overflow-x-auto">
-            <table className="w-full">
+        <Card className="p-4 md:p-6">
+          <h2 className="text-lg md:text-xl font-bold text-foreground mb-4 md:mb-6">Purchase History</h2>
+          <div className="overflow-x-auto -mx-4 md:mx-0">
+            <table className="w-full min-w-max md:min-w-full">
               <thead>
                 <tr className="border-b">
-                  <th className="text-left py-3 px-4 text-sm font-semibold text-foreground">Material</th>
-                  <th className="text-left py-3 px-4 text-sm font-semibold text-foreground">Quantity</th>
-                  <th className="text-left py-3 px-4 text-sm font-semibold text-foreground">Unit</th>
-                  <th className="text-left py-3 px-4 text-sm font-semibold text-foreground">Cost Per Unit</th>
-                  <th className="text-left py-3 px-4 text-sm font-semibold text-foreground">Total Cost</th>
-                  <th className="text-left py-3 px-4 text-sm font-semibold text-foreground">Supplier</th>
-                  <th className="text-left py-3 px-4 text-sm font-semibold text-foreground">Date</th>
+                  <th className="text-left py-3 px-4 text-xs md:text-sm font-semibold text-foreground">Material</th>
+                  <th className="text-left py-3 px-4 text-xs md:text-sm font-semibold text-foreground">Qty</th>
+                  <th className="text-left py-3 px-4 text-xs md:text-sm font-semibold text-foreground">Unit</th>
+                  <th className="text-left py-3 px-4 text-xs md:text-sm font-semibold text-foreground">Cost/Unit</th>
+                  <th className="text-left py-3 px-4 text-xs md:text-sm font-semibold text-foreground">Total</th>
+                  <th className="text-left py-3 px-4 text-xs md:text-sm font-semibold text-foreground">Supplier</th>
+                  <th className="text-left py-3 px-4 text-xs md:text-sm font-semibold text-foreground">Date</th>
                 </tr>
               </thead>
               <tbody>
                 {purchaseHistory.map((entry) => (
                   <tr key={entry.id} className="border-b hover:bg-secondary/50 transition-colors">
-                    <td className="py-3 px-4 text-sm font-medium">{entry.material}</td>
-                    <td className="py-3 px-4 text-sm">{entry.quantity}</td>
-                    <td className="py-3 px-4 text-sm">{entry.unit}</td>
-                    <td className="py-3 px-4 text-sm">${entry.costPerUnit.toFixed(2)}</td>
-                    <td className="py-3 px-4 text-sm font-semibold text-primary">${entry.totalCost.toFixed(2)}</td>
-                    <td className="py-3 px-4 text-sm text-foreground/70">{entry.supplier}</td>
-                    <td className="py-3 px-4 text-sm">{entry.date}</td>
+                    <td className="py-3 px-4 text-xs md:text-sm font-medium">{entry.material}</td>
+                    <td className="py-3 px-4 text-xs md:text-sm">{entry.quantity}</td>
+                    <td className="py-3 px-4 text-xs md:text-sm">{entry.unit}</td>
+                    <td className="py-3 px-4 text-xs md:text-sm">${entry.costPerUnit.toFixed(2)}</td>
+                    <td className="py-3 px-4 text-xs md:text-sm font-semibold text-primary">
+                      ${entry.totalCost.toFixed(2)}
+                    </td>
+                    <td className="py-3 px-4 text-xs md:text-sm text-foreground/70">{entry.supplier}</td>
+                    <td className="py-3 px-4 text-xs md:text-sm">{entry.date}</td>
                   </tr>
                 ))}
               </tbody>
