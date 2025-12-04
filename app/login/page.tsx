@@ -103,7 +103,7 @@ export default function LoginPage() {
               Email: <span className="font-mono text-xs">admin@gmail.com</span>
             </p>
             <p className="truncate">
-              Password: <span className="font-mono text-xs">admin</span>
+              Password: <span className="font-mono text-xs">admin  ;</span>
             </p>
           </div>
         </div>
