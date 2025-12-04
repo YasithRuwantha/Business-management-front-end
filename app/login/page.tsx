@@ -7,6 +7,8 @@ import { useRouter } from "next/navigation"
 import { Card } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
+import { useAuth } from "@/lib/auth-context"
+
 
 export default function LoginPage() {
   const [email, setEmail] = useState("")
@@ -14,6 +16,8 @@ export default function LoginPage() {
   const [error, setError] = useState("")
   const [isLoading, setIsLoading] = useState(false)
   const router = useRouter()
+
+  const { login } = useAuth();
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault()
@@ -32,6 +36,20 @@ export default function LoginPage() {
     }, 500)
   }
 
+  const handleSubmit = async (e : any) => {
+    e.preventDefault();
+    setError("");
+    setIsLoading(true);
+
+    try {
+      await login(email, password);
+    } catch (err) {
+      setError(error || "Invalid credentials");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
       <Card className="w-full max-w-md shadow-lg">
@@ -41,7 +59,7 @@ export default function LoginPage() {
             <p className="text-sm md:text-base text-gray-600 mt-2">Sign in to your account</p>
           </div>
 
-          <form onSubmit={handleLogin} className="space-y-4 md:space-y-5">
+          <form onSubmit={handleSubmit} className="space-y-4 md:space-y-5">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">Email</label>
               <Input
@@ -85,7 +103,6 @@ export default function LoginPage() {
               Email: <span className="font-mono text-xs">admin@gmail.com</span>
             </p>
             <p className="truncate">
-              Password: <span className="font-mono text-xs">pw-admin</span>
               Password: <span className="font-mono text-xs">admin  ;</span>
             </p>
           </div>
