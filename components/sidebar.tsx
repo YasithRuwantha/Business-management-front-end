@@ -23,6 +23,7 @@ const menuItems = [
   { label: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
   { label: "Customers", href: "/dashboard/customers", icon: Users },
   { label: "Raw Materials", href: "/dashboard/raw-materials", icon: Layers },
+  { label: "Raw Materials Type", href: "/dashboard/raw-materials-type", icon: Layers},
   { label: "Products", href: "/dashboard/products", icon: Package },
   { label: "Production", href: "/dashboard/production", icon: Zap },
   { label: "Sales", href: "/dashboard/sales", icon: ShoppingCart },
