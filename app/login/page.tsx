@@ -86,6 +86,7 @@ export default function LoginPage() {
             </p>
             <p className="truncate">
               Password: <span className="font-mono text-xs">pw-admin</span>
+              Password: <span className="font-mono text-xs">admin  ;</span>
             </p>
           </div>
         </div>
