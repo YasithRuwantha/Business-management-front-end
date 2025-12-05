@@ -4,7 +4,7 @@ import { useState } from "react"
 import { Card } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
-import { Trash2, Plus } from "lucide-react"
+import { Trash2, Plus, Edit } from "lucide-react"
 import { ModalOverlay } from "@/components/modal-overlay"
 import { useRawMaterialTypes } from "@/lib/raw-material-type-context"
 
@@ -21,31 +21,51 @@ export default function RawMaterialTypesPage() {
     const [typeName, setTypeName] = useState("")
     const [typeUnit, setTypeUnit] = useState("")
     const [typeUnitCost, setTypeUnitCost] = useState("")
+    const [editingTypeId, setEditingTypeId] = useState<string | null>(null);
 
 
-    const handleAddType = async (e: React.FormEvent) => {
-        e.preventDefault()
+    const handleSubmitType = async (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!typeName.trim()) return;
 
-        if (!typeName.trim()) return
-
-        const newType = {
+        const typeData = {
             name: typeName.trim(),
             unit: typeUnit,
-            unitCost: Number(typeUnitCost)
+            unitCost: Number(typeUnitCost),
+        };
+
+        if (editingTypeId) {
+            // Update existing type
+            await updateType(editingTypeId, typeData);
+        } else {
+            // Create new type
+            await createType(typeData);
         }
 
-        await createType(newType)
-        
+        // Reset form
         setTypeName("");
         setTypeUnit("");
         setTypeUnitCost("");
+        setEditingTypeId(null);
+        setIsModalOpen(false);
+    };
 
-        setIsModalOpen(false)
-    }
+    const handleOpenEditModal = (type: any) => {
+        setEditingTypeId(type._id);
+        setTypeName(type.name);
+        setTypeUnit(type.unit);
+        setTypeUnitCost(String(type.unitCost));
+        setIsModalOpen(true);
+    };
+
 
     const handleDeleteType = async (id: string) => {
         await deleteType(id);
     };
+
+    const handleUpdateType = async (id: string) => {
+
+    }
 
     return (
         <div className="p-4 md:p-8 space-y-8">
@@ -68,7 +88,7 @@ export default function RawMaterialTypesPage() {
                 onClose={() => setIsModalOpen(false)}
                 title="Add New Material Type"
             >
-                <form onSubmit={handleAddType} className="space-y-4">
+                <form onSubmit={handleSubmitType} className="space-y-4">
                     {/* Type Name */}
                     <div>
                         <label className="text-sm font-medium text-foreground mb-2 block">Type Name *</label>
@@ -138,12 +158,18 @@ export default function RawMaterialTypesPage() {
                                 <td className="py-3 px-4 text-xs md:text-sm">{type.name}</td>
                                 <td className="py-3 px-4 text-xs md:text-sm">{type.unit}</td>
                                 {/* <td className="py-3 px-4 text-xs md:text-sm">{type.unitCost}</td> */}
-                                <td className="py-3 px-4">
+                                <td className="py-3 px-4 space-x-5">
                                     <button
-                                    onClick={() => handleDeleteType(type._id)}
-                                    className="text-red-600 hover:text-red-700 inline-flex items-center gap-1"
+                                        onClick={() => handleDeleteType(type._id)}
+                                        className="text-red-600 hover:text-red-700 inline-flex items-center gap-1"
                                     >
-                                    <Trash2 size={16} />
+                                        <Trash2 size={16} />
+                                    </button>
+                                    <button
+                                        onClick={() => handleOpenEditModal(type)}
+                                        className="inline-flex items-center gap-1"
+                                    >
+                                        <Edit size={16} />
                                     </button>
                                 </td>
                             </tr>
