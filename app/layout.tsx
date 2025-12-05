@@ -4,9 +4,12 @@ import { Geist, Geist_Mono } from "next/font/google"
 import { Analytics } from "@vercel/analytics/next"
 import "./globals.css"
 import { AuthProvider } from "@/lib/auth-context"
+import { RawMaterialTypeProvider } from "@/lib/raw-material-type-context"
 
 const _geist = Geist({ subsets: ["latin"] })
 const _geistMono = Geist_Mono({ subsets: ["latin"] })
+
+
 
 export const metadata: Metadata = {
   title: "Business Management System",
@@ -40,7 +43,9 @@ export default function RootLayout({
     <html lang="en">
       <body className={`font-sans antialiased`}>
         <AuthProvider>
+          <RawMaterialTypeProvider>
           {children}
+          </RawMaterialTypeProvider>
         </AuthProvider>
         <Analytics />
       </body>
