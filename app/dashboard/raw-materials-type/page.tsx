@@ -8,12 +8,6 @@ import { Trash2, Plus, Edit } from "lucide-react"
 import { ModalOverlay } from "@/components/modal-overlay"
 import { useRawMaterialTypes } from "@/lib/raw-material-type-context"
 
-const initialTypes = [
-  { id: 1, name: "Powder", unit: "Kg", unitCost: "Rs.21.00" },
-  { id: 2, name: "Liquid", unit: "Kg", unitCost: "Rs.21.00" },
-  { id: 3, name: "Chemical", unit: "Kg", unitCost: "Rs.21.00" },
-  { id: 4, name: "Packaging Material", unit: "Kg", unitCost: "Rs.21.00" },
-]
 
 export default function RawMaterialTypesPage() {
     const { types, createType, deleteType, updateType } = useRawMaterialTypes();
