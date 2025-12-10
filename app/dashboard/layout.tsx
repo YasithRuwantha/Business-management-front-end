@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation"
 import { useEffect, useState } from "react"
 import Sidebar from "@/components/sidebar"
 import { Menu, X } from "lucide-react"
+import { CustomersProvider } from "@/lib/customers-context"
 
 export default function DashboardLayout({
   children,
@@ -30,6 +31,7 @@ export default function DashboardLayout({
   }
 
   return (
+    <CustomersProvider>
     <div className="flex h-screen bg-background md:flex-row flex-col">
       {/* Mobile sidebar toggle */}
       <div className="md:hidden fixed top-0 left-0 right-0 bg-card border-b border-border p-4 flex items-center justify-between z-50">
@@ -59,5 +61,6 @@ export default function DashboardLayout({
       {/* Main content */}
       <main className="flex-1 overflow-auto mt-16 md:mt-0">{children}</main>
     </div>
+    </CustomersProvider>
   )
 }
