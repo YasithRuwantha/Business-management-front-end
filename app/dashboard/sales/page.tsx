@@ -1,11 +1,12 @@
 "use client"
 
-import type React from "react"
-import { useState } from "react"
+import React, { useState, useEffect } from "react"
 import { Card } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Trash2, Eye, X, Plus } from "lucide-react"
+import { useCustomers } from "@/lib/customers-context"
+import { useSales } from "@/lib/sales-context"
 
 interface OrderItem {
   product: string
@@ -14,102 +15,87 @@ interface OrderItem {
   total: number
 }
 
-interface Sale {
-  id: number
-  customer: string
+type UISale = {
+  id: string
+  customerName: string
   items: OrderItem[]
   totalAmount: number
   date: string
+  note?: string
 }
 
-const initialSales: Sale[] = [
-  {
-    id: 1,
-    customer: "John Doe",
-    items: [
-      { product: "Bread", quantity: 10, price: 3.5, total: 35.0 },
-      { product: "Cookies", quantity: 5, price: 4.0, total: 20.0 },
-    ],
-    totalAmount: 55.0,
-    date: "2024-11-20",
-  },
-  {
-    id: 2,
-    customer: "Jane Smith",
-    items: [{ product: "Cake", quantity: 2, price: 8.0, total: 16.0 }],
-    totalAmount: 16.0,
-    date: "2024-11-20",
-  },
-]
+const initialSales: UISale[] = []
 
 export default function SalesPage() {
-  const [sales, setSales] = useState<Sale[]>(initialSales)
+  const { customers } = useCustomers()
+  const { sales: salesFromCtx, loading, error, addSale } = useSales()
+  const [sales, setSales] = useState<UISale[]>(initialSales)
   const [showModal, setShowModal] = useState(false)
-  const [selectedSale, setSelectedSale] = useState<Sale | null>(null)
+  const [selectedSale, setSelectedSale] = useState<UISale | null>(null)
   const [showDetailsModal, setShowDetailsModal] = useState(false)
   const [filterPeriod, setFilterPeriod] = useState("all")
-  const [formData, setFormData] = useState({
-    customer: "",
-    items: [{ product: "", quantity: "", price: "" }],
-  })
+  const [formData, setFormData] = useState({ customerId: "", items: [{ product: "", quantity: "", price: "" }], note: "" })
+  const [confirmOpen, setConfirmOpen] = useState(false)
+  const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null)
+  const [pendingDeleteName, setPendingDeleteName] = useState<string>("")
 
-  const addItemField = () => {
-    setFormData({
-      ...formData,
-      items: [...formData.items, { product: "", quantity: "", price: "" }],
-    })
-  }
-
-  const removeItemField = (index: number) => {
-    setFormData({
-      ...formData,
-      items: formData.items.filter((_, i) => i !== index),
-    })
-  }
-
-  const updateItem = (index: number, field: string, value: string) => {
-    const newItems = [...formData.items]
-    newItems[index] = { ...newItems[index], [field]: value }
-    setFormData({ ...formData, items: newItems })
-  }
-
-  const handleAddSale = (e: React.FormEvent) => {
-    e.preventDefault()
-
-    const validItems = formData.items.filter((item) => item.product && item.quantity && item.price)
-
-    if (!formData.customer || validItems.length === 0) {
-      alert("Please fill in all required fields")
-      return
-    }
-
-    const orderItems: OrderItem[] = validItems.map((item) => ({
-      product: item.product,
-      quantity: Number.parseFloat(item.quantity),
-      price: Number.parseFloat(item.price),
-      total: Number.parseFloat(item.quantity) * Number.parseFloat(item.price),
+  // keep local UI sales in sync with context list
+  useEffect(() => {
+    const list = Array.isArray(salesFromCtx) ? salesFromCtx : []
+    const mapped = list.map((s) => ({
+      id: s.id,
+      customerName: s.customerName,
+      items: s.items,
+      totalAmount: s.totalAmount,
+      date: s.date,
+      note: s.note,
     }))
+    setSales(mapped)
+  }, [salesFromCtx])
 
-    const totalAmount = orderItems.reduce((sum, item) => sum + item.total, 0)
+  // Removed multi-item UI; replaced with simple amount and note, linked to customer
 
-    const newSale: Sale = {
-      id: sales.length + 1,
-      customer: formData.customer,
-      items: orderItems,
-      totalAmount,
-      date: new Date().toISOString().split("T")[0],
+  const handleAddSale = async (e: React.FormEvent) => {
+    e.preventDefault()
+    const validItems = formData.items.filter((i) => i.product && i.quantity && i.price)
+    if (!formData.customerId || validItems.length === 0) return
+    const items = validItems.map((i) => ({ product: i.product, quantity: Number(i.quantity), price: Number(i.price) }))
+    const created = await addSale({
+      customerId: formData.customerId,
+      items,
+      note: formData.note || undefined,
+    })
+    if (created) {
+      setShowModal(false)
+      setFormData({ customerId: "", items: [{ product: "", quantity: "", price: "" }], note: "" })
     }
-
-    setSales([...sales, newSale])
-    setFormData({ customer: "", items: [{ product: "", quantity: "", price: "" }] })
-    setShowModal(false)
   }
 
-  const handleDelete = (id: number) => {
-    setSales(sales.filter((s) => s.id !== id))
+  const openDeleteConfirm = (id: string, name: string) => {
+    setPendingDeleteId(id)
+    setPendingDeleteName(name)
+    setConfirmOpen(true)
   }
 
-  const viewDetails = (sale: Sale) => {
+  const handleDelete = async () => {
+    if (!pendingDeleteId) return
+    try {
+      const base = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:5000"
+      const res = await fetch(`${base}/api/sales/${pendingDeleteId}`, { method: "DELETE" })
+      if (!res.ok) {
+        throw new Error("Failed to delete sale")
+      }
+      setSales((prev) => prev.filter((s) => s.id !== pendingDeleteId))
+    } catch (err) {
+      console.error(err)
+    } finally {
+      setConfirmOpen(false)
+      setPendingDeleteId(null)
+      setPendingDeleteName("")
+    }
+  }
+
+  const viewDetails = (sale: UISale) => {
     setSelectedSale(sale)
     setShowDetailsModal(true)
   }
@@ -149,21 +135,27 @@ export default function SalesPage() {
 
             <form onSubmit={handleAddSale} className="p-4 md:p-6 space-y-4 md:space-y-6">
               <div>
-                <label className="block text-sm font-semibold text-foreground mb-2">Customer Name *</label>
-                <Input
-                  placeholder="Enter customer name"
-                  value={formData.customer}
-                  onChange={(e) => setFormData({ ...formData, customer: e.target.value })}
-                  className="text-base"
-                />
+                <label className="block text-sm font-semibold text-foreground mb-2">Customer *</label>
+                <select
+                  className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                  value={formData.customerId}
+                  onChange={(e) => setFormData({ ...formData, customerId: e.target.value })}
+                >
+                  <option value="">Select customer</option>
+                  {customers.map((c) => (
+                    <option key={c.id} value={c.id}>
+                      {c.name} ({c.phone})
+                    </option>
+                  ))}
+                </select>
               </div>
 
               <div className="space-y-3 md:space-y-4">
                 <div className="flex items-center justify-between">
-                  <h3 className="text-base md:text-lg font-semibold text-foreground">Order Items</h3>
+                  <h3 className="text-base md:text-lg font-semibold text-foreground">Items</h3>
                   <button
                     type="button"
-                    onClick={addItemField}
+                    onClick={() => setFormData({ ...formData, items: [...formData.items, { product: "", quantity: "", price: "" }] })}
                     className="flex items-center gap-2 text-primary hover:text-primary/80 font-medium text-sm md:text-base"
                   >
                     <Plus size={20} />
@@ -176,35 +168,59 @@ export default function SalesPage() {
                     <Input
                       placeholder="Product name"
                       value={item.product}
-                      onChange={(e) => updateItem(index, "product", e.target.value)}
+                      onChange={(e) => {
+                        const next = [...formData.items]
+                        next[index] = { ...next[index], product: e.target.value }
+                        setFormData({ ...formData, items: next })
+                      }}
                       className="sm:col-span-5 text-sm"
                     />
                     <Input
                       type="number"
                       placeholder="Qty"
                       value={item.quantity}
-                      onChange={(e) => updateItem(index, "quantity", e.target.value)}
-                      className="sm:col-span-3 sm:col-span-2 text-sm"
+                      onChange={(e) => {
+                        const next = [...formData.items]
+                        next[index] = { ...next[index], quantity: e.target.value }
+                        setFormData({ ...formData, items: next })
+                      }}
+                      className="sm:col-span-3 text-sm"
                     />
                     <Input
                       type="number"
                       step="0.01"
                       placeholder="Price"
                       value={item.price}
-                      onChange={(e) => updateItem(index, "price", e.target.value)}
+                      onChange={(e) => {
+                        const next = [...formData.items]
+                        next[index] = { ...next[index], price: e.target.value }
+                        setFormData({ ...formData, items: next })
+                      }}
                       className="sm:col-span-3 text-sm"
                     />
                     {formData.items.length > 1 && (
                       <button
                         type="button"
-                        onClick={() => removeItemField(index)}
-                        className="sm:col-span-2 flex justify-center sm:justify-end text-red-600 hover:text-red-700 transition-colors"
+                        onClick={() => {
+                          const next = formData.items.filter((_, i) => i !== index)
+                          setFormData({ ...formData, items: next })
+                        }}
+                        className="sm:col-span-1 flex justify-center sm:justify-end text-red-600 hover:text-red-700 transition-colors"
                       >
                         <Trash2 size={18} />
                       </button>
                     )}
                   </div>
                 ))}
+
+                <div>
+                  <label className="block text-sm font-semibold text-foreground mb-2">Note</label>
+                  <Input
+                    placeholder="Optional note"
+                    value={formData.note}
+                    onChange={(e) => setFormData({ ...formData, note: e.target.value })}
+                  />
+                </div>
               </div>
 
               <div className="flex flex-col sm:flex-row gap-3 pt-2 md:pt-4">
@@ -245,17 +261,24 @@ export default function SalesPage() {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-6">
                 <div>
                   <p className="text-xs md:text-sm text-muted-foreground">Order ID</p>
-                  <p className="text-lg md:text-xl font-semibold text-foreground">#{selectedSale.id}</p>
+                  <p className="text-lg md:text-xl font-semibold text-foreground">
+                    #{(() => {
+                      const idx = sales.findIndex((s) => s.id === selectedSale.id)
+                      return idx >= 0 ? sales.length - idx : "-"
+                    })()}
+                  </p>
                 </div>
                 <div>
-                  <p className="text-xs md:text-sm text-muted-foreground">Date</p>
-                  <p className="text-lg md:text-xl font-semibold text-foreground">{selectedSale.date}</p>
+                  <p className="text-xs md:text-sm text-muted-foreground">Date/Time</p>
+                  <p className="text-lg md:text-xl font-semibold text-foreground">
+                    {new Date(selectedSale.date).toLocaleString()}
+                  </p>
                 </div>
               </div>
 
               <div>
                 <p className="text-xs md:text-sm text-muted-foreground">Customer</p>
-                <p className="text-lg md:text-xl font-semibold text-foreground">{selectedSale.customer}</p>
+                <p className="text-lg md:text-xl font-semibold text-foreground">{selectedSale.customerName}</p>
               </div>
 
               <div>
@@ -336,22 +359,20 @@ export default function SalesPage() {
               <tr className="border-b">
                 <th className="text-left py-2 md:py-3 px-2 md:px-4 font-semibold text-foreground">ID</th>
                 <th className="text-left py-2 md:py-3 px-2 md:px-4 font-semibold text-foreground">Customer</th>
-                <th className="text-left py-2 md:py-3 px-2 md:px-4 font-semibold text-foreground">Items</th>
                 <th className="text-left py-2 md:py-3 px-2 md:px-4 font-semibold text-foreground">Amount</th>
-                <th className="text-left py-2 md:py-3 px-2 md:px-4 font-semibold text-foreground">Date</th>
+                <th className="text-left py-2 md:py-3 px-2 md:px-4 font-semibold text-foreground">Date/Time</th>
                 <th className="text-left py-2 md:py-3 px-2 md:px-4 font-semibold text-foreground">Actions</th>
               </tr>
             </thead>
             <tbody>
-              {sales.map((sale) => (
+              {sales.map((sale, idx) => (
                 <tr key={sale.id} className="border-b hover:bg-secondary transition-colors">
-                  <td className="py-2 md:py-3 px-2 md:px-4 font-semibold text-primary">#{sale.id}</td>
-                  <td className="py-2 md:py-3 px-2 md:px-4 font-medium">{sale.customer}</td>
-                  <td className="py-2 md:py-3 px-2 md:px-4">{sale.items.length} item(s)</td>
+                  <td className="py-2 md:py-3 px-2 md:px-4 font-semibold text-primary">#{sales.length - idx}</td>
+                  <td className="py-2 md:py-3 px-2 md:px-4 font-medium">{sale.customerName}</td>
                   <td className="py-2 md:py-3 px-2 md:px-4 font-semibold text-green-600">
                     ${sale.totalAmount.toFixed(2)}
                   </td>
-                  <td className="py-2 md:py-3 px-2 md:px-4 text-muted-foreground">{sale.date}</td>
+                  <td className="py-2 md:py-3 px-2 md:px-4 text-muted-foreground">{new Date(sale.date).toLocaleString()}</td>
                   <td className="py-2 md:py-3 px-2 md:px-4">
                     <div className="flex gap-1 md:gap-2">
                       <button
@@ -362,7 +383,7 @@ export default function SalesPage() {
                         <span className="hidden sm:inline">View</span>
                       </button>
                       <button
-                        onClick={() => handleDelete(sale.id)}
+                        onClick={() => openDeleteConfirm(sale.id, sale.customerName)}
                         className="inline-flex items-center gap-1 text-red-600 hover:text-red-700 transition-colors"
                       >
                         <Trash2 size={16} />
@@ -375,6 +396,42 @@ export default function SalesPage() {
           </table>
         </div>
       </Card>
+
+      {/* Delete confirmation modal */}
+      {confirmOpen && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-3 md:p-4">
+          <Card className="w-full max-w-md shadow-2xl">
+            <div className="p-4 md:p-6 border-b bg-card">
+              <h2 className="text-lg md:text-xl font-bold text-foreground">Delete Sale</h2>
+            </div>
+            <div className="p-4 md:p-6 space-y-4">
+              <p className="text-sm text-foreground">
+                Are you sure you want to delete <span className="font-semibold">{pendingDeleteName}</span>? This action cannot be undone.
+              </p>
+              <div className="flex flex-col sm:flex-row gap-3 pt-2">
+                <Button
+                  type="button"
+                  onClick={() => {
+                    setConfirmOpen(false)
+                    setPendingDeleteId(null)
+                    setPendingDeleteName("")
+                  }}
+                  className="sm:flex-1 bg-secondary hover:bg-secondary/80 text-foreground"
+                >
+                  Cancel
+                </Button>
+                <Button
+                  type="button"
+                  onClick={handleDelete}
+                  className="sm:flex-1 bg-red-600 hover:bg-red-700 text-white"
+                >
+                  Delete
+                </Button>
+              </div>
+            </div>
+          </Card>
+        </div>
+      )}
     </div>
   )
 }
