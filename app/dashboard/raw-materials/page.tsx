@@ -1,7 +1,6 @@
 "use client"
 
 import type React from "react"
-
 import { useState } from "react"
 import { Card } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -9,100 +8,38 @@ import { Button } from "@/components/ui/button"
 import { Trash2, Plus, History } from "lucide-react"
 import { ModalOverlay } from "@/components/modal-overlay"
 
-const initialMaterials = [
-  { id: 1, name: "Flour", quantity: 100, unit: "kg", costPerUnit: 2.5 },
-  { id: 2, name: "Sugar", quantity: 50, unit: "kg", costPerUnit: 1.8 },
-  { id: 3, name: "Butter", quantity: 30, unit: "kg", costPerUnit: 6.5 },
-  { id: 4, name: "Eggs", quantity: 500, unit: "pieces", costPerUnit: 0.3 },
-]
-
-const initialPurchaseHistory = [
-  {
-    id: 1,
-    materialId: 1,
-    material: "Flour",
-    quantity: 50,
-    unit: "kg",
-    costPerUnit: 2.5,
-    totalCost: 125,
-    date: "2024-11-20",
-    supplier: "Quality Mills",
-  },
-  {
-    id: 2,
-    materialId: 2,
-    material: "Sugar",
-    quantity: 30,
-    unit: "kg",
-    costPerUnit: 1.8,
-    totalCost: 54,
-    date: "2024-11-18",
-    supplier: "Sweet Suppliers",
-  },
-  {
-    id: 3,
-    materialId: 1,
-    material: "Flour",
-    quantity: 50,
-    unit: "kg",
-    costPerUnit: 2.5,
-    totalCost: 125,
-    date: "2024-11-15",
-    supplier: "Quality Mills",
-  },
-  {
-    id: 4,
-    materialId: 3,
-    material: "Butter",
-    quantity: 20,
-    unit: "kg",
-    costPerUnit: 6.5,
-    totalCost: 130,
-    date: "2024-11-10",
-    supplier: "Dairy Fresh",
-  },
-]
+import { useRawMaterials } from "@/lib/raw-material-context"
+import { useRawMaterialTypes } from "@/lib/raw-material-type-context"
 
 export default function RawMaterialsPage() {
   const [activeTab, setActiveTab] = useState("inventory")
-  const [materials, setMaterials] = useState(initialMaterials)
-  const [purchaseHistory, setPurchaseHistory] = useState(initialPurchaseHistory)
   const [isModalOpen, setIsModalOpen] = useState(false)
-  const [formData, setFormData] = useState({ name: "", quantity: "", unit: "", costPerUnit: "", supplier: "" })
+  const [formData, setFormData] = useState({ name: "", quantity: "", unit: "" })
 
-  const handleAddMaterial = (e: React.FormEvent) => {
+  const { materials, purchaseHistory, addMaterial, removeMaterial, loading } = useRawMaterials()
+  const { types } = useRawMaterialTypes()
+
+  const handleAddMaterial = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (formData.name && formData.quantity && formData.unit && formData.costPerUnit) {
-      const newMaterial = {
-        id: materials.length + 1,
-        name: formData.name,
-        quantity: Number.parseFloat(formData.quantity),
-        unit: formData.unit,
-        costPerUnit: Number.parseFloat(formData.costPerUnit),
-      }
-      setMaterials([...materials, newMaterial])
+    const selectedType = types.find((t) => t.name === formData.name)
+    if (!selectedType) return
 
-      const historyEntry = {
-        id: purchaseHistory.length + 1,
-        materialId: newMaterial.id,
-        material: formData.name,
-        quantity: Number.parseFloat(formData.quantity),
-        unit: formData.unit,
-        costPerUnit: Number.parseFloat(formData.costPerUnit),
-        totalCost: Number.parseFloat(formData.quantity) * Number.parseFloat(formData.costPerUnit),
-        date: new Date().toISOString().split("T")[0],
-        supplier: formData.supplier || "Direct Purchase",
-      }
-      setPurchaseHistory([...purchaseHistory, historyEntry])
+    await addMaterial({
+      name: formData.name,
+      quantity: Number(formData.quantity),
+      unit: selectedType.unit,
+      costPerUnit: selectedType.unitCost,
+    })
 
-      setFormData({ name: "", quantity: "", unit: "", costPerUnit: "", supplier: "" })
-      setIsModalOpen(false)
-    }
+    setFormData({ name: "", quantity: "", unit: "" })
+    setIsModalOpen(false)
   }
 
-  const handleDelete = (id: number) => {
-    setMaterials(materials.filter((m) => m.id !== id))
+  const handleDelete = async (id: string) => {
+    await removeMaterial(id)
   }
+
+  if (loading) return <p className="p-6 text-lg">Loading materials...</p>
 
   return (
     <div className="p-4 md:p-8 space-y-6 md:space-y-8">
@@ -145,7 +82,7 @@ export default function RawMaterialsPage() {
         isOpen={isModalOpen}
         onClose={() => {
           setIsModalOpen(false)
-          setFormData({ name: "", quantity: "", unit: "", costPerUnit: "", supplier: "" })
+          setFormData({ name: "", quantity: "", unit: "" })
         }}
         title="Add New Raw Material"
       >
@@ -153,12 +90,19 @@ export default function RawMaterialsPage() {
           <div>
             <label className="block text-sm font-medium text-foreground mb-2">Material Name *</label>
             <Input
-              placeholder="Material name"
+              placeholder="Select type"
+              list="material-types"
               value={formData.name}
               onChange={(e) => setFormData({ ...formData, name: e.target.value })}
               autoFocus
             />
+            <datalist id="material-types">
+              {types.map((t) => (
+                <option key={t._id} value={t.name} />
+              ))}
+            </datalist>
           </div>
+
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
               <label className="block text-sm font-medium text-foreground mb-2">Quantity *</label>
@@ -170,38 +114,17 @@ export default function RawMaterialsPage() {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-foreground mb-2">Unit *</label>
-              <Input
-                placeholder="kg, L, etc."
-                value={formData.unit}
-                onChange={(e) => setFormData({ ...formData, unit: e.target.value })}
-              />
+              <label className="block text-sm font-medium text-foreground mb-2">Unit</label>
+              <Input value={types.find((t) => t.name === formData.name)?.unit || ""} disabled />
             </div>
           </div>
-          <div>
-            <label className="block text-sm font-medium text-foreground mb-2">Cost Per Unit *</label>
-            <Input
-              type="number"
-              placeholder="0.00"
-              step="0.01"
-              value={formData.costPerUnit}
-              onChange={(e) => setFormData({ ...formData, costPerUnit: e.target.value })}
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-foreground mb-2">Supplier</label>
-            <Input
-              placeholder="Supplier name (optional)"
-              value={formData.supplier}
-              onChange={(e) => setFormData({ ...formData, supplier: e.target.value })}
-            />
-          </div>
+
           <div className="flex flex-col sm:flex-row gap-3 pt-4">
             <Button
               type="button"
               onClick={() => {
                 setIsModalOpen(false)
-                setFormData({ name: "", quantity: "", unit: "", costPerUnit: "", supplier: "" })
+                setFormData({ name: "", quantity: "", unit: "" })
               }}
               className="sm:flex-1 bg-secondary hover:bg-secondary/80 text-foreground"
             >
@@ -231,17 +154,17 @@ export default function RawMaterialsPage() {
               </thead>
               <tbody>
                 {materials.map((material) => (
-                  <tr key={material.id} className="border-b hover:bg-secondary/50 transition-colors">
+                  <tr key={material._id} className="border-b hover:bg-secondary/50 transition-colors">
                     <td className="py-3 px-4 text-xs md:text-sm">{material.name}</td>
                     <td className="py-3 px-4 text-xs md:text-sm">{material.quantity}</td>
                     <td className="py-3 px-4 text-xs md:text-sm">{material.unit}</td>
-                    <td className="py-3 px-4 text-xs md:text-sm">${material.costPerUnit.toFixed(2)}</td>
+                    <td className="py-3 px-4 text-xs md:text-sm">${material.costPerUnit}</td>
                     <td className="py-3 px-4 text-xs md:text-sm font-semibold text-primary">
                       ${(material.quantity * material.costPerUnit).toFixed(2)}
                     </td>
                     <td className="py-3 px-4 text-xs md:text-sm">
                       <button
-                        onClick={() => handleDelete(material.id)}
+                        onClick={() => handleDelete(material._id)}
                         className="inline-flex items-center gap-1 text-red-600 hover:text-red-700 transition-colors"
                       >
                         <Trash2 size={16} />
@@ -267,21 +190,19 @@ export default function RawMaterialsPage() {
                   <th className="text-left py-3 px-4 text-xs md:text-sm font-semibold text-foreground">Unit</th>
                   <th className="text-left py-3 px-4 text-xs md:text-sm font-semibold text-foreground">Cost/Unit</th>
                   <th className="text-left py-3 px-4 text-xs md:text-sm font-semibold text-foreground">Total</th>
-                  <th className="text-left py-3 px-4 text-xs md:text-sm font-semibold text-foreground">Supplier</th>
                   <th className="text-left py-3 px-4 text-xs md:text-sm font-semibold text-foreground">Date</th>
                 </tr>
               </thead>
               <tbody>
                 {purchaseHistory.map((entry) => (
-                  <tr key={entry.id} className="border-b hover:bg-secondary/50 transition-colors">
+                  <tr key={entry._id} className="border-b hover:bg-secondary/50 transition-colors">
                     <td className="py-3 px-4 text-xs md:text-sm font-medium">{entry.material}</td>
                     <td className="py-3 px-4 text-xs md:text-sm">{entry.quantity}</td>
                     <td className="py-3 px-4 text-xs md:text-sm">{entry.unit}</td>
                     <td className="py-3 px-4 text-xs md:text-sm">${entry.costPerUnit.toFixed(2)}</td>
                     <td className="py-3 px-4 text-xs md:text-sm font-semibold text-primary">
-                      ${entry.totalCost.toFixed(2)}
+                      ${(entry.quantity * entry.costPerUnit).toFixed(2)}
                     </td>
-                    <td className="py-3 px-4 text-xs md:text-sm text-foreground/70">{entry.supplier}</td>
                     <td className="py-3 px-4 text-xs md:text-sm">{entry.date}</td>
                   </tr>
                 ))}
