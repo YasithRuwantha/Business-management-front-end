@@ -23,6 +23,9 @@ interface AuthContextType {
 // Create context with proper type (default value can be empty but typed)
 const AuthContext = createContext<AuthContextType>({} as AuthContextType);
 
+const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
+
+
 export const useAuth = () => useContext(AuthContext);
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
@@ -40,7 +43,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       }
 
       try {
-        const res = await fetch("http://localhost:5000/api/auth/profile", {
+        const res = await fetch(`${backendUrl}/api/auth/profile`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -64,7 +67,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   }, []);
 
   const login = async (email: string, password: string) => {
-    const res = await fetch("http://localhost:5000/api/auth/login", {
+    const res = await fetch(`${backendUrl}/api/auth/login`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       credentials: "include", // if you later switch to cookies
@@ -85,7 +88,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const register = async (formData: any) => {
-    const res = await fetch("http://localhost:5000/api/auth/register", {
+    const res = await fetch(`${backendUrl}/api/auth/register`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(formData),
@@ -124,4 +127,3 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };
 
-// sdsd?
