@@ -26,7 +26,7 @@ interface RawMaterialContextType {
   error: string | null;
 
   fetchMaterials: () => Promise<void>;
-  createMaterial: (data: any) => Promise<void>;
+  addMaterial: (data: any) => Promise<void>;
   updateMaterial: (id: string, data: any) => Promise<void>;
   deleteMaterial: (id: string) => Promise<void>;
 }
@@ -79,8 +79,9 @@ export const RawMaterialProvider = ({ children }: { children: ReactNode }) => {
   // ===============================
   // 📌 API: CREATE
   // ===============================
-  const createMaterial = async (formData: any) => {
-    try {
+  const addMaterial = async (formData: any) => {
+    console.log("addRawMaterial Runned :", formData)
+    try { 
       const res = await fetch(`${backendUrl}/api/raw-materials`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -138,7 +139,7 @@ export const RawMaterialProvider = ({ children }: { children: ReactNode }) => {
         loading,
         error,
         fetchMaterials,
-        createMaterial,
+        addMaterial,
         updateMaterial,
         deleteMaterial,
       }}
