@@ -18,6 +18,12 @@ export interface RawMaterial {
   typeId: string;
   quantity: number;
   total: number;
+  rawMaterialType: {
+    _id: string;
+    name: string;
+    unit: string;
+    unitCost?: number;
+  };
 }
 
 interface RawMaterialContextType {
@@ -66,6 +72,8 @@ export const RawMaterialProvider = ({ children }: { children: ReactNode }) => {
       if (!res.ok) throw new Error("Failed to fetch materials");
 
       const data = await res.json();
+
+      console.log("fetch meterials :",data)
       setMaterials(data);
       setError(null);
     } catch (err: any) {

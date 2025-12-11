@@ -147,7 +147,7 @@ export default function RawMaterialsPage() {
                   <th className="text-left py-3 px-4 text-xs md:text-sm font-semibold text-foreground">Name</th>
                   <th className="text-left py-3 px-4 text-xs md:text-sm font-semibold text-foreground">Qty</th>
                   <th className="text-left py-3 px-4 text-xs md:text-sm font-semibold text-foreground">Unit</th>
-                  <th className="text-left py-3 px-4 text-xs md:text-sm font-semibold text-foreground">Cost/Unit</th>
+                  {/* <th className="text-left py-3 px-4 text-xs md:text-sm font-semibold text-foreground">Cost/Unit</th> */}
                   <th className="text-left py-3 px-4 text-xs md:text-sm font-semibold text-foreground">Total</th>
                   <th className="text-left py-3 px-4 text-xs md:text-sm font-semibold text-foreground">Actions</th>
                 </tr>
@@ -155,10 +155,10 @@ export default function RawMaterialsPage() {
               <tbody>
                 {materials.map((material) => (
                   <tr key={material._id} className="border-b hover:bg-secondary/50 transition-colors">
-                    <td className="py-3 px-4 text-xs md:text-sm">{material.name}</td>
+                    <td className="py-3 px-4 text-xs md:text-sm">{material.rawMaterialType.name}</td>
                     <td className="py-3 px-4 text-xs md:text-sm">{material.quantity}</td>
-                    <td className="py-3 px-4 text-xs md:text-sm">{material.unit}</td>
-                    <td className="py-3 px-4 text-xs md:text-sm">${material.costPerUnit}</td>
+                    <td className="py-3 px-4 text-xs md:text-sm">{material.rawMaterialType.unit}</td>
+                    {/* <td className="py-3 px-4 text-xs md:text-sm">${material.costPerUnit}</td> */}
                     <td className="py-3 px-4 text-xs md:text-sm font-semibold text-primary">
                       ${(material.quantity * material.costPerUnit).toFixed(2)}
                     </td>
