@@ -1,7 +1,7 @@
 "use client"
 
 import type React from "react"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Card } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
@@ -20,9 +20,9 @@ export default function RawMaterialsPage() {
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [formData, setFormData] = useState({ name: "", quantity: "", unit: "", cost: "", date: today })
 
-  const { materials, addMaterial, loading } = useRawMaterials()
+  const { materials, addMaterial, loading, fetchMaterials } = useRawMaterials()
   const { types } = useRawMaterialTypes()
-  const { purchases, deletePurchase } = useRawMaterialPurchases()
+  const { purchases, deletePurchase, fetchPurchases } = useRawMaterialPurchases()
  
   const handleAddMaterial = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -43,12 +43,22 @@ export default function RawMaterialsPage() {
   }
 
   const handleDelete = async (id: string) => {
-    await removeMaterial(id)
+    // await removeMaterial(id)
   }
 
   const handleDeletePurchase = async (id: string) => {
     await deletePurchase(id)
   }
+
+  useEffect(() => {
+    if (activeTab === "inventory") {
+      fetchMaterials()
+    }
+    if (activeTab === "history") {
+      fetchPurchases()
+    }
+  }, [activeTab])
+
 
   if (loading) return <p className="p-6 text-lg">Loading materials...</p>
 
