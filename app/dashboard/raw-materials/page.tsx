@@ -22,7 +22,7 @@ export default function RawMaterialsPage() {
 
   const { materials, addMaterial, loading } = useRawMaterials()
   const { types } = useRawMaterialTypes()
-  const { purchases } = useRawMaterialPurchases()
+  const { purchases, deletePurchase } = useRawMaterialPurchases()
  
   const handleAddMaterial = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -44,6 +44,10 @@ export default function RawMaterialsPage() {
 
   const handleDelete = async (id: string) => {
     await removeMaterial(id)
+  }
+
+  const handleDeletePurchase = async (id: string) => {
+    await deletePurchase(id)
   }
 
   if (loading) return <p className="p-6 text-lg">Loading materials...</p>
@@ -215,9 +219,10 @@ export default function RawMaterialsPage() {
                   <th className="text-left py-3 px-4 text-xs md:text-sm font-semibold text-foreground">Material</th>
                   <th className="text-left py-3 px-4 text-xs md:text-sm font-semibold text-foreground">Qty</th>
                   <th className="text-left py-3 px-4 text-xs md:text-sm font-semibold text-foreground">Unit</th>
-                  <th className="text-left py-3 px-4 text-xs md:text-sm font-semibold text-foreground">Cost/Unit</th>
+                  {/* <th className="text-left py-3 px-4 text-xs md:text-sm font-semibold text-foreground">Cost/Unit</th> */}
                   <th className="text-left py-3 px-4 text-xs md:text-sm font-semibold text-foreground">Total</th>
                   <th className="text-left py-3 px-4 text-xs md:text-sm font-semibold text-foreground">Date</th>
+                  <th className="text-left py-3 px-4 text-xs md:text-sm font-semibold text-foreground">Actions</th>
                 </tr>
               </thead>
               <tbody>
@@ -226,11 +231,19 @@ export default function RawMaterialsPage() {
                     <td className="py-3 px-4 text-xs md:text-sm font-medium">{entry.typeId.name}</td>
                     <td className="py-3 px-4 text-xs md:text-sm">{entry.purchaseQuantity}</td>
                     <td className="py-3 px-4 text-xs md:text-sm">{entry.typeId.unit}</td>
-                    <td className="py-3 px-4 text-xs md:text-sm">$</td>
+                    {/* <td className="py-3 px-4 text-xs md:text-sm">$</td> */}
                     <td className="py-3 px-4 text-xs md:text-sm font-semibold text-primary">
                       ${entry.cost}
                     </td>
                     <td className="py-3 px-4 text-xs md:text-sm">{entry.purchaseDate}</td>
+                    <td className="py-3 px-4 text-xs md:text-sm">
+                      <button
+                        onClick={() => handleDeletePurchase(entry._id)}
+                        className="inline-flex items-center gap-1 text-red-600 hover:text-red-700 transition-colors"
+                      >
+                        <Trash2 size={16} />
+                      </button>
+                    </td>
                   </tr>
                 ))}
               </tbody>
