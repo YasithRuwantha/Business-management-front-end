@@ -10,15 +10,20 @@ import { ModalOverlay } from "@/components/modal-overlay"
 
 import { useRawMaterials } from "@/lib/raw-material-context"
 import { useRawMaterialTypes } from "@/lib/raw-material-type-context"
+import { useRawMaterialPurchases } from "@/lib/raw-material-purchase"
+
+const today = new Date().toISOString().split("T")[0];
+
 
 export default function RawMaterialsPage() {
   const [activeTab, setActiveTab] = useState("inventory")
   const [isModalOpen, setIsModalOpen] = useState(false)
-  const [formData, setFormData] = useState({ name: "", quantity: "", unit: "" })
+  const [formData, setFormData] = useState({ name: "", quantity: "", unit: "", cost: "", date: today })
 
-  const { materials, purchaseHistory, addMaterial, removeMaterial, loading } = useRawMaterials()
+  const { materials, addMaterial, loading } = useRawMaterials()
   const { types } = useRawMaterialTypes()
-
+  const { purchases } = useRawMaterialPurchases()
+ 
   const handleAddMaterial = async (e: React.FormEvent) => {
     e.preventDefault()
     const selectedType = types.find((t) => t.name === formData.name)
@@ -29,9 +34,11 @@ export default function RawMaterialsPage() {
       quantity: Number(formData.quantity),
       unit: selectedType.unit,
       costPerUnit: selectedType.unitCost,
+      cost: formData.cost,
+      date: formData.date
     })
 
-    setFormData({ name: "", quantity: "", unit: "" })
+    setFormData({ name: "", quantity: "", unit: "", cost: "", date: "" })
     setIsModalOpen(false)
   }
 
@@ -82,7 +89,7 @@ export default function RawMaterialsPage() {
         isOpen={isModalOpen}
         onClose={() => {
           setIsModalOpen(false)
-          setFormData({ name: "", quantity: "", unit: "" })
+          setFormData({ name: "", quantity: "", unit: "", cost: "", date: "" })
         }}
         title="Add New Raw Material"
       >
@@ -119,12 +126,32 @@ export default function RawMaterialsPage() {
             </div>
           </div>
 
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <label className="block text-sm font-medium text-foreground mb-2">Cost </label>
+              <Input
+                type="number"
+                placeholder="0"
+                value={formData.cost}
+                onChange={(e) => setFormData({ ...formData, cost: e.target.value })}
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-foreground mb-2">Date </label>
+              <Input
+                type="date"
+                value={formData.date}
+                onChange={(e) => setFormData({ ...formData, date: e.target.value })}
+              />
+            </div>
+          </div>
+
           <div className="flex flex-col sm:flex-row gap-3 pt-4">
             <Button
               type="button"
               onClick={() => {
                 setIsModalOpen(false)
-                setFormData({ name: "", quantity: "", unit: "" })
+                setFormData({ name: "", quantity: "", unit: "", cost: "", date: "" })
               }}
               className="sm:flex-1 bg-secondary hover:bg-secondary/80 text-foreground"
             >
@@ -148,7 +175,7 @@ export default function RawMaterialsPage() {
                   <th className="text-left py-3 px-4 text-xs md:text-sm font-semibold text-foreground">Qty</th>
                   <th className="text-left py-3 px-4 text-xs md:text-sm font-semibold text-foreground">Unit</th>
                   {/* <th className="text-left py-3 px-4 text-xs md:text-sm font-semibold text-foreground">Cost/Unit</th> */}
-                  <th className="text-left py-3 px-4 text-xs md:text-sm font-semibold text-foreground">Total</th>
+                  {/* <th className="text-left py-3 px-4 text-xs md:text-sm font-semibold text-foreground">Total</th> */}
                   <th className="text-left py-3 px-4 text-xs md:text-sm font-semibold text-foreground">Actions</th>
                 </tr>
               </thead>
@@ -159,9 +186,9 @@ export default function RawMaterialsPage() {
                     <td className="py-3 px-4 text-xs md:text-sm">{material.quantity}</td>
                     <td className="py-3 px-4 text-xs md:text-sm">{material.rawMaterialType.unit}</td>
                     {/* <td className="py-3 px-4 text-xs md:text-sm">${material.costPerUnit}</td> */}
-                    <td className="py-3 px-4 text-xs md:text-sm font-semibold text-primary">
+                    {/* <td className="py-3 px-4 text-xs md:text-sm font-semibold text-primary">
                       ${(material.quantity * material.costPerUnit).toFixed(2)}
-                    </td>
+                    </td> */}
                     <td className="py-3 px-4 text-xs md:text-sm">
                       <button
                         onClick={() => handleDelete(material._id)}
@@ -194,16 +221,16 @@ export default function RawMaterialsPage() {
                 </tr>
               </thead>
               <tbody>
-                {purchaseHistory.map((entry) => (
+                {purchases.map((entry) => (
                   <tr key={entry._id} className="border-b hover:bg-secondary/50 transition-colors">
-                    <td className="py-3 px-4 text-xs md:text-sm font-medium">{entry.material}</td>
-                    <td className="py-3 px-4 text-xs md:text-sm">{entry.quantity}</td>
-                    <td className="py-3 px-4 text-xs md:text-sm">{entry.unit}</td>
-                    <td className="py-3 px-4 text-xs md:text-sm">${entry.costPerUnit.toFixed(2)}</td>
+                    <td className="py-3 px-4 text-xs md:text-sm font-medium">{entry.typeId.name}</td>
+                    <td className="py-3 px-4 text-xs md:text-sm">{entry.purchaseQuantity}</td>
+                    <td className="py-3 px-4 text-xs md:text-sm">{entry.typeId.unit}</td>
+                    <td className="py-3 px-4 text-xs md:text-sm">$</td>
                     <td className="py-3 px-4 text-xs md:text-sm font-semibold text-primary">
-                      ${(entry.quantity * entry.costPerUnit).toFixed(2)}
+                      ${entry.cost}
                     </td>
-                    <td className="py-3 px-4 text-xs md:text-sm">{entry.date}</td>
+                    <td className="py-3 px-4 text-xs md:text-sm">{entry.purchaseDate}</td>
                   </tr>
                 ))}
               </tbody>

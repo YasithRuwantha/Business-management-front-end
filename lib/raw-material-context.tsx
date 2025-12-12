@@ -18,6 +18,8 @@ export interface RawMaterial {
   typeId: string;
   quantity: number;
   total: number;
+  cost: number;
+  date: Date;
   rawMaterialType: {
     _id: string;
     name: string;
@@ -73,7 +75,7 @@ export const RawMaterialProvider = ({ children }: { children: ReactNode }) => {
 
       const data = await res.json();
 
-      console.log("fetch meterials :",data)
+      // console.log("fetch meterials :",data)
       setMaterials(data);
       setError(null);
     } catch (err: any) {
@@ -84,9 +86,6 @@ export const RawMaterialProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
-  // ===============================
-  // 📌 API: CREATE
-  // ===============================
   const addMaterial = async (formData: any) => {
     console.log("addRawMaterial Runned :", formData)
     try { 
@@ -104,9 +103,6 @@ export const RawMaterialProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
-  // ===============================
-  // 📌 API: UPDATE
-  // ===============================
   const updateMaterial = async (id: string, formData: any) => {
     try {
       const res = await fetch(`${backendUrl}/api/raw-materials/${id}`, {
@@ -123,9 +119,6 @@ export const RawMaterialProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
-  // ===============================
-  // 📌 API: DELETE
-  // ===============================
   const deleteMaterial = async (id: string) => {
     try {
       const res = await fetch(`${backendUrl}/api/raw-materials/${id}`, {
