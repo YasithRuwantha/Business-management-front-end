@@ -49,7 +49,7 @@ export default function Sidebar({ onClose }: SidebarProps) {
         <p className="text-xs text-muted-foreground mt-1">Admin Panel</p>
       </div>
 
-      <nav className="flex-1 p-2 md:p-4 space-y-1 md:space-y-2 overflow-y-auto">
+      <nav className="flex-1 p-2 md:p-4 space-y-1 md:space-y-2 overflow-y-scroll scrollbar-hide">
         {menuItems.map((item) => {
           const Icon = item.icon
           const isActive = pathname === item.href

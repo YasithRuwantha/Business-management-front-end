@@ -1,0 +1,3 @@
+raw meterial types are core types there we hold all the details about those 
+raw meterial are inventory we derieve type data from above model here resposible for quantity
+raw material purchase are individual purchase history also derives info from type and responsible for holding each purchase data

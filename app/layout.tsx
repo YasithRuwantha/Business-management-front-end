@@ -5,6 +5,8 @@ import { Analytics } from "@vercel/analytics/next"
 import "./globals.css"
 import { AuthProvider } from "@/lib/auth-context"
 import { RawMaterialTypeProvider } from "@/lib/raw-material-type-context"
+import { RawMaterialProvider } from "@/lib/raw-material-context"
+import { RawMaterialPurchaseProvider } from "@/lib/raw-material-purchase"
 
 const _geist = Geist({ subsets: ["latin"] })
 const _geistMono = Geist_Mono({ subsets: ["latin"] })
@@ -44,7 +46,11 @@ export default function RootLayout({
       <body className={`font-sans antialiased`}>
         <AuthProvider>
           <RawMaterialTypeProvider>
-          {children}
+            <RawMaterialProvider>
+              <RawMaterialPurchaseProvider>
+                {children}
+              </RawMaterialPurchaseProvider>
+            </RawMaterialProvider>
           </RawMaterialTypeProvider>
         </AuthProvider>
         <Analytics />
