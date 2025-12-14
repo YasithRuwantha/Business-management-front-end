@@ -5,7 +5,7 @@ import { useState, useEffect } from "react"
 import { Card } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
-import { Trash2, Plus, History } from "lucide-react"
+import { Trash2, Plus, History, Edit } from "lucide-react"
 import { ModalOverlay } from "@/components/modal-overlay"
 
 import { useRawMaterials } from "@/lib/raw-material-context"
@@ -19,8 +19,11 @@ export default function RawMaterialsPage() {
   const [activeTab, setActiveTab] = useState("inventory")
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [formData, setFormData] = useState({ name: "", quantity: "", unit: "", cost: "", date: today })
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false)
+  const [editMaterial, setEditMaterial] = useState<any>(null)
 
-  const { materials, addMaterial, loading, fetchMaterials } = useRawMaterials()
+
+  const { materials, addMaterial, loading, fetchMaterials, updateMaterial } = useRawMaterials()
   const { types } = useRawMaterialTypes()
   const { purchases, deletePurchase, fetchPurchases } = useRawMaterialPurchases()
  
@@ -42,6 +45,28 @@ export default function RawMaterialsPage() {
     setIsModalOpen(false)
   }
 
+  const handleUpdateMaterial = async (e: React.FormEvent) => {
+    e.preventDefault()
+
+    const delta = Number(editMaterial.changeQty)
+    if (!delta) return
+
+    const newQty = editMaterial.currentQty + delta
+    if (newQty < 0) {
+      alert("Quantity cannot be negative")
+      return
+    }
+
+    await updateMaterial(editMaterial.id, {
+      quantity: newQty
+    })
+
+    setIsEditModalOpen(false)
+    fetchMaterials()
+  }
+
+
+
   const handleDelete = async (id: string) => {
     // await removeMaterial(id)
   }
@@ -49,6 +74,17 @@ export default function RawMaterialsPage() {
   const handleDeletePurchase = async (id: string) => {
     await deletePurchase(id)
   }
+
+  const handleEditOpen = (material: any) => {
+    setEditMaterial({
+      id: material._id,
+      currentQty: material.quantity,
+      changeQty: ""
+    })
+    setIsEditModalOpen(true)
+  }
+
+
 
   useEffect(() => {
     if (activeTab === "inventory") {
@@ -178,6 +214,52 @@ export default function RawMaterialsPage() {
         </form>
       </ModalOverlay>
 
+      <ModalOverlay
+  isOpen={isEditModalOpen}
+  onClose={() => setIsEditModalOpen(false)}
+  title="Adjust Inventory"
+>
+  <form onSubmit={handleUpdateMaterial} className="space-y-4">
+
+    <div className="text-sm">
+      Current Quantity:
+      <span className="font-semibold ml-2">
+        {editMaterial?.currentQty}
+      </span>
+    </div>
+
+    <div>
+      <label className="block text-sm font-medium mb-2">
+        Adjust Amount (+ add / - remove)
+      </label>
+      <Input
+        type="number"
+        placeholder="+10 or -5"
+        value={editMaterial?.changeQty || ""}
+        onChange={(e) =>
+          setEditMaterial({ ...editMaterial, changeQty: e.target.value })
+        }
+      />
+    </div>
+
+    <div className="flex gap-3 pt-4">
+      <Button
+        type="button"
+        onClick={() => setIsEditModalOpen(false)}
+        className="flex-1 bg-secondary"
+      >
+        Cancel
+      </Button>
+      <Button type="submit" className="flex-1 bg-primary">
+        Apply Change
+      </Button>
+    </div>
+
+  </form>
+</ModalOverlay>
+
+
+
       {activeTab === "inventory" && (
         <Card className="p-4 md:p-6">
           <h2 className="text-lg md:text-xl font-bold text-foreground mb-4 md:mb-6">Materials Inventory</h2>
@@ -203,12 +285,18 @@ export default function RawMaterialsPage() {
                     {/* <td className="py-3 px-4 text-xs md:text-sm font-semibold text-primary">
                       ${(material.quantity * material.costPerUnit).toFixed(2)}
                     </td> */}
-                    <td className="py-3 px-4 text-xs md:text-sm">
+                    <td className="py-3 px-4 text-xs md:text-sm space-x-3">
                       <button
                         onClick={() => handleDelete(material._id)}
                         className="inline-flex items-center gap-1 text-red-600 hover:text-red-700 transition-colors"
                       >
                         <Trash2 size={16} />
+                      </button>
+                      <button
+                          onClick={() => handleEditOpen(material)}
+                          className="inline-flex items-center gap-1 transition-colors"
+                      >
+                          <Edit size={16} />
                       </button>
                     </td>
                   </tr>
@@ -253,6 +341,7 @@ export default function RawMaterialsPage() {
                       >
                         <Trash2 size={16} />
                       </button>
+
                     </td>
                   </tr>
                 ))}
