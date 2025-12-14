@@ -104,6 +104,7 @@ export const RawMaterialProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const updateMaterial = async (id: string, formData: any) => {
+    console.log("update material :", id, formData)
     try {
       const res = await fetch(`${backendUrl}/api/raw-materials/${id}`, {
         method: "PUT",
