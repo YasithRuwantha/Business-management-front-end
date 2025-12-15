@@ -27,6 +27,7 @@ interface RawMaterialPurchaseContextType {
 
   fetchPurchases: () => Promise<void>;
   deletePurchase: (id: string) => Promise<void>;
+  deletePurchaseWithStock: (id: string) => Promise<void>;
 }
 
 // ===============================
@@ -82,6 +83,13 @@ export const RawMaterialPurchaseProvider = ({ children }: { children: ReactNode 
     fetchPurchases(); // refresh history
     };
 
+  const deletePurchaseWithStock = async (id: string) => {
+    await fetch(`${backendUrl}/api/raw-material-purchases/with-stock/${id}`, {
+        method: "DELETE",
+    });
+    fetchPurchases(); // refresh history
+  };
+
   return (
     <RawMaterialPurchaseContext.Provider
       value={{
@@ -89,7 +97,8 @@ export const RawMaterialPurchaseProvider = ({ children }: { children: ReactNode 
         loading,
         error,
         fetchPurchases,
-        deletePurchase
+        deletePurchase,
+        deletePurchaseWithStock
       }}
     >
       {children}

@@ -21,11 +21,14 @@ export default function RawMaterialsPage() {
   const [formData, setFormData] = useState({ name: "", quantity: "", unit: "", cost: "", date: today })
   const [isEditModalOpen, setIsEditModalOpen] = useState(false)
   const [editMaterial, setEditMaterial] = useState<any>(null)
+  const [deletePurchaseId, setDeletePurchaseId] = useState<string | null>(null)
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
+
 
 
   const { materials, addMaterial, loading, fetchMaterials, updateMaterial } = useRawMaterials()
   const { types } = useRawMaterialTypes()
-  const { purchases, deletePurchase, fetchPurchases } = useRawMaterialPurchases()
+  const { purchases, deletePurchase, fetchPurchases, deletePurchaseWithStock } = useRawMaterialPurchases()
  
   const handleAddMaterial = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -258,6 +261,50 @@ export default function RawMaterialsPage() {
   </form>
 </ModalOverlay>
 
+<ModalOverlay
+  isOpen={isDeleteModalOpen}
+  onClose={() => {
+    setIsDeleteModalOpen(false)
+    setDeletePurchaseId(null)
+  }}
+  title="Delete Purchase"
+>
+  <p className="text-sm text-muted-foreground mb-4">
+    Do you want to deduct stock as well, or delete only the purchase history?
+  </p>
+
+  <div className="flex flex-col gap-3">
+    <Button
+      variant="destructive"
+      onClick={async () => {
+        if (!deletePurchaseId) return
+        await deletePurchase(deletePurchaseId)
+        setIsDeleteModalOpen(false)
+      }}
+    >
+      Delete History Only
+    </Button>
+
+    <Button
+      onClick={async () => {
+        if (!deletePurchaseId) return
+        await deletePurchaseWithStock(deletePurchaseId)
+        setIsDeleteModalOpen(false)
+      }}
+    >
+      Delete & Deduct Stock
+    </Button>
+
+    <Button
+      variant="secondary"
+      onClick={() => setIsDeleteModalOpen(false)}
+    >
+      Cancel
+    </Button>
+  </div>
+</ModalOverlay>
+
+
 
 
       {activeTab === "inventory" && (
@@ -336,11 +383,15 @@ export default function RawMaterialsPage() {
                     <td className="py-3 px-4 text-xs md:text-sm">{entry.purchaseDate}</td>
                     <td className="py-3 px-4 text-xs md:text-sm">
                       <button
-                        onClick={() => handleDeletePurchase(entry._id)}
-                        className="inline-flex items-center gap-1 text-red-600 hover:text-red-700 transition-colors"
+                        onClick={() => {
+                          setDeletePurchaseId(entry._id)
+                          setIsDeleteModalOpen(true)
+                        }}
+                        className="inline-flex items-center gap-1 text-red-600 hover:text-red-700"
                       >
                         <Trash2 size={16} />
                       </button>
+
 
                     </td>
                   </tr>
