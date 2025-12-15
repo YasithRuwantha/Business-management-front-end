@@ -44,7 +44,7 @@ export default function RawMaterialsPage() {
       date: formData.date
     })
 
-    setFormData({ name: "", quantity: "", unit: "", cost: "", date: "" })
+    setFormData({ name: "", quantity: "", unit: "", cost: "", date: today })
     setIsModalOpen(false)
   }
 
