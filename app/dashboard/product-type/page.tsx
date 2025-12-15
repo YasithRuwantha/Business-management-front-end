@@ -103,19 +103,12 @@ export default function ProductTypePage() {
           </div>
 
           <div>
-            <label className="text-sm font-medium text-foreground mb-2 block">Product Type (Unit)</label>
-            <div className="relative">
-              <select
-                className="w-full bg-background border border-input rounded-md px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-primary"
-                value={unit}
-                onChange={(e) => setUnit(e.target.value)}
-              >
-                <option value="">Select unit</option>
-                <option value="Kg">Kg</option>
-                <option value="cm">cm</option>
-                <option value="L">L</option>
-              </select>
-            </div>
+            <label className="text-sm font-medium text-foreground mb-2 block">Unit</label>
+            <Input
+              placeholder="e.g., Kg, cm, L"
+              value={unit}
+              onChange={(e) => setUnit(e.target.value)}
+            />
           </div>
 
           <div>
