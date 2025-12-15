@@ -25,6 +25,7 @@ const menuItems = [
   { label: "Raw Materials", href: "/dashboard/raw-materials", icon: Layers },
   { label: "Raw Materials Type", href: "/dashboard/raw-materials-type", icon: Layers},
   { label: "Products", href: "/dashboard/products", icon: Package },
+  { label: "Product Type", href: "/dashboard/product-type", icon: Package },
   { label: "Production", href: "/dashboard/production", icon: Zap },
   { label: "Sales", href: "/dashboard/sales", icon: ShoppingCart },
   { label: "Monthly Summary", href: "/dashboard/daily-summary", icon: Calendar },
