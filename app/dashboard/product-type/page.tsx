@@ -6,27 +6,17 @@ import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Trash2, Plus, Edit } from "lucide-react"
 import { ModalOverlay } from "@/components/modal-overlay"
-
-interface ProductTypeItem {
-  id: string
-  name: string
-  unit: string
-  description: string
-}
+import { useProductTypes } from "@/lib/product-type-context"
 
 export default function ProductTypePage() {
+  const { types, loading, error, createType, updateType, deleteType } = useProductTypes()
+
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [editingId, setEditingId] = useState<string | null>(null)
 
   const [name, setName] = useState("")
   const [unit, setUnit] = useState("")
   const [description, setDescription] = useState("")
-
-  const [items, setItems] = useState<ProductTypeItem[]>([
-    { id: "1", name: "Detergent Powder", unit: "Kg", description: "Household washing powder" },
-    { id: "2", name: "Fabric Softener", unit: "L", description: "Liquid softener for fabrics" },
-    { id: "3", name: "Packaging Sleeve", unit: "cm", description: "Printed sleeve for 500g pack" },
-  ])
 
   const resetForm = () => {
     setName("")
@@ -40,45 +30,34 @@ export default function ProductTypePage() {
     setIsModalOpen(true)
   }
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!name.trim()) return
 
     if (editingId) {
-      setItems((prev) =>
-        prev.map((it) =>
-          it.id === editingId ? { ...it, name: name.trim(), unit: unit.trim(), description: description.trim() } : it
-        )
-      )
+      await updateType(editingId, { name: name.trim(), unit: unit.trim(), description: description.trim() })
     } else {
-      const newItem: ProductTypeItem = {
-        id: String(Date.now()),
-        name: name.trim(),
-        unit: unit.trim(),
-        description: description.trim(),
-      }
-      setItems((prev) => [newItem, ...prev])
+      await createType({ name: name.trim(), unit: unit.trim(), description: description.trim() })
     }
 
     resetForm()
     setIsModalOpen(false)
   }
 
-  const handleDelete = (id: string) => {
-    setItems((prev) => prev.filter((it) => it.id !== id))
+  const handleDelete = async (id: string) => {
+    await deleteType(id)
   }
 
-  const handleOpenEdit = (item: ProductTypeItem) => {
-    setEditingId(item.id)
-    setName(item.name)
-    setUnit(item.unit)
-    setDescription(item.description)
+  const handleOpenEdit = (item: any) => {
+    setEditingId(item._id)
+    setName(item.name || "")
+    setUnit(item.unit || "")
+    setDescription(item.description || "")
     setIsModalOpen(true)
   }
 
   return (
     <div className="p-4 md:p-8 space-y-8">
-      {/* Header */}
       <div className="flex justify-between items-center">
         <h1 className="text-2xl md:text-4xl font-bold text-foreground">Product Types</h1>
         <Button onClick={openAddModal} className="bg-primary text-primary-foreground hover:bg-primary/90 gap-2">
@@ -87,7 +66,6 @@ export default function ProductTypePage() {
         </Button>
       </div>
 
-      {/* Add/Edit Modal */}
       <ModalOverlay
         isOpen={isModalOpen}
         onClose={() => {
@@ -99,7 +77,7 @@ export default function ProductTypePage() {
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label className="text-sm font-medium text-foreground mb-2 block">Product Name *</label>
-            <Input placeholder="e.g., Detergent Powder" value={name} onChange={(e) => setName(e.target.value)} autoFocus />
+            <Input placeholder="Enter your Product name" value={name} onChange={(e) => setName(e.target.value)} autoFocus />
           </div>
 
           <div>
@@ -138,9 +116,11 @@ export default function ProductTypePage() {
         </form>
       </ModalOverlay>
 
-      {/* List */}
       <Card className="p-4 md:p-6">
         <h2 className="text-lg md:text-xl font-bold text-foreground mb-4">Product Type List</h2>
+
+        {loading && <p className="text-sm">Loading...</p>}
+        {error && <p className="text-sm text-red-600">{error}</p>}
 
         <div className="overflow-x-auto">
           <table className="w-full min-w-max">
@@ -153,14 +133,14 @@ export default function ProductTypePage() {
               </tr>
             </thead>
             <tbody>
-              {items.map((it) => (
-                <tr key={it.id} className="border-b hover:bg-secondary/50">
+              {types.map((it: any) => (
+                <tr key={it._id} className="border-b hover:bg-secondary/50">
                   <td className="py-3 px-4 text-xs md:text-sm">{it.name}</td>
                   <td className="py-3 px-4 text-xs md:text-sm">{it.unit}</td>
                   <td className="py-3 px-4 text-xs md:text-sm">{it.description}</td>
                   <td className="py-3 px-4 space-x-5">
                     <button
-                      onClick={() => handleDelete(it.id)}
+                      onClick={() => handleDelete(it._id)}
                       className="text-red-600 hover:text-red-700 inline-flex items-center gap-1"
                     >
                       <Trash2 size={16} />
@@ -171,6 +151,11 @@ export default function ProductTypePage() {
                   </td>
                 </tr>
               ))}
+              {!loading && types.length === 0 && (
+                <tr>
+                  <td className="py-3 px-4 text-xs md:text-sm" colSpan={4}>No product types yet.</td>
+                </tr>
+              )}
             </tbody>
           </table>
         </div>
