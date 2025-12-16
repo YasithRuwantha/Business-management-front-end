@@ -5,6 +5,7 @@ import { Analytics } from "@vercel/analytics/next"
 import "./globals.css"
 import { AuthProvider } from "@/lib/auth-context"
 import { RawMaterialTypeProvider } from "@/lib/raw-material-type-context"
+import { ProductTypeProvider } from "@/lib/product-type-context"
 import { RawMaterialProvider } from "@/lib/raw-material-context"
 import { RawMaterialPurchaseProvider } from "@/lib/raw-material-purchase"
 
@@ -46,11 +47,13 @@ export default function RootLayout({
       <body className={`font-sans antialiased`}>
         <AuthProvider>
           <RawMaterialTypeProvider>
-            <RawMaterialProvider>
-              <RawMaterialPurchaseProvider>
-                {children}
-              </RawMaterialPurchaseProvider>
-            </RawMaterialProvider>
+            <ProductTypeProvider>
+              <RawMaterialProvider>
+                <RawMaterialPurchaseProvider>
+                  {children}
+                </RawMaterialPurchaseProvider>
+              </RawMaterialProvider>
+            </ProductTypeProvider>
           </RawMaterialTypeProvider>
         </AuthProvider>
         <Analytics />
