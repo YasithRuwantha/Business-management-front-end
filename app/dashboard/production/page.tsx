@@ -416,6 +416,14 @@ export default function ProductionPage() {
               ))}
 
               <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 mb-4">
+                <button
+                  type="button"
+                  onClick={addProductField}
+                  className="flex items-center gap-2 text-primary hover:text-primary/80 font-medium text-sm"
+                >
+                  <Plus size={20} />
+                  Add Another Product
+                </button>
               </div>
 
               <div className="flex flex-col sm:flex-row gap-3 pt-4">
