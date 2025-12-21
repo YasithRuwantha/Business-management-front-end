@@ -473,7 +473,9 @@ export default function ProductionPage() {
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 md:gap-6">
                 <div>
                   <p className="text-sm text-muted-foreground">Production ID</p>
-                  <p className="text-lg md:text-xl font-semibold text-foreground">#{selectedProduction._id.slice(-6)}</p>
+                  <p className="text-lg md:text-xl font-semibold text-foreground">
+                    #{selectedProduction?._id?.slice(-6) || "------"}
+                  </p>
                 </div>
                 <div>
                   <p className="text-sm text-muted-foreground">Product</p>
@@ -552,10 +554,10 @@ export default function ProductionPage() {
                 <tbody>
                   {productions.map((record) => (
                     <tr key={record._id} className="border-b hover:bg-secondary/50 transition-colors">
-                      <td className="py-3 px-4 text-xs md:text-sm font-semibold text-primary">#{record._id.slice(-6)}</td>
+                      <td className="py-3 px-4 text-xs md:text-sm font-semibold text-primary">#{record._id ? record._id.slice(-6) : "-----"}</td>
                       <td className="py-3 px-4 text-xs md:text-sm font-medium">{record.product.name}</td>
                       <td className="py-3 px-4 text-xs md:text-sm font-semibold">{record.producedQuantity}</td>
-                      <td className="py-3 px-4 text-xs md:text-sm">{record.rawMaterials.length} material(s)</td>
+                      <td className="py-3 px-4 text-xs md:text-sm">  {record.rawMaterials ? record.rawMaterials.length : 0} material(s) material(s)</td>
                       <td className="py-3 px-4 text-xs md:text-sm text-muted-foreground">
                         {record.updatedAt
                           ? new Date(record.updatedAt).toLocaleDateString()
