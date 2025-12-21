@@ -201,7 +201,7 @@ export default function ProductsPage() {
                 <tr className="border-b">
                   <th className="text-left py-3 px-4 text-xs md:text-sm font-semibold text-foreground">Product Name</th>
                   <th className="text-left py-3 px-4 text-xs md:text-sm font-semibold text-foreground">Quantity</th>
-                  <th className="text-left py-3 px-4 text-xs md:text-sm font-semibold text-foreground">Cost</th>
+                  {/* <th className="text-left py-3 px-4 text-xs md:text-sm font-semibold text-foreground">Cost</th> */}
                   <th className="text-left py-3 px-4 text-xs md:text-sm font-semibold text-foreground">Actions</th>
                 </tr>
               </thead>
@@ -210,7 +210,7 @@ export default function ProductsPage() {
                   <tr key={product._id} className="border-b hover:bg-secondary/50 transition-colors">
                     <td className="py-3 px-4 text-xs md:text-sm">{product.typeId.name}</td>
                     <td className="py-3 px-4 text-xs md:text-sm font-semibold">{product.quantity}</td>
-                    <td className="py-3 px-4 text-xs md:text-sm">$</td>
+                    {/* <td className="py-3 px-4 text-xs md:text-sm">$</td> */}
                     <td className="py-3 px-4 text-xs md:text-sm space-x-3">
                       <button
                         onClick={() => handleDeleteProduct(product._id)}
