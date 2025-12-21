@@ -8,6 +8,7 @@ import { RawMaterialTypeProvider } from "@/lib/raw-material-type-context"
 import { ProductTypeProvider } from "@/lib/product-type-context"
 import { RawMaterialProvider } from "@/lib/raw-material-context"
 import { RawMaterialPurchaseProvider } from "@/lib/raw-material-purchase"
+import { ProductProvider } from "@/lib/product-context"
 
 const _geist = Geist({ subsets: ["latin"] })
 const _geistMono = Geist_Mono({ subsets: ["latin"] })
@@ -50,7 +51,9 @@ export default function RootLayout({
             <ProductTypeProvider>
               <RawMaterialProvider>
                 <RawMaterialPurchaseProvider>
-                  {children}
+                  <ProductProvider>
+                    {children}
+                  </ProductProvider>
                 </RawMaterialPurchaseProvider>
               </RawMaterialProvider>
             </ProductTypeProvider>

@@ -65,7 +65,7 @@ export function ProductionProvider({ children }: { children: ReactNode }) {
       const res = await fetch(`${backendUrl}/api/productions`, { cache: "no-store" });
       if (!res.ok) throw new Error(`Failed to fetch productions (${res.status})`);
       const data = await res.json();
-      console.log("fetch productions :", data)
+      // console.log("fetch productions :", data)
       setProductions(Array.isArray(data) ? data : []);
     } catch (err: any) {
       setError(err?.message || "Failed to load productions");
