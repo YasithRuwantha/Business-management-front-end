@@ -26,10 +26,15 @@ export default function RawMaterialsPage() {
 
 
 
-  const { materials, addMaterial, loading, fetchMaterials, updateMaterial } = useRawMaterials()
+  const { materials, addMaterial, loading, fetchRawMaterials, updateMaterial } = useRawMaterials()
   const { types } = useRawMaterialTypes()
   const { purchases, deletePurchase, fetchPurchases, deletePurchaseWithStock } = useRawMaterialPurchases()
  
+  useEffect(()=> {
+    fetchRawMaterials();
+  }, [])
+
+
   const handleAddMaterial = async (e: React.FormEvent) => {
     e.preventDefault()
     const selectedType = types.find((t) => t.name === formData.name)
@@ -65,7 +70,7 @@ export default function RawMaterialsPage() {
     })
 
     setIsEditModalOpen(false)
-    fetchMaterials()
+    fetchRawMaterials()
   }
 
 
@@ -91,7 +96,7 @@ export default function RawMaterialsPage() {
 
   useEffect(() => {
     if (activeTab === "inventory") {
-      fetchMaterials()
+      fetchRawMaterials()
     }
     if (activeTab === "history") {
       fetchPurchases()

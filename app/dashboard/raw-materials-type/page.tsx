@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Card } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
@@ -10,13 +10,16 @@ import { useRawMaterialTypes } from "@/lib/raw-material-type-context"
 
 
 export default function RawMaterialTypesPage() {
-    const { types, createType, deleteType, updateType } = useRawMaterialTypes();
+    const { types, createType, deleteType, updateType, fetchTypes } = useRawMaterialTypes();
     const [isModalOpen, setIsModalOpen] = useState(false)
     const [typeName, setTypeName] = useState("")
     const [typeUnit, setTypeUnit] = useState("")
     const [typeUnitCost, setTypeUnitCost] = useState("")
     const [editingTypeId, setEditingTypeId] = useState<string | null>(null);
 
+    useEffect(()=> {
+        fetchTypes();
+    }, [])
 
     const handleSubmitType = async (e: React.FormEvent) => {
         e.preventDefault();

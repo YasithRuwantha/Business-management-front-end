@@ -5,18 +5,34 @@ import { createContext, useContext, useEffect, useState, ReactNode } from "react
 const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
 
 export type MaterialItem = {
-  material: string;
-  quantity: number;
-};
+  rawMaterial: {
+    _id: string
+    name: string
+    unit: string
+  }
+  quantity: number
+}
+
+export type ProductType = {
+  _id: string
+  name: string
+  unit: string
+}
+
 
 export type Production = {
+  producedQuantity: ReactNode;
+  rawMaterials: MaterialItem[];
   _id: string;
-  product: string;
   quantity: number;
   materials: MaterialItem[];
   date: string;
   createdAt?: string;
   updatedAt?: string;
+  name: string
+  product: ProductType   // ✅ OBJECT, not string
+
+  
 };
 
 type ProductionContextType = {
@@ -24,7 +40,12 @@ type ProductionContextType = {
   loading: boolean;
   error: string | null;
   fetchProductions: () => Promise<void>;
-  addProduction: (data: { product: string; quantity: number; materials: MaterialItem[]; date?: string }) => Promise<Production | null>;
+  addProduction: (data: {
+    product: string;
+    quantity: number;
+    materials: MaterialItem[];
+    date?: string;
+  }) => Promise<Production | null>;
   deleteProduction: (id: string) => Promise<boolean>;
 };
 
@@ -41,36 +62,40 @@ export function ProductionProvider({ children }: { children: ReactNode }) {
     try {
       setLoading(true);
       setError(null);
-      const res = await fetch(`${backendUrl}/api/products/production`, { cache: "no-store" });
+      const res = await fetch(`${backendUrl}/api/productions`, { cache: "no-store" });
       if (!res.ok) throw new Error(`Failed to fetch productions (${res.status})`);
-      const response = await res.json();
-      const productionData = response.success ? response.data : [];
-      setProductions(Array.isArray(productionData) ? productionData : []);
+      const data = await res.json();
+      // console.log("fetch productions :", data)
+      setProductions(Array.isArray(data) ? data : []);
     } catch (err: any) {
-      setError(err?.message ?? "Failed to load productions");
-      console.error("Fetch productions error:", err);
+      setError(err?.message || "Failed to load productions");
+      console.error(err);
     } finally {
       setLoading(false);
     }
   };
 
-  const addProduction = async (payload: { product: string; quantity: number; materials: MaterialItem[]; date?: string }) => {
+  const addProduction = async (payload: {
+    product: string;
+    quantity: number;
+    materials: MaterialItem[];
+    date?: string;
+  }) => {
     try {
       setLoading(true);
       setError(null);
-      const res = await fetch(`${backendUrl}/api/products/production`, {
+      const res = await fetch(`${backendUrl}/api/productions`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
       });
       if (!res.ok) throw new Error(`Failed to add production (${res.status})`);
-      const response = await res.json();
-      const created: Production = response.data;
-      setProductions((prev) => [created, ...prev]);
-      return created;
+      const data = await res.json();
+      setProductions((prev) => [data, ...prev]);
+      return data;
     } catch (err: any) {
-      setError(err?.message ?? "Failed to add production");
-      console.error("Add production error:", err);
+      setError(err?.message || "Failed to add production");
+      console.error(err);
       return null;
     } finally {
       setLoading(false);
@@ -81,27 +106,27 @@ export function ProductionProvider({ children }: { children: ReactNode }) {
     try {
       setLoading(true);
       setError(null);
-      const res = await fetch(`${backendUrl}/api/products/production/${id}`, {
-        method: "DELETE",
-      });
+      const res = await fetch(`${backendUrl}/api/productions/${id}`, { method: "DELETE" });
       if (!res.ok) throw new Error(`Failed to delete production (${res.status})`);
       setProductions((prev) => prev.filter((p) => p._id !== id));
       return true;
     } catch (err: any) {
-      setError(err?.message ?? "Failed to delete production");
-      console.error("Delete production error:", err);
+      setError(err?.message || "Failed to delete production");
+      console.error(err);
       return false;
     } finally {
       setLoading(false);
     }
   };
 
-  useEffect(() => {
-    fetchProductions();
-  }, []);
+  // useEffect(() => {
+  //   fetchProductions();
+  // }, []);
 
   return (
-    <ProductionContext.Provider value={{ productions, loading, error, fetchProductions, addProduction, deleteProduction }}>
+    <ProductionContext.Provider
+      value={{ productions, loading, error, fetchProductions, addProduction, deleteProduction }}
+    >
       {children}
     </ProductionContext.Provider>
   );

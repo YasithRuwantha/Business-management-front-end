@@ -33,7 +33,7 @@ interface RawMaterialContextType {
   loading: boolean;
   error: string | null;
 
-  fetchMaterials: () => Promise<void>;
+  fetchRawMaterials: () => Promise<void>;
   addMaterial: (data: any) => Promise<void>;
   updateMaterial: (id: string, data: any) => Promise<void>;
   deleteMaterial: (id: string) => Promise<void>;
@@ -58,14 +58,14 @@ export const RawMaterialProvider = ({ children }: { children: ReactNode }) => {
   const [error, setError] = useState<string | null>(null);
 
   // Load all on mount
-  useEffect(() => {
-    fetchMaterials();
-  }, []);
+  // useEffect(() => {
+  //   fetchMaterials();
+  // }, []);
 
   // ===============================
   // 📌 API: GET ALL
   // ===============================
-  const fetchMaterials = async () => {
+  const fetchRawMaterials = async () => {
     try {
       setLoading(true);
 
@@ -97,7 +97,7 @@ export const RawMaterialProvider = ({ children }: { children: ReactNode }) => {
 
       if (!res.ok) throw new Error("Failed to create material");
 
-      await fetchMaterials();
+      await fetchRawMaterials();
     } catch (err: any) {
       setError(err.message);
     }
@@ -114,7 +114,7 @@ export const RawMaterialProvider = ({ children }: { children: ReactNode }) => {
 
       if (!res.ok) throw new Error("Failed to update material");
 
-      await fetchMaterials();
+      await fetchRawMaterials();
     } catch (err: any) {
       setError(err.message);
     }
@@ -128,7 +128,7 @@ export const RawMaterialProvider = ({ children }: { children: ReactNode }) => {
 
       if (!res.ok) throw new Error("Failed to delete material");
 
-      await fetchMaterials();
+      await fetchRawMaterials();
     } catch (err: any) {
       setError(err.message);
     }
@@ -140,7 +140,7 @@ export const RawMaterialProvider = ({ children }: { children: ReactNode }) => {
         materials,
         loading,
         error,
-        fetchMaterials,
+        fetchRawMaterials,
         addMaterial,
         updateMaterial,
         deleteMaterial,

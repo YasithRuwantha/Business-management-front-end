@@ -49,9 +49,9 @@ export const RawMaterialPurchaseProvider = ({ children }: { children: ReactNode 
   const [error, setError] = useState<string | null>(null);
 
   // Fetch purchases on mount
-  useEffect(() => {
-    fetchPurchases();
-  }, []);
+  // useEffect(() => {
+  //   fetchPurchases();
+  // }, []);
 
   // ===============================
   // 📌 API: GET ALL PURCHASE HISTORY

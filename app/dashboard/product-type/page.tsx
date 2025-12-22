@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { Card } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
@@ -9,7 +9,7 @@ import { ModalOverlay } from "@/components/modal-overlay"
 import { useProductTypes } from "@/lib/product-type-context"
 
 export default function ProductTypePage() {
-  const { types, loading, error, createType, updateType, deleteType } = useProductTypes()
+  const { types, loading, error, createType, updateType, deleteType, fetchTypes } = useProductTypes()
 
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [editingId, setEditingId] = useState<string | null>(null)
@@ -17,6 +17,10 @@ export default function ProductTypePage() {
   const [name, setName] = useState("")
   const [unit, setUnit] = useState("")
   const [description, setDescription] = useState("")
+
+  useEffect(() => {
+    fetchTypes()
+  }, [])
 
   const resetForm = () => {
     setName("")

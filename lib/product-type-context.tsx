@@ -37,9 +37,9 @@ export const ProductTypeProvider = ({ children }: { children: ReactNode }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    fetchTypes();
-  }, []);
+  // useEffect(() => {
+  //   fetchTypes();
+  // }, []);
 
   const fetchTypes = async () => {
     try {

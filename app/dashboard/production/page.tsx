@@ -23,9 +23,9 @@ interface ProductItem {
 }
 
 export default function ProductionPage() {
-  const { productions, loading, error, addProduction, deleteProduction } = useProduction()
-  const { types: productTypes, loading: loadingTypes } = useProductTypes()
-  const { materials: rawMaterials, loading: loadingMaterials } = useRawMaterials()
+  const { productions, loading, error, addProduction, deleteProduction, fetchProductions } = useProduction()
+  const { types: productTypes, loading: loadingTypes, fetchTypes } = useProductTypes()
+  const { materials: rawMaterials, loading: loadingMaterials, fetchRawMaterials } = useRawMaterials()
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [selectedProduction, setSelectedProduction] = useState<Production | null>(null)
   const [showDetailsModal, setShowDetailsModal] = useState(false)
@@ -40,6 +40,12 @@ export default function ProductionPage() {
       },
     ],
   })
+
+  useEffect(() => {
+    fetchProductions();
+    fetchTypes();
+    fetchRawMaterials();
+  }, [])
 
   const addProductField = () => {
     setFormData({
@@ -473,15 +479,17 @@ export default function ProductionPage() {
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 md:gap-6">
                 <div>
                   <p className="text-sm text-muted-foreground">Production ID</p>
-                  <p className="text-lg md:text-xl font-semibold text-foreground">#{selectedProduction._id.slice(-6)}</p>
+                  <p className="text-lg md:text-xl font-semibold text-foreground">
+                    #{selectedProduction?._id?.slice(-6) || "------"}
+                  </p>
                 </div>
                 <div>
                   <p className="text-sm text-muted-foreground">Product</p>
-                  <p className="text-lg md:text-xl font-semibold text-foreground">{selectedProduction.product}</p>
+                  <p className="text-lg md:text-xl font-semibold text-foreground">{selectedProduction.product.name}</p>
                 </div>
                 <div>
                   <p className="text-sm text-muted-foreground">Quantity</p>
-                  <p className="text-lg md:text-xl font-semibold text-foreground">{selectedProduction.quantity}</p>
+                  <p className="text-lg md:text-xl font-semibold text-foreground">{selectedProduction.producedQuantity}</p>
                 </div>
               </div>
 
@@ -500,11 +508,11 @@ export default function ProductionPage() {
                       </tr>
                     </thead>
                     <tbody>
-                      {selectedProduction.materials.map((material, index) => (
+                      {selectedProduction.rawMaterials.map((material, index) => (
                         <tr key={index} className="border-b hover:bg-secondary">
                           <td className="py-2 px-3">
                             <span className="px-2 md:px-3 py-1 bg-primary/10 text-primary rounded-full text-xs font-medium">
-                              {material.material}
+                              {material.rawMaterial.name}
                             </span>
                           </td>
                           <td className="text-right py-2 px-3 font-semibold text-xs md:text-sm">{material.quantity}</td>
@@ -552,12 +560,14 @@ export default function ProductionPage() {
                 <tbody>
                   {productions.map((record) => (
                     <tr key={record._id} className="border-b hover:bg-secondary/50 transition-colors">
-                      <td className="py-3 px-4 text-xs md:text-sm font-semibold text-primary">#{record._id.slice(-6)}</td>
-                      <td className="py-3 px-4 text-xs md:text-sm font-medium">{record.product}</td>
-                      <td className="py-3 px-4 text-xs md:text-sm font-semibold">{record.quantity}</td>
-                      <td className="py-3 px-4 text-xs md:text-sm">{record.materials.length} material(s)</td>
+                      <td className="py-3 px-4 text-xs md:text-sm font-semibold text-primary">#{record._id ? record._id.slice(-6) : "-----"}</td>
+                      <td className="py-3 px-4 text-xs md:text-sm font-medium">{record.product.name}</td>
+                      <td className="py-3 px-4 text-xs md:text-sm font-semibold">{record.producedQuantity}</td>
+                      <td className="py-3 px-4 text-xs md:text-sm">  {record.rawMaterials ? record.rawMaterials.length : 0} material(s) material(s)</td>
                       <td className="py-3 px-4 text-xs md:text-sm text-muted-foreground">
-                        {new Date(record.date).toLocaleDateString()}
+                        {record.updatedAt
+                          ? new Date(record.updatedAt).toLocaleDateString()
+                          : "-"}
                       </td>
                       <td className="py-3 px-4 text-xs md:text-sm">
                         <div className="flex gap-2 flex-wrap">
