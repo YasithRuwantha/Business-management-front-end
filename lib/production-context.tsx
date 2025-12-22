@@ -119,9 +119,9 @@ export function ProductionProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  useEffect(() => {
-    fetchProductions();
-  }, []);
+  // useEffect(() => {
+  //   fetchProductions();
+  // }, []);
 
   return (
     <ProductionContext.Provider

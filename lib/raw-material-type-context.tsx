@@ -45,10 +45,10 @@ export const RawMaterialTypeProvider = ({ children }: { children: ReactNode }) =
   const [error, setError] = useState<string | null>(null);
 
   // Load all types on mount
-  useEffect(() => {
-    fetchTypes();
-    console.log(types)
-  }, []);
+  // useEffect(() => {
+  //   fetchTypes();
+  //   console.log(types)
+  // }, []);
 
   // Fetch all types
   const fetchTypes = async () => {
