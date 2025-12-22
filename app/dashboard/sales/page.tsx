@@ -253,7 +253,7 @@ export default function ProductionPage() {
             <div className="p-4 md:p-6 space-y-6">
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 md:gap-6">
                 <div><p className="text-sm text-muted-foreground">Production ID</p><p className="text-lg md:text-xl font-semibold text-foreground">#{selectedProduction._id.slice(-6)}</p></div>
-                <div><p className="text-sm text-muted-foreground">Product</p><p className="text-lg md:text-xl font-semibold text-foreground">{selectedProduction.product}</p></div>
+                <div><p className="text-sm text-muted-foreground">Product</p><p className="text-lg md:text-xl font-semibold text-foreground">{typeof selectedProduction.product === 'object' && selectedProduction.product !== null ? selectedProduction.product.name : selectedProduction.product}</p></div>
                 <div><p className="text-sm text-muted-foreground">Quantity</p><p className="text-lg md:text-xl font-semibold text-foreground">{selectedProduction.quantity}</p></div>
               </div>
               <div>
@@ -267,12 +267,16 @@ export default function ProductionPage() {
                       </tr>
                     </thead>
                     <tbody>
-                      {selectedProduction.materials.map((mat, i) => (
-                        <tr key={i} className="border-b hover:bg-secondary">
-                          <td className="py-2 px-3"><span className="px-2 md:px-3 py-1 bg-primary/10 text-primary rounded-full text-xs font-medium">{mat.material}</span></td>
-                          <td className="text-right py-2 px-3 font-semibold text-xs md:text-sm">{mat.quantity}</td>
-                        </tr>
-                      ))}
+                      {Array.isArray(selectedProduction.materials) && selectedProduction.materials.length > 0 ? (
+                        selectedProduction.materials.map((mat, i) => (
+                          <tr key={i} className="border-b hover:bg-secondary">
+                            <td className="py-2 px-3"><span className="px-2 md:px-3 py-1 bg-primary/10 text-primary rounded-full text-xs font-medium">{mat.material}</span></td>
+                            <td className="text-right py-2 px-3 font-semibold text-xs md:text-sm">{mat.quantity}</td>
+                          </tr>
+                        ))
+                      ) : (
+                        <tr><td colSpan={2} className="py-2 px-3 text-muted-foreground">No materials</td></tr>
+                      )}
                     </tbody>
                   </table>
                 </div>
@@ -304,9 +308,9 @@ export default function ProductionPage() {
                   {productions.map(prod => (
                     <tr key={prod._id} className="hover:bg-secondary/20">
                       <td className="py-2 px-4">#{prod._id.slice(-6)}</td>
-                      <td className="py-2 px-4">{prod.product}</td>
+                      <td className="py-2 px-4">{typeof prod.product === 'object' && prod.product !== null ? prod.product.name : prod.product}</td>
                       <td className="py-2 px-4">{prod.quantity}</td>
-                      <td className="py-2 px-4">{prod.materials.length}</td>
+                      <td className="py-2 px-4">{Array.isArray(prod.materials) ? prod.materials.length : 0}</td>
                       <td className="py-2 px-4">{new Date(prod.date).toLocaleDateString()}</td>
                       <td className="py-2 px-4 flex justify-center gap-2">
                         <Button size="sm" variant="outline" onClick={() => viewDetails(prod)}><Eye size={16}/></Button>
