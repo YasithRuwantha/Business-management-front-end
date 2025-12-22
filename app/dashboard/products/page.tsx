@@ -1,7 +1,7 @@
 "use client"
 
 import type React from "react"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { Card } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
@@ -10,6 +10,7 @@ import { ModalOverlay } from "@/components/modal-overlay"
 import Link from "next/link"
 
 import { useProducts } from "@/lib/product-context"
+import { useProductHistory } from "@/lib/product-history"
 
 type Product = {
   _id: string
@@ -48,9 +49,14 @@ export default function ProductsPage() {
   const [deletePurchaseId, setDeletePurchaseId] = useState<string | null>(null)
 
   const { products, fetchProducts, createProduct, updateProduct, deleteProduct } = useProducts()
-
+  const { histories, fetchHistories } = useProductHistory()
 
   // const findProductByName = (name: string) => products.find((p) => p.name === name)
+
+  useEffect(() => {
+    fetchProducts()
+    fetchHistories()
+  }, [])
 
   const handleDeleteProduct = async (id: string) => {
     await deleteProduct(id)

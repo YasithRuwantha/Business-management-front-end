@@ -23,9 +23,9 @@ interface ProductItem {
 }
 
 export default function ProductionPage() {
-  const { productions, loading, error, addProduction, deleteProduction } = useProduction()
-  const { types: productTypes, loading: loadingTypes } = useProductTypes()
-  const { materials: rawMaterials, loading: loadingMaterials } = useRawMaterials()
+  const { productions, loading, error, addProduction, deleteProduction, fetchProductions } = useProduction()
+  const { types: productTypes, loading: loadingTypes, fetchTypes } = useProductTypes()
+  const { materials: rawMaterials, loading: loadingMaterials, fetchRawMaterials } = useRawMaterials()
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [selectedProduction, setSelectedProduction] = useState<Production | null>(null)
   const [showDetailsModal, setShowDetailsModal] = useState(false)
@@ -40,6 +40,12 @@ export default function ProductionPage() {
       },
     ],
   })
+
+  useEffect(() => {
+    fetchProductions();
+    fetchTypes();
+    fetchRawMaterials();
+  }, [])
 
   const addProductField = () => {
     setFormData({
