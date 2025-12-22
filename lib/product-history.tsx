@@ -77,6 +77,7 @@ export const ProductHistoryProvider = ({
       const res = await fetch(`${backendUrl}/api/product-history`);
       if (!res.ok) throw new Error("Failed to fetch product history");
       const data = await res.json();
+      console.log("product histories :", data)
       setHistories(data);
       setError(null);
     } catch (err: any) {
@@ -126,6 +127,7 @@ export const ProductHistoryProvider = ({
   };
 
   const deleteHistory = async (id: string) => {
+    console.log("deleteHistory runned :", id)
     try {
       const res = await fetch(`${backendUrl}/api/product-history/${id}`, {
         method: "DELETE",

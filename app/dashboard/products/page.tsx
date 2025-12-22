@@ -49,7 +49,7 @@ export default function ProductsPage() {
   const [deletePurchaseId, setDeletePurchaseId] = useState<string | null>(null)
 
   const { products, fetchProducts, createProduct, updateProduct, deleteProduct } = useProducts()
-  const { histories, fetchHistories } = useProductHistory()
+  const { histories, fetchHistories, deleteHistory } = useProductHistory()
 
   // const findProductByName = (name: string) => products.find((p) => p.name === name)
 
@@ -173,16 +173,16 @@ export default function ProductsPage() {
           Do you want to deduct stock as well, or delete only the purchase history?
         </p>
         <div className="flex flex-col gap-3">
-          {/* <Button
+          <Button
             variant="destructive"
             onClick={async () => {
               if (!deletePurchaseId) return
-              await handleDeleteHistoryOnly(deletePurchaseId)
-              setIsDeleteModalOpen(false)
+              await deleteHistory(deletePurchaseId)
+              // setIsDeleteModalOpen(false)
             }}
           >
             Delete History Only
-          </Button> */}
+          </Button>
           {/* <Button
             onClick={async () => {
               if (!deletePurchaseId) return
@@ -248,24 +248,24 @@ export default function ProductsPage() {
                 <tr className="border-b">
                   <th className="text-left py-3 px-4 text-xs md:text-sm font-semibold text-foreground">Product</th>
                   <th className="text-left py-3 px-4 text-xs md:text-sm font-semibold text-foreground">Qty</th>
-                  <th className="text-left py-3 px-4 text-xs md:text-sm font-semibold text-foreground">Cost/Unit</th>
-                  <th className="text-left py-3 px-4 text-xs md:text-sm font-semibold text-foreground">Total</th>
+                  {/* <th className="text-left py-3 px-4 text-xs md:text-sm font-semibold text-foreground">Cost/Unit</th>
+                  <th className="text-left py-3 px-4 text-xs md:text-sm font-semibold text-foreground">Total</th> */}
                   <th className="text-left py-3 px-4 text-xs md:text-sm font-semibold text-foreground">Date</th>
                   <th className="text-left py-3 px-4 text-xs md:text-sm font-semibold text-foreground">Actions</th>
                 </tr>
               </thead>
               <tbody>
-                {/* {purchases.map((entry) => (
-                  <tr key={entry.id} className="border-b hover:bg-secondary/50 transition-colors">
-                    <td className="py-3 px-4 text-xs md:text-sm font-medium">{entry.name}</td>
+                {histories.map((entry) => (
+                  <tr key={entry._id} className="border-b hover:bg-secondary/50 transition-colors">
+                    <td className="py-3 px-4 text-xs md:text-sm font-medium">{entry.type.name}</td>
                     <td className="py-3 px-4 text-xs md:text-sm">{entry.quantity}</td>
-                    <td className="py-3 px-4 text-xs md:text-sm">${entry.costPerUnit.toFixed(2)}</td>
-                    <td className="py-3 px-4 text-xs md:text-sm font-semibold text-primary">${entry.cost.toFixed(2)}</td>
-                    <td className="py-3 px-4 text-xs md:text-sm">{entry.date}</td>
+                    {/* <td className="py-3 px-4 text-xs md:text-sm">${entry.costPerUnit.toFixed(2)}</td>
+                    <td className="py-3 px-4 text-xs md:text-sm font-semibold text-primary">${entry.cost.toFixed(2)}</td> */}
+                    <td className="py-3 px-4 text-xs md:text-sm">  {new Date(entry.date).toISOString().split("T")[0]}</td>
                     <td className="py-3 px-4 text-xs md:text-sm">
                       <button
                         onClick={() => {
-                          setDeletePurchaseId(entry.id)
+                          setDeletePurchaseId(entry._id)
                           setIsDeleteModalOpen(true)
                         }}
                         className="inline-flex items-center gap-1 text-red-600 hover:text-red-700"
@@ -274,7 +274,7 @@ export default function ProductsPage() {
                       </button>
                     </td>
                   </tr>
-                ))} */}
+                ))}
               </tbody>
             </table>
           </div>
