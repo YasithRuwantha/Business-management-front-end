@@ -152,10 +152,22 @@ export default function SalesPage() {
         <Button onClick={() => setIsModalOpen(true)} className="bg-primary hover:bg-primary/90 text-primary-foreground gap-2 shadow-lg">Record Sale(s)</Button>
       </div>
 
+      {/* Tabs */}
+      <div className="flex gap-2 border-b overflow-x-auto mb-4">
+        <button
+          onClick={() => setActiveTab('orders')}
+          className={`px-4 md:px-6 py-3 font-medium transition-colors whitespace-nowrap ${activeTab === 'orders' ? 'text-primary border-b-2 border-primary' : 'text-foreground/60 hover:text-foreground'}`}
+        >
+          Sales Orders
+        </button>
+        <button
+          onClick={() => setActiveTab('history')}
+          className={`px-4 md:px-6 py-3 font-medium transition-colors whitespace-nowrap ${activeTab === 'history' ? 'text-primary border-b-2 border-primary' : 'text-foreground/60 hover:text-foreground'}`}
+        >
+          Sales History
+        </button>
       </div>
 
-      {loading && <div className="flex justify-center items-center py-12"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>}
-      {error && <div className="bg-red-50 border border-red-200 text-red-800 px-4 py-3 rounded">{error}</div>}
       {/* Sales Summary */}
       <Card className="p-6 flex flex-col md:flex-row items-center justify-between gap-6 bg-blue-50">
         <div>
@@ -281,6 +293,7 @@ export default function SalesPage() {
       )}
 
       {/* Sales Orders Table */}
+      {activeTab === 'orders' && !loading && (
         <Card className="p-4 md:p-6">
           <h2 className="text-lg md:text-xl font-bold text-foreground mb-4 md:mb-6">Sales Orders</h2>
           {sales.length === 0 ? <div className="text-center py-12 text-muted-foreground">No sales records found.</div> : (
@@ -308,6 +321,39 @@ export default function SalesPage() {
                         <Button size="sm" variant="outline" onClick={() => viewDetails(sale)}><Eye size={16}/></Button>
                         <Button size="sm" variant="destructive" onClick={() => handleDelete(sale.id)}><Trash2 size={16}/></Button>
                       </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </Card>
+      )}
+
+      {/* Sales History Tab */}
+      {activeTab === 'history' && !loading && (
+        <Card className="p-4 md:p-6">
+          <h2 className="text-lg md:text-xl font-bold text-foreground mb-4 md:mb-6">Sales History</h2>
+          {sales.length === 0 ? <div className="text-center py-12 text-muted-foreground">No sales history found.</div> : (
+            <div className="overflow-x-auto -mx-4 md:mx-0">
+              <table className="w-full min-w-max md:min-w-full">
+                <thead>
+                  <tr className="border-b">
+                    <th className="text-left py-3 px-4 text-xs md:text-sm font-semibold text-foreground">ID</th>
+                    <th className="text-left py-3 px-4 text-xs md:text-sm font-semibold text-foreground">Customer</th>
+                    <th className="text-left py-3 px-4 text-xs md:text-sm font-semibold text-foreground">Items</th>
+                    <th className="text-left py-3 px-4 text-xs md:text-sm font-semibold text-foreground">Amount</th>
+                    <th className="text-left py-3 px-4 text-xs md:text-sm font-semibold text-foreground">Date</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {sales.map(sale => (
+                    <tr key={sale.id} className="hover:bg-secondary/10">
+                      <td className="py-2 px-4">#{sale.id?.slice(-6)}</td>
+                      <td className="py-2 px-4">{sale.customerName}</td>
+                      <td className="py-2 px-4">{sale.items.length} item(s)</td>
+                      <td className="py-2 px-4 text-green-600 font-bold">${sale.totalAmount?.toFixed(2)}</td>
+                      <td className="py-2 px-4">{new Date(sale.date).toLocaleDateString()}</td>
                     </tr>
                   ))}
                 </tbody>
