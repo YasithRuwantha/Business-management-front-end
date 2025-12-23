@@ -345,7 +345,12 @@ export default function SalesPage() {
                       {Array.isArray(selectedSale.items) && selectedSale.items.length > 0 ? (
                         selectedSale.items.map((item, i) => (
                           <tr key={i} className="border-b hover:bg-secondary">
-                            <td className="py-2 px-3"><span className="px-2 md:px-3 py-1 bg-primary/10 text-primary rounded-full text-xs font-medium">{item.product}</span></td>
+                            <td className="py-2 px-3"><span className="px-2 md:px-3 py-1 bg-primary/10 text-primary rounded-full text-xs font-medium">{
+                              (() => {
+                                const prod = products.find(p => p._id === item.product);
+                                return prod ? prod.typeId.name : item.product;
+                              })()
+                            }</span></td>
                             <td className="text-right py-2 px-3 font-semibold text-xs md:text-sm">{item.quantity}</td>
                             <td className="text-right py-2 px-3 font-semibold text-xs md:text-sm">${item.price?.toFixed(2)}</td>
                             <td className="text-right py-2 px-3 font-semibold text-xs md:text-sm">${item.total?.toFixed(2)}</td>
