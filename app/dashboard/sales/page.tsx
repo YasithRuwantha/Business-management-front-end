@@ -39,6 +39,9 @@ export default function SalesPage() {
   const [showDetailsModal, setShowDetailsModal] = useState(false);
   const [selectedSale, setSelectedSale] = useState(null);
 
+  // Tab state: 0 = Sales Orders, 1 = Sales History
+  const [activeTab, setActiveTab] = useState(0);
+
 
   // Calculate total price for a sale
   const calculateTotal = (items) => {
@@ -369,46 +372,74 @@ export default function SalesPage() {
         </div>
       )}
 
-      {/* Sales Orders Table */}
-      {!loading && (
-        <Card className="p-4 md:p-6">
-          <h2 className="text-lg md:text-xl font-bold text-foreground mb-4 md:mb-6">Sales Orders</h2>
-          {sales.length === 0 ? <div className="text-center py-12 text-muted-foreground">No sales records found.</div> : (
-            <div className="overflow-x-auto -mx-4 md:mx-0">
-              <table className="w-full min-w-max md:min-w-full">
-                <thead>
-                  <tr className="border-b">
-                    <th className="text-left py-3 px-4 text-xs md:text-sm font-semibold text-foreground">ID</th>
-                    <th className="text-left py-3 px-4 text-xs md:text-sm font-semibold text-foreground">Customer</th>
-                    <th className="text-left py-3 px-4 text-xs md:text-sm font-semibold text-foreground">Items</th>
-                    <th className="text-left py-3 px-4 text-xs md:text-sm font-semibold text-foreground">Amount</th>
-                    <th className="text-left py-3 px-4 text-xs md:text-sm font-semibold text-foreground">Date</th>
-                    <th className="text-center py-3 px-4 text-xs md:text-sm font-semibold text-foreground">Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {sales.map((sale, idx) => (
-                    <tr key={`order-table-${sale.id || idx}`} className="hover:bg-secondary/20">
-                      <td className="py-2 px-4">#{sale.id?.slice(-6)}</td>
-                      <td className="py-2 px-4">
-                        {sale.customerName}
-                        {!customers.some(c => c.id === sale.customerId) && " (Removed Customer)"}
-                      </td>
-                      <td className="py-2 px-4">{sale.items.length} item(s)</td>
-                      <td className="py-2 px-4 text-green-600 font-bold">${sale.totalAmount?.toFixed(2)}</td>
-                      <td className="py-2 px-4">{new Date(sale.date).toLocaleDateString()}</td>
-                      <td className="py-2 px-4 flex justify-center gap-2">
-                        <Button size="sm" variant="outline" onClick={() => viewDetails(sale)}><Eye size={16}/></Button>
-                        <Button size="sm" variant="destructive" onClick={() => handleDelete(sale.id)}><Trash2 size={16}/></Button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+
+      {/* Tabs for Sales Orders and Sales History */}
+      <div className="mt-8">
+        <div className="flex border-b border-border mb-4">
+          <button
+            className={`px-4 py-2 font-semibold text-sm md:text-base focus:outline-none transition-colors border-b-2 ${activeTab === 0 ? 'border-primary text-primary' : 'border-transparent text-muted-foreground hover:text-foreground'}`}
+            onClick={() => setActiveTab(0)}
+          >
+            Sales Orders
+          </button>
+          <button
+            className={`px-4 py-2 font-semibold text-sm md:text-base focus:outline-none transition-colors border-b-2 ${activeTab === 1 ? 'border-primary text-primary' : 'border-transparent text-muted-foreground hover:text-foreground'}`}
+            onClick={() => setActiveTab(1)}
+          >
+            Sales History
+          </button>
+        </div>
+        {/* Tab Content */}
+        {activeTab === 0 && (
+          !loading && (
+            <Card className="p-4 md:p-6">
+              <h2 className="text-lg md:text-xl font-bold text-foreground mb-4 md:mb-6">Sales Orders</h2>
+              {sales.length === 0 ? <div className="text-center py-12 text-muted-foreground">No sales records found.</div> : (
+                <div className="overflow-x-auto -mx-4 md:mx-0">
+                  <table className="w-full min-w-max md:min-w-full">
+                    <thead>
+                      <tr className="border-b">
+                        <th className="text-left py-3 px-4 text-xs md:text-sm font-semibold text-foreground">ID</th>
+                        <th className="text-left py-3 px-4 text-xs md:text-sm font-semibold text-foreground">Customer</th>
+                        <th className="text-left py-3 px-4 text-xs md:text-sm font-semibold text-foreground">Items</th>
+                        <th className="text-left py-3 px-4 text-xs md:text-sm font-semibold text-foreground">Amount</th>
+                        <th className="text-left py-3 px-4 text-xs md:text-sm font-semibold text-foreground">Date</th>
+                        <th className="text-center py-3 px-4 text-xs md:text-sm font-semibold text-foreground">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {sales.map((sale, idx) => (
+                        <tr key={`order-table-${sale.id || idx}`} className="hover:bg-secondary/20">
+                          <td className="py-2 px-4">#{sale.id?.slice(-6)}</td>
+                          <td className="py-2 px-4">
+                            {sale.customerName}
+                            {!customers.some(c => c.id === sale.customerId) && " (Removed Customer)"}
+                          </td>
+                          <td className="py-2 px-4">{sale.items.length} item(s)</td>
+                          <td className="py-2 px-4 text-green-600 font-bold">${sale.totalAmount?.toFixed(2)}</td>
+                          <td className="py-2 px-4">{new Date(sale.date).toLocaleDateString()}</td>
+                          <td className="py-2 px-4 flex justify-center gap-2">
+                            <Button size="sm" variant="outline" onClick={() => viewDetails(sale)}><Eye size={16}/></Button>
+                            <Button size="sm" variant="destructive" onClick={() => handleDelete(sale.id)}><Trash2 size={16}/></Button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </Card>
+          )
+        )}
+        {activeTab === 1 && (
+          <Card className="p-4 md:p-6">
+            <h2 className="text-lg md:text-xl font-bold text-foreground mb-4 md:mb-6">Sales History</h2>
+            <div className="text-muted-foreground text-center py-8">
+              Sales history details will appear here.
             </div>
-          )}
-        </Card>
-      )}
+          </Card>
+        )}
+      </div>
 
     </div>
   );
