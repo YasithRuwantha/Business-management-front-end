@@ -22,9 +22,9 @@ interface ProductItem {
 }
 
 export default function SalesPage() {
-  const { sales, loading, error, addSale } = useSales();
-  const { customers, loading: loadingCustomers } = useCustomers();
-  const { types: productTypes, loading: loadingTypes } = useProductTypes();
+  const { sales, loading, error, addSale, deleteSale } = useSales();
+  const { customers, loading: loadingCustomers, fetchCustomers } = useCustomers();
+  const { products, loading: loadingProducts, fetchProducts } = useProducts();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [formData, setFormData] = useState({
@@ -134,10 +134,22 @@ export default function SalesPage() {
     setShowDetailsModal(true);
   };
 
-  // Remove Sale (dummy, implement as needed)
+  // Remove Sale
   const handleDelete = async (id) => {
     if (!confirm("Delete this sale?")) return;
-    alert("Delete not implemented");
+    const success = await deleteSale(id);
+    if (success) {
+      if (typeof fetchProducts === "function") fetchProducts(); // Refresh product stock
+      alert("Sale deleted and products restocked!");
+    } else {
+      alert("Failed to delete sale");
+    }
+  };
+
+  // Fetch products when modal opens
+  const handleOpenModal = () => {
+    setIsModalOpen(true);
+    if (products.length === 0) fetchProducts();
   };
 
   // UI Render

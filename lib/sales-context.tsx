@@ -75,12 +75,29 @@ export function SalesProvider({ children }: { children: ReactNode }) {
     }
   };
 
+
+  const deleteSale = async (id: string) => {
+    try {
+      setLoading(true);
+      setError(null);
+      const res = await fetch(`${backendUrl}/api/sales/${id}`, { method: "DELETE" });
+      if (!res.ok) throw new Error(`Failed to delete sale (${res.status})`);
+      setSales((prev) => prev.filter((s) => s.id !== id));
+      return true;
+    } catch (err: any) {
+      setError(err?.message ?? "Failed to delete sale");
+      return false;
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
     fetchSales();
   }, []);
 
   return (
-    <SalesContext.Provider value={{ sales, loading, error, fetchSales, addSale }}>
+    <SalesContext.Provider value={{ sales, loading, error, fetchSales, addSale, deleteSale }}>
       {children}
     </SalesContext.Provider>
   );
