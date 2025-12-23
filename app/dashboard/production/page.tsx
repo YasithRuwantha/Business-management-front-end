@@ -25,7 +25,7 @@ interface ProductItem {
 }
 
 export default function ProductionPage() {
-  const { productions, loading, error, addProduction, deleteProduction, fetchProductions, handleDeleteAndRestore } = useProduction()
+  const { productions, loading, error, addProduction, deleteProduction, fetchProductions, handleDeleteAndRestore, deleteProductionHistory } = useProduction()
   const { types: productTypes, loading: loadingTypes, fetchTypes } = useProductTypes()
   const { materials: rawMaterials, loading: loadingMaterials, fetchRawMaterials } = useRawMaterials()
   const [isModalOpen, setIsModalOpen] = useState(false)
@@ -619,7 +619,7 @@ export default function ProductionPage() {
                 variant="destructive"
                 onClick={async () => {
                   if (!deletePurchaseId) return
-                  // await deleteHistory(deletePurchaseId)
+                  await deleteProductionHistory(deletePurchaseId)
                   setIsDeleteModalOpen(false)
                 }}
               >
