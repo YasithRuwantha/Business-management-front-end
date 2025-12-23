@@ -9,6 +9,8 @@ import { Trash2, Eye, X, Plus, Loader2 } from "lucide-react"
 import { useProduction, type Production } from "@/lib/production-context"
 import { useProductTypes } from "@/lib/product-type-context"
 import { useRawMaterials } from "@/lib/raw-material-context"
+import { ModalOverlay } from "@/components/modal-overlay"
+
 
 interface MaterialItem {
   material: string
@@ -23,13 +25,15 @@ interface ProductItem {
 }
 
 export default function ProductionPage() {
-  const { productions, loading, error, addProduction, deleteProduction, fetchProductions } = useProduction()
+  const { productions, loading, error, addProduction, deleteProduction, fetchProductions, handleDeleteAndRestore } = useProduction()
   const { types: productTypes, loading: loadingTypes, fetchTypes } = useProductTypes()
   const { materials: rawMaterials, loading: loadingMaterials, fetchRawMaterials } = useRawMaterials()
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [selectedProduction, setSelectedProduction] = useState<Production | null>(null)
+  const [deletePurchaseId, setDeletePurchaseId] = useState<string | null>(null)
   const [showDetailsModal, setShowDetailsModal] = useState(false)
   const [submitting, setSubmitting] = useState(false)
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
   const [formData, setFormData] = useState({
     products: [
       {
@@ -579,7 +583,10 @@ export default function ProductionPage() {
                             View
                           </button>
                           <button
-                            onClick={() => handleDelete(record._id)}
+                            onClick={() =>{
+                              setDeletePurchaseId(record._id)
+                              setIsDeleteModalOpen(true)
+                            } }
                             className="inline-flex items-center gap-1 text-red-600 hover:text-red-700 transition-colors"
                           >
                             <Trash2 size={16} />
@@ -594,6 +601,45 @@ export default function ProductionPage() {
           )}
         </Card>
       )}
+
+    {/* Delete Purchase Modal */}
+          <ModalOverlay
+            isOpen={isDeleteModalOpen}
+            onClose={() => {
+              setIsDeleteModalOpen(false)
+              // setDeletePurchaseId(null)
+            }}
+            title="Delete Purchase"
+          >
+            <p className="text-sm text-muted-foreground mb-4">
+              Do you want to restore stock as well, or delete only the product history?
+            </p>
+            <div className="flex flex-col gap-3">
+              <Button
+                variant="destructive"
+                onClick={async () => {
+                  if (!deletePurchaseId) return
+                  // await deleteHistory(deletePurchaseId)
+                  setIsDeleteModalOpen(false)
+                }}
+              >
+                Delete History Only
+              </Button>
+              <Button
+                onClick={async () => {
+                  if (!deletePurchaseId) return
+                  await handleDeleteAndRestore(deletePurchaseId)
+                  setIsDeleteModalOpen(false)
+                }}
+              >
+                Delete & restore Stock
+              </Button>
+              <Button variant="secondary" onClick={() => setIsDeleteModalOpen(false)}>
+                Cancel
+              </Button>
+            </div>
+          </ModalOverlay>
+      
     </div>
   )
 }
