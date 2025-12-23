@@ -23,7 +23,9 @@ const menuItems = [
   { label: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
   { label: "Customers", href: "/dashboard/customers", icon: Users },
   { label: "Raw Materials", href: "/dashboard/raw-materials", icon: Layers },
+  { label: "Raw Materials Type", href: "/dashboard/raw-materials-type", icon: Layers},
   { label: "Products", href: "/dashboard/products", icon: Package },
+  { label: "Product Type", href: "/dashboard/product-type", icon: Package },
   { label: "Production", href: "/dashboard/production", icon: Zap },
   { label: "Sales", href: "/dashboard/sales", icon: ShoppingCart },
   { label: "Monthly Summary", href: "/dashboard/daily-summary", icon: Calendar },
@@ -48,7 +50,7 @@ export default function Sidebar({ onClose }: SidebarProps) {
         <p className="text-xs text-muted-foreground mt-1">Admin Panel</p>
       </div>
 
-      <nav className="flex-1 p-2 md:p-4 space-y-1 md:space-y-2 overflow-y-auto">
+      <nav className="flex-1 p-2 md:p-4 space-y-1 md:space-y-2 overflow-y-scroll scrollbar-hide">
         {menuItems.map((item) => {
           const Icon = item.icon
           const isActive = pathname === item.href
