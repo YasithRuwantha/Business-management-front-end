@@ -7,9 +7,8 @@ import { Button } from "@/components/ui/button";
 import { Trash2, Eye, X, Plus, Loader2 } from "lucide-react";
 import { useSales } from "@/lib/sales-context";
 import { useCustomers } from "@/lib/customers-context";
-import { useProductTypes } from "@/lib/product-type-context";
+import { useProducts } from "@/lib/product-context";
 import { useRawMaterials } from "@/lib/raw-material-context";
-
 interface MaterialItem {
   material: string;
   quantity: string;
@@ -39,7 +38,7 @@ export default function SalesPage() {
   });
   const [showDetailsModal, setShowDetailsModal] = useState(false);
   const [selectedSale, setSelectedSale] = useState(null);
-  const [activeTab, setActiveTab] = useState<'orders' | 'history'>('orders');
+
 
   // Calculate total price for a sale
   const calculateTotal = (items) => {
@@ -119,6 +118,7 @@ export default function SalesPage() {
           ],
         });
         setIsModalOpen(false);
+        fetchCustomers();
         alert(`${successCount} sale(s) recorded!`);
       }
     } catch (err) {
@@ -149,24 +149,9 @@ export default function SalesPage() {
           <h1 className="text-4xl font-bold text-foreground">Sales Orders</h1>
           <p className="text-muted-foreground mt-1">Record and manage sales with multiple items per order</p>
         </div>
-        <Button onClick={() => setIsModalOpen(true)} className="bg-primary hover:bg-primary/90 text-primary-foreground gap-2 shadow-lg">Record Sale(s)</Button>
+        <Button onClick={handleOpenModal} className="bg-primary hover:bg-primary/90 text-primary-foreground gap-2 shadow-lg">Record Sale(s)</Button>
       </div>
 
-      {/* Tabs */}
-      <div className="flex gap-2 border-b overflow-x-auto mb-4">
-        <button
-          onClick={() => setActiveTab('orders')}
-          className={`px-4 md:px-6 py-3 font-medium transition-colors whitespace-nowrap ${activeTab === 'orders' ? 'text-primary border-b-2 border-primary' : 'text-foreground/60 hover:text-foreground'}`}
-        >
-          Sales Orders
-        </button>
-        <button
-          onClick={() => setActiveTab('history')}
-          className={`px-4 md:px-6 py-3 font-medium transition-colors whitespace-nowrap ${activeTab === 'history' ? 'text-primary border-b-2 border-primary' : 'text-foreground/60 hover:text-foreground'}`}
-        >
-          Sales History
-        </button>
-      </div>
 
       {/* Sales Summary */}
       <Card className="p-6 flex flex-col md:flex-row items-center justify-between gap-6 bg-blue-50">
@@ -190,7 +175,7 @@ export default function SalesPage() {
             </div>
             <form onSubmit={handleAddSales} className="p-4 md:p-6 space-y-8">
               {formData.sales.map((sale, si) => (
-                <div key={si} className="border border-border rounded-lg p-4 space-y-4 bg-secondary/20">
+                <div key={`sale-form-${si}`} className="border border-border rounded-lg p-4 space-y-4 bg-secondary/20">
                   <div className="flex justify-between items-center">
                     <h4 className="font-semibold text-foreground">Sale #{si + 1}</h4>
                     {formData.sales.length > 1 && <button type="button" onClick={() => removeSaleField(si)} className="text-red-600 hover:text-red-700 flex items-center gap-1 text-sm"><X size={18} /> Remove Sale</button>}
@@ -213,13 +198,88 @@ export default function SalesPage() {
                       <button type="button" onClick={() => addItemField(si)} className="flex items-center gap-1 text-primary hover:text-primary/80 text-xs font-medium"><Plus size={16}/> Add Item</button>
                     </div>
                     {sale.items.map((item, idx) => (
-                      <div key={idx} className="border border-border rounded-lg p-3 space-y-2 bg-secondary/10">
+                      <div key={`sale-${si}-item-${idx}`} className="border border-border rounded-lg p-3 space-y-2 bg-secondary/10">
                         <div className="grid grid-cols-1 sm:grid-cols-12 gap-2">
                           <select value={item.product} onChange={e => updateItem(si, idx, "product", e.target.value)} className="col-span-1 sm:col-span-6 px-3 py-2 border border-input rounded-md bg-background text-foreground text-sm">
                             <option value="">Select product...</option>
-                            {productTypes.map(p => <option key={p._id} value={p.name}>{p.name} ({p.unit})</option>)}
+                            {products.map(p => {
+                              // Calculate how much of this product is already entered in ALL sales/items in the modal
+                              let usedQty = 0;
+                              formData.sales.forEach((sale, saleIdx) => {
+                                sale.items.forEach((itm, itmIdx) => {
+                                  if (itm.product === p._id && !(saleIdx === si && itmIdx === idx)) {
+                                    usedQty += Number(itm.quantity) || 0;
+                                  }
+                                });
+                              });
+                              const stockLeft = p.quantity - usedQty;
+                              return (
+                                <option key={p._id} value={p._id}>
+                                  {p.typeId.name} ({p.typeId.unit}) - Stock: {stockLeft}
+                                </option>
+                              );
+                            })}
                           </select>
-                          <Input type="number" min="1" placeholder="Qty" value={item.quantity} onChange={e => updateItem(si, idx, "quantity", e.target.value)} className="col-span-1 sm:col-span-3 text-sm" />
+                          {(() => {
+                            const p = products.find(prod => prod._id === item.product);
+                            if (!p) return (
+                              <Input
+                                type="number"
+                                min="1"
+                                placeholder="Qty"
+                                value={item.quantity}
+                                onChange={e => updateItem(si, idx, "quantity", e.target.value)}
+                                className="col-span-1 sm:col-span-3 text-sm"
+                              />
+                            );
+                            // Calculate how much of this product is already entered in ALL sales/items in the modal (excluding this item)
+                            let usedQty = 0;
+                            formData.sales.forEach((sale, saleIdx) => {
+                              sale.items.forEach((itm, itmIdx) => {
+                                if (itm.product === item.product && !(saleIdx === si && itmIdx === idx)) {
+                                  usedQty += Number(itm.quantity) || 0;
+                                }
+                              });
+                            });
+                            const originalStock = p.quantity;
+                            const availableQty = originalStock - usedQty;
+                            const enteredQty = Number(item.quantity) || 0;
+                            const afterUse = availableQty - enteredQty;
+                            const isInsufficient = afterUse < 0;
+                            return (
+                              <div className="col-span-1 sm:col-span-3 flex flex-col gap-1">
+                                <Input
+                                  type="number"
+                                  min="1"
+                                  max={availableQty}
+                                  placeholder="Qty"
+                                  value={item.quantity}
+                                  onChange={e => updateItem(si, idx, "quantity", e.target.value)}
+                                  className={`text-sm ${isInsufficient ? 'border-red-500 focus:ring-red-500' : ''}`}
+                                />
+                                {item.product && (
+                                  <div className="text-xs pl-1 space-y-0.5">
+                                    <div className="text-muted-foreground">
+                                      Current Stock: <span className="font-semibold text-blue-600">{availableQty} {p.typeId.unit}</span>
+                                    </div>
+                                    {enteredQty > 0 && (
+                                      <div className="text-muted-foreground">
+                                        {isInsufficient ? (
+                                          <span className="font-semibold text-red-600">
+                                            ⚠️ Insufficient! Need {Math.abs(afterUse).toFixed(2)} {p.typeId.unit} more
+                                          </span>
+                                        ) : (
+                                          <>
+                                            After Use: <span className="font-semibold text-blue-600">{afterUse.toFixed(2)} {p.typeId.unit} remaining</span>
+                                          </>
+                                        )}
+                                      </div>
+                                    )}
+                                  </div>
+                                )}
+                              </div>
+                            );
+                          })()}
                           <Input type="number" min="0" step="0.01" placeholder="Price" value={item.price} onChange={e => updateItem(si, idx, "price", e.target.value)} className="col-span-1 sm:col-span-3 text-sm" />
                           {sale.items.length > 1 && <button type="button" onClick={() => removeItemField(si, idx)} className="col-span-1 sm:col-span-2 flex justify-center sm:justify-end text-red-600 hover:text-red-700"><Trash2 size={16} /></button>}
                         </div>
@@ -293,7 +353,7 @@ export default function SalesPage() {
       )}
 
       {/* Sales Orders Table */}
-      {activeTab === 'orders' && !loading && (
+      {!loading && (
         <Card className="p-4 md:p-6">
           <h2 className="text-lg md:text-xl font-bold text-foreground mb-4 md:mb-6">Sales Orders</h2>
           {sales.length === 0 ? <div className="text-center py-12 text-muted-foreground">No sales records found.</div> : (
@@ -310,10 +370,13 @@ export default function SalesPage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {sales.map(sale => (
-                    <tr key={sale.id} className="hover:bg-secondary/20">
+                  {sales.map((sale, idx) => (
+                    <tr key={`order-table-${sale.id || idx}`} className="hover:bg-secondary/20">
                       <td className="py-2 px-4">#{sale.id?.slice(-6)}</td>
-                      <td className="py-2 px-4">{sale.customerName}</td>
+                      <td className="py-2 px-4">
+                        {sale.customerName}
+                        {!customers.some(c => c.id === sale.customerId) && " (Removed Customer)"}
+                      </td>
                       <td className="py-2 px-4">{sale.items.length} item(s)</td>
                       <td className="py-2 px-4 text-green-600 font-bold">${sale.totalAmount?.toFixed(2)}</td>
                       <td className="py-2 px-4">{new Date(sale.date).toLocaleDateString()}</td>
@@ -330,38 +393,6 @@ export default function SalesPage() {
         </Card>
       )}
 
-      {/* Sales History Tab */}
-      {activeTab === 'history' && !loading && (
-        <Card className="p-4 md:p-6">
-          <h2 className="text-lg md:text-xl font-bold text-foreground mb-4 md:mb-6">Sales History</h2>
-          {sales.length === 0 ? <div className="text-center py-12 text-muted-foreground">No sales history found.</div> : (
-            <div className="overflow-x-auto -mx-4 md:mx-0">
-              <table className="w-full min-w-max md:min-w-full">
-                <thead>
-                  <tr className="border-b">
-                    <th className="text-left py-3 px-4 text-xs md:text-sm font-semibold text-foreground">ID</th>
-                    <th className="text-left py-3 px-4 text-xs md:text-sm font-semibold text-foreground">Customer</th>
-                    <th className="text-left py-3 px-4 text-xs md:text-sm font-semibold text-foreground">Items</th>
-                    <th className="text-left py-3 px-4 text-xs md:text-sm font-semibold text-foreground">Amount</th>
-                    <th className="text-left py-3 px-4 text-xs md:text-sm font-semibold text-foreground">Date</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {sales.map(sale => (
-                    <tr key={sale.id} className="hover:bg-secondary/10">
-                      <td className="py-2 px-4">#{sale.id?.slice(-6)}</td>
-                      <td className="py-2 px-4">{sale.customerName}</td>
-                      <td className="py-2 px-4">{sale.items.length} item(s)</td>
-                      <td className="py-2 px-4 text-green-600 font-bold">${sale.totalAmount?.toFixed(2)}</td>
-                      <td className="py-2 px-4">{new Date(sale.date).toLocaleDateString()}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
-        </Card>
-      )}
     </div>
   );
 }

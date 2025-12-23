@@ -26,7 +26,8 @@ type SalesContextType = {
   loading: boolean;
   error: string | null;
   fetchSales: () => Promise<void>;
-  addSale: (data: { customerId: string; items: { product: string; quantity: number; price: number }[]; note?: string }) => Promise<Sale | null>;
+  addSale: (data: { customerId: string; items: { product: string; quantity: number; price: number }[]; note?: string; date?: string }) => Promise<Sale | null>;
+  deleteSale: (id: string) => Promise<boolean>;
 };
 
 const SalesContext = createContext<SalesContextType>({} as SalesContextType);
@@ -53,7 +54,7 @@ export function SalesProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const addSale = async (payload: { customerId: string; items: { product: string; quantity: number; price: number }[]; note?: string }) => {
+  const addSale = async (payload: { customerId: string; items: { product: string; quantity: number; price: number }[]; note?: string; date?: string }) => {
     try {
       setLoading(true);
       setError(null);
