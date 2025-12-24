@@ -9,6 +9,7 @@ import { useSales } from "@/lib/sales-context";
 import { useCustomers } from "@/lib/customers-context";
 import { useProducts } from "@/lib/product-context";
 import { useRawMaterials } from "@/lib/raw-material-context";
+import SalesHistory from "@/lib/sales-history";
 interface MaterialItem {
   material: string;
   quantity: string;
@@ -432,11 +433,8 @@ export default function SalesPage() {
           )
         )}
         {activeTab === 1 && (
-          <Card className="p-4 md:p-6">
-            <h2 className="text-lg md:text-xl font-bold text-foreground mb-4 md:mb-6">Sales History</h2>
-            <div className="text-muted-foreground text-center py-8">
-              Sales history details will appear here.
-            </div>
+          <Card className="p-0 md:p-0">
+            <SalesHistory />
           </Card>
         )}
       </div>
