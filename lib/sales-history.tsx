@@ -123,5 +123,30 @@ export default function SalesHistory() {
         </div>
       )}
 
+      {/* Delete Sales History Modal */}
+      <ModalOverlay
+        isOpen={isDeleteModalOpen}
+        onClose={() => {
+          setIsDeleteModalOpen(false);
+          setDeleteId(null);
+        }}
+        title="Delete Sales History"
+      >
+        <p className="text-sm text-muted-foreground mb-4">
+          Are you sure you want to delete this sales history record? This will not affect the original sale.
+        </p>
+        <div className="flex flex-col gap-3">
+          <Button
+            variant="destructive"
+            onClick={handleDelete}
+          >
+            Delete History Only
+          </Button>
+          <Button variant="secondary" onClick={() => setIsDeleteModalOpen(false)}>
+            Cancel
+          </Button>
+        </div>
+      </ModalOverlay>
+    </div>
   );
 }
