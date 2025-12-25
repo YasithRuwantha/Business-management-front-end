@@ -20,12 +20,16 @@ type Customer = {
 
 
 export default function CustomersPage() {
-  const { customers, loading, error, addCustomer, deleteCustomer } = useCustomers()
+  const { customers, loading, error, addCustomer, deleteCustomer, fetchCustomers } = useCustomers()
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [formData, setFormData] = useState({ name: "", phone: "", address: "" })
   const [confirmOpen, setConfirmOpen] = useState(false)
   const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null)
   const [pendingDeleteName, setPendingDeleteName] = useState<string>("")
+
+  useEffect(() => {
+    fetchCustomers();
+  }, []);
 
   const handleAddCustomer = async (e: React.FormEvent) => {
     e.preventDefault()

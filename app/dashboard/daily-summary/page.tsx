@@ -1,6 +1,8 @@
 "use client"
 
 import { Card } from "@/components/ui/card"
+import { useCustomers } from "@/lib/customers-context"
+import { useEffect, useState } from "react"
 
 const monthlyData = {
   sales: [
@@ -106,15 +108,22 @@ export default function MonthlySummaryPage() {
   const profitChange = calculatePercentChange(currentMonthData.totalProfit, currentMonthData.lastMonthProfit)
   const itemsChange = calculatePercentChange(currentMonthData.totalItems, currentMonthData.lastMonthItems)
 
+
+  const { topCustomers, fetchTopCustomers } = useCustomers()
+
+  useEffect(() => {
+    fetchTopCustomers()
+  }, [])
+
   return (
-    <div className="p-8 space-y-8">
+    <div className="p-4 space-y-8">
       {/* Header */}
       <div>
         <h1 className="text-4xl font-bold text-foreground">Monthly Sales Summary</h1>
         <p className="text-muted-foreground mt-2">Overview of this month's sales performance and metrics.</p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="w-full gap-6">
         {/* This Month's Sales */}
         <Card className="p-6 border border-gray-200 hover:shadow-lg transition-shadow">
           <p className="text-sm font-semibold text-gray-600">This Month's Sales</p>
@@ -124,7 +133,8 @@ export default function MonthlySummaryPage() {
             {salesChange.percentage}% from last month
           </p>
         </Card>
-
+      </div>
+      <div className="grid grid-cols-2 md:grid-cols-2 gap-6">
         {/* Total Profit */}
         <Card className="p-6 border border-gray-200 hover:shadow-lg transition-shadow">
           <p className="text-sm font-semibold text-gray-600">Total Profit</p>
@@ -151,16 +161,16 @@ export default function MonthlySummaryPage() {
         <Card className="p-6 border border-gray-200">
           <h2 className="text-2xl font-bold text-foreground mb-6">Top Customers</h2>
           <div className="space-y-3">
-            {currentMonthData.topCustomers.map((customer, index) => (
+            {topCustomers.map((customer, index) => (
               <div
                 key={index}
                 className="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
               >
                 <div>
                   <p className="font-semibold text-foreground">{customer.name}</p>
-                  <p className="text-sm text-gray-600">{customer.orders} orders</p>
+                  <p className="text-sm text-gray-600">{customer.orderCount} orders</p>
                 </div>
-                <p className="text-lg font-bold text-blue-600">${customer.sales.toLocaleString()}</p>
+                <p className="text-lg font-bold text-blue-600">${customer.totalSpent}</p>
               </div>
             ))}
           </div>
