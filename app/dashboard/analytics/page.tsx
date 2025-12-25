@@ -16,6 +16,10 @@ import {
   ResponsiveContainer,
 } from "recharts"
 
+import { useSales } from "@/lib/sales-context" 
+import { useCustomers } from "@/lib/customers-context"
+import { useEffect } from "react"
+
 const data = {
   monthlyRevenue: [
     { month: "Jan", revenue: 12000 },
@@ -70,6 +74,15 @@ export default function AnalyticsPage() {
   const totalProfit = "$29,550"
   const totalItems = "1,847"
 
+  const { fetchSales, fetchYearlyStats, fetchMonthlyRevenue, monthlyRevenue } = useSales();
+  const { yearlyTopCustomers, fetchYearlyTopCustomers } = useCustomers();
+
+  useEffect(() => {
+    fetchYearlyTopCustomers()
+    fetchYearlyStats(new Date().getFullYear());
+    fetchMonthlyRevenue(new Date().getFullYear());
+  }, [])
+
   return (
     <div className="p-6 lg:p-8 space-y-8 bg-background min-h-screen">
       {/* Header */}
@@ -92,10 +105,10 @@ export default function AnalyticsPage() {
           <div className="space-y-6">
             <div>
               <h2 className="text-lg font-bold text-foreground">Monthly Revenue</h2>
-              <p className="text-sm text-muted-foreground mt-1">Revenue trend over the last 6 months</p>
+              <p className="text-sm text-muted-foreground mt-1">Revenue trend over the year</p>
             </div>
             <ResponsiveContainer width="100%" height={320}>
-              <BarChart data={data.monthlyRevenue} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
+              <BarChart data={monthlyRevenue} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
                 <XAxis dataKey="month" stroke="#9ca3af" />
                 <YAxis stroke="#9ca3af" />
@@ -106,7 +119,7 @@ export default function AnalyticsPage() {
                     borderRadius: "8px",
                   }}
                 />
-                <Bar dataKey="revenue" fill="#3b82f6" radius={[8, 8, 0, 0]} />
+                <Bar dataKey="totalRevenue" fill="#3b82f6" radius={[8, 8, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
           </div>
@@ -183,16 +196,16 @@ export default function AnalyticsPage() {
               <p className="text-sm text-muted-foreground mt-1">Your best customers by total spending</p>
             </div>
             <div className="space-y-4">
-              {data.topCustomers.map((customer, index) => (
+              {yearlyTopCustomers.map((customer, index) => (
                 <div
                   key={index}
                   className="flex items-center justify-between p-4 bg-secondary rounded-lg hover:bg-secondary/80 transition-colors"
                 >
                   <div className="flex-1">
                     <p className="font-semibold text-foreground">{customer.name}</p>
-                    <p className="text-sm text-muted-foreground">{customer.orders} orders</p>
+                    <p className="text-sm text-muted-foreground">{customer.orderCount} orders</p>
                   </div>
-                  <p className="text-lg font-bold text-blue-600">${customer.spent.toLocaleString()}</p>
+                  <p className="text-lg font-bold text-blue-600">${customer.totalSpent.toLocaleString()}</p>
                 </div>
               ))}
             </div>

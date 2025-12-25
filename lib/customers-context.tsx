@@ -15,13 +15,13 @@ export type Customer = {
 
 type CustomersContextType = {
   customers: Customer[];
-  topCustomers: Customer[];
+  yearlyTopCustomers: Customer[];
   loading: boolean;
   error: string | null;
   fetchCustomers: () => Promise<void>;
   addCustomer: (data: Pick<Customer, "name" | "phone" | "address">) => Promise<Customer | null>;
   deleteCustomer: (id: string) => Promise<void>;
-  fetchTopCustomers: (limit?: number) => Promise<void>; 
+  fetchYearlyTopCustomers: (limit?: number) => Promise<void>; 
 
 };
 
@@ -31,7 +31,7 @@ export const useCustomers = () => useContext(CustomersContext);
 
 export function CustomersProvider({ children }: { children: ReactNode }) {
   const [customers, setCustomers] = useState<Customer[]>([]);
-  const [topCustomers, setTopCustomers] = useState<Customer[]>([]);
+  const [yearlyTopCustomers, setYearlyTopCustomers] = useState<Customer[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -88,15 +88,15 @@ export function CustomersProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const fetchTopCustomers = async (limit: number = 5) => {
+  const fetchYearlyTopCustomers = async (limit: number = 5) => {
     try {
       setLoading(true);
       setError(null);
-      const res = await fetch(`${backendUrl}/api/customers/getTopSpendCustomers`, );
+      const res = await fetch(`${backendUrl}/api/customers/getTopSpendCustomersYearly`, );
       if (!res.ok) throw new Error(`Failed to fetch top customers (${res.status})`);
       const data = await res.json();
-      console.log("Fetched Top Customers:", data);
-      setTopCustomers(Array.isArray(data) ? data : data?.customers ?? []);
+      // console.log("Fetched Yearly Top Customers:", data);
+      setYearlyTopCustomers(Array.isArray(data) ? data : data?.customers ?? []);
     } catch (err: any) {
       setError(err?.message ?? "Failed to load top customers");
     } finally {
@@ -106,7 +106,7 @@ export function CustomersProvider({ children }: { children: ReactNode }) {
 
   return (
     <CustomersContext.Provider
-      value={{ customers, topCustomers, loading, error, fetchCustomers, addCustomer, deleteCustomer, fetchTopCustomers }}
+      value={{ customers, yearlyTopCustomers, loading, error, fetchCustomers, addCustomer, deleteCustomer, fetchYearlyTopCustomers }}
     >
       {children}
     </CustomersContext.Provider>

@@ -5,73 +5,6 @@ import { useCustomers } from "@/lib/customers-context"
 import { useEffect, useState } from "react"
 import { useSales } from "@/lib/sales-context"
 
-const monthlyData = {
-  sales: [
-    {
-      id: 1,
-      month: "November",
-      totalSales: 284650,
-      totalProfit: 85240,
-      totalItems: 1250,
-      topCustomer: "Direct Sales",
-      ordersCount: 42,
-    },
-    {
-      id: 2,
-      month: "October",
-      totalSales: 256320,
-      totalProfit: 76896,
-      totalItems: 1120,
-      topCustomer: "John Doe",
-      ordersCount: 38,
-    },
-    {
-      id: 3,
-      month: "September",
-      totalSales: 218940,
-      totalProfit: 65682,
-      totalItems: 980,
-      topCustomer: "Direct Sales",
-      ordersCount: 35,
-    },
-    {
-      id: 4,
-      month: "August",
-      totalSales: 195670,
-      totalProfit: 58701,
-      totalItems: 875,
-      topCustomer: "Jane Smith",
-      ordersCount: 32,
-    },
-    {
-      id: 5,
-      month: "July",
-      totalSales: 172450,
-      totalProfit: 51735,
-      totalItems: 765,
-      topCustomer: "Direct Sales",
-      ordersCount: 28,
-    },
-  ],
-  topProducts: [
-    { product: "Bread", units: 450, revenue: 85500 },
-    { product: "Cake", units: 280, revenue: 78400 },
-    { product: "Cookies", units: 220, revenue: 38500 },
-    { product: "Donuts", units: 180, revenue: 32400 },
-    { product: "Pastries", units: 120, revenue: 25200 },
-  ],
-}
-
-const chartData = [
-  { month: "July", sales: 172450, profit: 51735, orders: 28 },
-  { month: "August", sales: 195670, profit: 58701, orders: 32 },
-  { month: "September", sales: 218940, profit: 65682, orders: 35 },
-  { month: "October", sales: 256320, profit: 76896, orders: 38 },
-  { month: "November", sales: 284650, profit: 85240, orders: 42 },
-]
-
-const COLORS = ["#3b82f6", "#10b981", "#f59e0b", "#ef4444", "#8b5cf6"]
-
 // Sample data for current month (November)
 const currentMonthData = {
   totalSales: 28450,
@@ -109,13 +42,13 @@ export default function MonthlySummaryPage() {
   const profitChange = calculatePercentChange(currentMonthData.totalProfit, currentMonthData.lastMonthProfit)
   const itemsChange = calculatePercentChange(currentMonthData.totalItems, currentMonthData.lastMonthItems)
 
-  const { fetchSales, fetchYearlyStats } = useSales();
-  const { topCustomers, fetchTopCustomers } = useCustomers()
+  // const { fetchSales, fetchYearlyStats } = useSales();
+  // const { yearlyTopCustomers, fetchYearlyTopCustomers } = useCustomers()
 
-  useEffect(() => {
-    fetchTopCustomers()
-    fetchYearlyStats(2025); // add relevent year
-  }, [])
+  // useEffect(() => {
+  //   fetchYearlyTopCustomers()
+  //   fetchYearlyStats(2025); // add relevent year
+  // }, [])
 
   return (
     <div className="p-4 space-y-8">
@@ -163,7 +96,7 @@ export default function MonthlySummaryPage() {
         <Card className="p-6 border border-gray-200">
           <h2 className="text-2xl font-bold text-foreground mb-6">Top Customers</h2>
           <div className="space-y-3">
-            {topCustomers.map((customer, index) => (
+            {/* {topCustomers.map((customer, index) => (
               <div
                 key={index}
                 className="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
@@ -174,7 +107,7 @@ export default function MonthlySummaryPage() {
                 </div>
                 <p className="text-lg font-bold text-blue-600">${customer.totalSpent}</p>
               </div>
-            ))}
+            ))} */}
           </div>
         </Card>
 
