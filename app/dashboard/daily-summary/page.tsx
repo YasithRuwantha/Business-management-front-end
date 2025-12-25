@@ -3,6 +3,7 @@
 import { Card } from "@/components/ui/card"
 import { useCustomers } from "@/lib/customers-context"
 import { useEffect, useState } from "react"
+import { useSales } from "@/lib/sales-context"
 
 const monthlyData = {
   sales: [
@@ -108,11 +109,12 @@ export default function MonthlySummaryPage() {
   const profitChange = calculatePercentChange(currentMonthData.totalProfit, currentMonthData.lastMonthProfit)
   const itemsChange = calculatePercentChange(currentMonthData.totalItems, currentMonthData.lastMonthItems)
 
-
+  const { fetchSales, fetchYearlyStats } = useSales();
   const { topCustomers, fetchTopCustomers } = useCustomers()
 
   useEffect(() => {
     fetchTopCustomers()
+    fetchYearlyStats(2025); // add relevent year
   }, [])
 
   return (

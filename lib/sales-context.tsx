@@ -28,6 +28,7 @@ type SalesContextType = {
   fetchSales: () => Promise<void>;
   addSale: (data: { customerId: string; items: { product: string; quantity: number; price: number }[]; note?: string; date?: string }) => Promise<Sale | null>;
   deleteSale: (id: string) => Promise<boolean>;
+  fetchYearlyStats: (year: number) => Promise<void>;
 };
 
 const SalesContext = createContext<SalesContextType>({} as SalesContextType);
@@ -38,6 +39,7 @@ export function SalesProvider({ children }: { children: ReactNode }) {
   const [sales, setSales] = useState<Sale[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+  const [stats, setStats] = useState<any[]>([]);
 
   const fetchSales = async () => {
     try {
@@ -92,12 +94,32 @@ export function SalesProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  useEffect(() => {
-    fetchSales();
-  }, []);
+  const fetchYearlyStats = async (year: number) => {
+    try {
+      setLoading(true);
+      setError(null);
+
+      const res = await fetch(`${backendUrl}/api/sales/performance?year=${year}`, { cache: "no-store" });
+      if (!res.ok) throw new Error(`Failed to fetch stats (${res.status})`);
+
+      const data = await res.json();
+      console.log("Fetched yearly sales stats :", data);
+      setStats(data?.data ?? []);
+    } catch (err: any) {
+      setError(err?.message ?? "Failed to fetch sales stats");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // useEffect(() => {
+  //   fetchSales();
+  //   fetchYearlyStats(2025);
+  // }, []); 
+  
 
   return (
-    <SalesContext.Provider value={{ sales, loading, error, fetchSales, addSale, deleteSale }}>
+    <SalesContext.Provider value={{ sales, loading, error, fetchSales, addSale, deleteSale, fetchYearlyStats}}>
       {children}
     </SalesContext.Provider>
   );
