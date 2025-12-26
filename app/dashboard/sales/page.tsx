@@ -46,6 +46,7 @@ export default function SalesPage() {
 
   useEffect(() => {
     fetchSales();
+    fetchCustomers();
   }, [])
 
   // Calculate total price for a sale

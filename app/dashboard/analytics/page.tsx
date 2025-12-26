@@ -19,6 +19,7 @@ import {
 import { useSales } from "@/lib/sales-context" 
 import { useCustomers } from "@/lib/customers-context"
 import { useEffect } from "react"
+import { useProducts } from "@/lib/product-context"
 
 const data = {
   monthlyRevenue: [
@@ -76,12 +77,21 @@ export default function AnalyticsPage() {
 
   const { fetchSales, fetchYearlyStats, fetchMonthlyRevenue, monthlyRevenue } = useSales();
   const { yearlyTopCustomers, fetchYearlyTopCustomers } = useCustomers();
+  const { fetchTopProductsAlltime, topProductsAlltime } = useProducts();
 
   useEffect(() => {
     fetchYearlyTopCustomers()
     fetchYearlyStats(new Date().getFullYear());
     fetchMonthlyRevenue(new Date().getFullYear());
+    fetchTopProductsAlltime();
   }, [])
+
+  const pieData = (topProductsAlltime || [])
+    .map(p => ({
+      name: p.product,
+      value: Number(p.percentage) || 0,
+    }));
+
 
   return (
     <div className="p-6 lg:p-8 space-y-8 bg-background min-h-screen">
@@ -169,7 +179,7 @@ export default function AnalyticsPage() {
             <ResponsiveContainer width="100%" height={300}>
               <PieChart>
                 <Pie
-                  data={data.topProducts}
+                  data={pieData}
                   cx="50%"
                   cy="50%"
                   labelLine={false}
@@ -178,7 +188,7 @@ export default function AnalyticsPage() {
                   fill="#8884d8"
                   dataKey="value"
                 >
-                  {data.topProducts.map((entry, index) => (
+                  {pieData.map((entry, index) => (
                     <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                   ))}
                 </Pie>

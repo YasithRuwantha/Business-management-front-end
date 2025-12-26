@@ -103,7 +103,7 @@ export function SalesProvider({ children }: { children: ReactNode }) {
       setLoading(true);
       setError(null);
 
-      const res = await fetch(`${backendUrl}/api/sales/performance?year=${year}`, { cache: "no-store" });
+      const res = await fetch(`${backendUrl}/api/sales/performance-yearly?year=${year}`, { cache: "no-store" });
       if (!res.ok) throw new Error(`Failed to fetch stats (${res.status})`);
 
       const data = await res.json();
