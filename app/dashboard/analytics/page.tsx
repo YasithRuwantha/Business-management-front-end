@@ -18,7 +18,7 @@ import {
 
 import { useSales } from "@/lib/sales-context" 
 import { useCustomers } from "@/lib/customers-context"
-import { useEffect } from "react"
+import { useEffect, useState } from "react"
 import { useProducts } from "@/lib/product-context"
 
 const data = {
@@ -75,7 +75,9 @@ export default function AnalyticsPage() {
   const totalProfit = "$29,550"
   const totalItems = "1,847"
 
-  const { fetchSales, fetchYearlyStats, fetchMonthlyRevenue, monthlyRevenue } = useSales();
+  const [revenue, setRevenue] = useState<Number>(0);
+
+  const { fetchSales, fetchYearlyStats, fetchMonthlyRevenue, monthlyRevenue, fetchTotalRevenueByYear } = useSales();
   const { yearlyTopCustomers, fetchYearlyTopCustomers } = useCustomers();
   const { fetchTopProductsAlltime, topProductsAlltime } = useProducts();
 
@@ -84,6 +86,14 @@ export default function AnalyticsPage() {
     fetchYearlyStats(new Date().getFullYear());
     fetchMonthlyRevenue(new Date().getFullYear());
     fetchTopProductsAlltime();
+
+    const loadRevenue = async () => {
+      const revenue = await fetchTotalRevenueByYear(new Date().getFullYear());
+      setRevenue(revenue);
+    };
+
+  loadRevenue();
+    
   }, [])
 
   const pieData = (topProductsAlltime || [])
@@ -103,9 +113,9 @@ export default function AnalyticsPage() {
 
       {/* KPI Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <KPICard title="Total Revenue" value={totalRevenue} change="+12% from last month"  />
-        <KPICard title="Total Profit" value={totalProfit} change="+8% from last month"  />
-        <KPICard title="Items Sold" value={totalItems} change="+15% from last month"  />
+        <KPICard title="Total Revenue" value={revenue} change="+12% from last month" icon={undefined}  />
+        <KPICard title="Total Profit" value={totalProfit} change="+8% from last month" icon={undefined} />
+        <KPICard title="Items Sold" value={totalItems} change="+15% from last month" icon={undefined} />
       </div>
 
       {/* Charts Section */}

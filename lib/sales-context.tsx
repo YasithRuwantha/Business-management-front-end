@@ -31,7 +31,7 @@ type SalesContextType = {
   deleteSale: (id: string) => Promise<boolean>;
   fetchYearlyStats: (year: number) => Promise<void>;
   fetchMonthlyRevenue: (year: number) => Promise<void>;
-
+  fetchTotalRevenueByYear: (year: Number) => Promise<number>;
 };
 
 const SalesContext = createContext<SalesContextType>({} as SalesContextType);
@@ -134,13 +134,41 @@ export function SalesProvider({ children }: { children: ReactNode }) {
     }
   };
 
+
+  const fetchTotalRevenueByYear = async (year: Number) => {
+    try {
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/sales/total-revenue?year=${year}`
+      );
+      const data = await res.json();
+      return data.totalRevenue || 0;
+    } catch (err) {
+      console.error("Failed to fetch total revenue", err);
+      return 0;
+    }
+  };
+
+
   // useEffect(() => {
   //   fetchMonthlyRevenue(2025);
   // }, []); 
   
 
   return (
-    <SalesContext.Provider value={{ sales, loading, error, fetchSales, addSale, deleteSale, fetchYearlyStats, fetchMonthlyRevenue, monthlyRevenue }}>
+    <SalesContext.Provider value={
+      { 
+        sales, 
+        loading, 
+        error, 
+        fetchSales, 
+        addSale, 
+        deleteSale, 
+        fetchYearlyStats,
+        fetchMonthlyRevenue, 
+        monthlyRevenue,
+        fetchTotalRevenueByYear     
+      }
+    }>
       {children}
     </SalesContext.Provider>
   );
