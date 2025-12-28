@@ -43,10 +43,12 @@ const data = {
 const COLORS = ["#3b82f6", "#10b981", "#f59e0b", "#ef4444", "#8b5cf6"]
 
 export default function DashboardPage() {
-  const { fetchTopProductsAlltime, topProductsAlltime } = useProducts();
+  const { fetchTopProductsAlltime, topProductsAlltime, getTotalAvailableProducts, totalAvailableProducts } = useProducts();
+  
 
   useEffect(() => {
     fetchTopProductsAlltime();
+    getTotalAvailableProducts();
   }, []);
 
   const pieData = (topProductsAlltime || [])
@@ -68,7 +70,7 @@ export default function DashboardPage() {
         </Card>
         <Card className="p-4 md:p-6">
           <p className="text-xs md:text-sm text-muted-foreground">Total Products</p>
-          <p className="text-2xl md:text-3xl font-bold text-primary mt-2">52</p>
+          <p className="text-2xl md:text-3xl font-bold text-primary mt-2">{totalAvailableProducts}</p>
         </Card>
         <Card className="p-4 md:p-6">
           <p className="text-xs md:text-sm text-muted-foreground">Sales Today</p>

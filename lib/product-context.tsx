@@ -34,11 +34,13 @@ interface ProductContextType {
   loading: boolean;
   error: string | null;
   topProductsAlltime: Product[];
+  totalAvailableProducts: number;
   fetchTopProductsAlltime: () => Promise<void>;
   fetchProducts: () => Promise<void>;
   createProduct: (data: Partial<Product>) => Promise<Product | null>;
   updateProduct: (id: string, data: Partial<Product>) => Promise<void>;
   deleteProduct: (id: string) => Promise<void>;
+  getTotalAvailableProducts: () => Promise<void>;
 }
 
 const ProductContext = createContext<ProductContextType>({} as ProductContextType);
@@ -48,6 +50,7 @@ export const useProducts = () => useContext(ProductContext);
 export const ProductProvider = ({ children }: { children: ReactNode }) => {
   const [products, setProducts] = useState<Product[]>([]);
   const [topProductsAlltime, setTopProductsAlltime] = useState<Product[]>([]);
+  const [totalAvailableProducts, setTotalAvailableProducts] = useState<number>(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -125,13 +128,30 @@ export const ProductProvider = ({ children }: { children: ReactNode }) => {
         if (!res.ok) throw new Error(`Failed to fetch top products (${res.status})`);
 
         const data = await res.json();
-        console.log("Fetched yearly top products :", data);
+        // console.log("Fetched yearly top products :", data);
         setTopProductsAlltime(data?.topProducts ?? []);
       } catch (err: any) {
         setError(err?.message ?? "Failed to fetch top products");
       } finally {
         setLoading(false);
       }
+    };
+
+    const getTotalAvailableProducts = async () => {
+      try{
+        setLoading(true);
+        setError(null);
+
+        const res = await fetch(`${backendUrl}/api/products/total-available`);
+        if (!res.ok) throw new Error(`Failed fetch total available product count (${res.status})`)
+        const data = await res.json();
+        console.log("Fetched Total availble products :", data)
+        setTotalAvailableProducts(data?.totalProduct ?? []);
+      } catch (err: any) {
+        setError(err?.message ?? "Failed to fetch total available products");
+      } finally {
+        setLoading(false)
+      } 
     };
 
     // useEffect(() => {
@@ -146,11 +166,13 @@ export const ProductProvider = ({ children }: { children: ReactNode }) => {
         loading,
         error,
         topProductsAlltime,
+        totalAvailableProducts,
         fetchProducts,
         createProduct,
         updateProduct,
         deleteProduct,
-        fetchTopProductsAlltime
+        fetchTopProductsAlltime,
+        getTotalAvailableProducts
       }}
     >
       {children}
