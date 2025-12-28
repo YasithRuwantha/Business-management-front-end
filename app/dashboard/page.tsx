@@ -3,6 +3,7 @@
 import { Card } from "@/components/ui/card"
 import { useProducts } from "@/lib/product-context"
 import { useRawMaterials } from "@/lib/raw-material-context"
+import { useSales } from "@/lib/sales-context" 
 import { useEffect } from "react"
 import {
   LineChart,
@@ -46,11 +47,13 @@ const COLORS = ["#3b82f6", "#10b981", "#f59e0b", "#ef4444", "#8b5cf6"]
 export default function DashboardPage() {
   const { fetchTopProductsAlltime, topProductsAlltime, getTotalAvailableProducts, totalAvailableProducts} = useProducts();
   const { totalAvailableRawMaterials, getTotalAvailableRawMaterials } = useRawMaterials();
+  const { monthlySales, yearlySales, fetchSalesTotalMonthYear } = useSales(); 
 
   useEffect(() => {
     fetchTopProductsAlltime();
     getTotalAvailableProducts();
     getTotalAvailableRawMaterials();
+    fetchSalesTotalMonthYear();
   }, []);
 
   const pieData = (topProductsAlltime || [])
@@ -75,12 +78,12 @@ export default function DashboardPage() {
           <p className="text-2xl md:text-3xl font-bold text-primary mt-2">{totalAvailableProducts}</p>
         </Card>
         <Card className="p-4 md:p-6">
-          <p className="text-xs md:text-sm text-muted-foreground">Sales Today</p>
-          <p className="text-2xl md:text-3xl font-bold text-primary mt-2">$12,450</p>
+          <p className="text-xs md:text-sm text-muted-foreground">Sales Month</p>
+          <p className="text-2xl md:text-3xl font-bold text-primary mt-2">Rs. {monthlySales}</p>
         </Card>
         <Card className="p-4 md:p-6">
-          <p className="text-xs md:text-sm text-muted-foreground">Sales This Month</p>
-          <p className="text-2xl md:text-3xl font-bold text-primary mt-2">$284,650</p>
+          <p className="text-xs md:text-sm text-muted-foreground">Sales This Year</p>
+          <p className="text-2xl md:text-3xl font-bold text-primary mt-2">Rs. {yearlySales}</p>
         </Card>
         <Card className="p-4 md:p-6">
           <p className="text-xs md:text-sm text-muted-foreground">Total Profit</p>

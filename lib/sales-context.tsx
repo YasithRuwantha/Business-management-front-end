@@ -26,12 +26,15 @@ type SalesContextType = {
   loading: boolean;
   error: string | null;
   monthlyRevenue: any[];
+  monthlySales: Number;
+  yearlySales: Number;
   fetchSales: () => Promise<void>;
   addSale: (data: { customerId: string; items: { product: string; quantity: number; price: number }[]; note?: string; date?: string }) => Promise<Sale | null>;
   deleteSale: (id: string) => Promise<boolean>;
   fetchYearlyStats: (year: number) => Promise<void>;
   fetchMonthlyRevenue: (year: number) => Promise<void>;
   fetchTotalRevenueByYear: (year: Number, month: number) => Promise<any>;
+  fetchSalesTotalMonthYear: () => Promise<void>;
 };
 
 const SalesContext = createContext<SalesContextType>({} as SalesContextType);
@@ -41,6 +44,8 @@ export const useSales = () => useContext(SalesContext);
 export function SalesProvider({ children }: { children: ReactNode }) {
   const [sales, setSales] = useState<Sale[]>([]);
   const [monthlyRevenue, setMonthlyRevenue] = useState<any[]>([]);
+  const [monthlySales, setMonthlySales] = useState<number>(0);
+  const [yearlySales, setYearlySales] = useState<number>(0);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [stats, setStats] = useState<any[]>([]);
@@ -151,6 +156,24 @@ export function SalesProvider({ children }: { children: ReactNode }) {
   };
 
 
+    const fetchSalesTotalMonthYear = async () => {
+      try {
+        setLoading(true);
+        const res = await fetch(`${backendUrl}/api/sales/total-month-year`);
+        if (!res.ok) throw new Error("Failed to fetch sales totals");
+        const data = await res.json();
+        console.log("Fetched monthly and yearly sales :", data);
+        setMonthlySales(data.monthlySales);
+        setYearlySales(data.yearlySales);
+        setError(null);
+      } catch (err: any) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+
   // useEffect(() => {
   //   fetchMonthlyRevenue(2025);
   // }, []); 
@@ -162,13 +185,16 @@ export function SalesProvider({ children }: { children: ReactNode }) {
         sales, 
         loading, 
         error, 
+        monthlySales,
+        yearlySales,
         fetchSales, 
         addSale, 
         deleteSale, 
         fetchYearlyStats,
         fetchMonthlyRevenue, 
         monthlyRevenue,
-        fetchTotalRevenueByYear     
+        fetchTotalRevenueByYear,
+        fetchSalesTotalMonthYear     
       }
     }>
       {children}
