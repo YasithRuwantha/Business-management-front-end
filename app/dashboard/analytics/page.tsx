@@ -75,7 +75,8 @@ export default function AnalyticsPage() {
   const totalProfit = "$29,550"
   const totalItems = "1,847"
 
-  const [revenue, setRevenue] = useState<Number>(0);
+  const [ revenue, setRevenue ] = useState<Number>(0);
+  const [ revenueChange ,setRevenueChange] = useState<Number>(0)
 
   const { fetchSales, fetchYearlyStats, fetchMonthlyRevenue, monthlyRevenue, fetchTotalRevenueByYear } = useSales();
   const { yearlyTopCustomers, fetchYearlyTopCustomers } = useCustomers();
@@ -88,12 +89,16 @@ export default function AnalyticsPage() {
     fetchTopProductsAlltime();
 
     const loadRevenue = async () => {
-      const revenue = await fetchTotalRevenueByYear(new Date().getFullYear());
-      setRevenue(revenue);
+      const year = new Date().getFullYear();
+      const month = new Date().getMonth() + 1; // 1-12
+
+      const { totalRevenue, percentageChange } = await fetchTotalRevenueByYear(year, month);
+      setRevenue(totalRevenue);
+      setRevenueChange(percentageChange);
     };
 
-  loadRevenue();
-    
+    loadRevenue();
+      
   }, [])
 
   const pieData = (topProductsAlltime || [])
@@ -116,6 +121,7 @@ export default function AnalyticsPage() {
         <KPICard title="Total Revenue" value={revenue} change="+12% from last month" icon={undefined}  />
         <KPICard title="Total Profit" value={totalProfit} change="+8% from last month" icon={undefined} />
         <KPICard title="Items Sold" value={totalItems} change="+15% from last month" icon={undefined} />
+        <div>batman {revenueChange}</div>
       </div>
 
       {/* Charts Section */}

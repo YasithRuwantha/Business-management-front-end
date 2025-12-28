@@ -1,6 +1,8 @@
 "use client"
 
 import { Card } from "@/components/ui/card"
+import { useProducts } from "@/lib/product-context"
+import { useEffect } from "react"
 import {
   LineChart,
   Line,
@@ -41,6 +43,19 @@ const data = {
 const COLORS = ["#3b82f6", "#10b981", "#f59e0b", "#ef4444", "#8b5cf6"]
 
 export default function DashboardPage() {
+  const { fetchTopProductsAlltime, topProductsAlltime } = useProducts();
+
+  useEffect(() => {
+    fetchTopProductsAlltime();
+  }, []);
+
+  const pieData = (topProductsAlltime || [])
+    .map(p => ({
+      name: p.product,
+      value: Number(p.percentage) || 0,
+      }
+    ));
+
   return (
     <div className="p-4 md:p-8 space-y-6 md:space-y-8">
       <h1 className="text-2xl md:text-4xl font-bold text-foreground">Dashboard</h1>
@@ -90,23 +105,23 @@ export default function DashboardPage() {
         <Card className="p-4 md:p-6">
           <h2 className="text-lg md:text-xl font-bold text-foreground mb-4">Top Selling Products</h2>
           <ResponsiveContainer width="100%" height={250}>
-            <PieChart>
-              <Pie
-                data={data.topProducts}
-                cx="50%"
-                cy="50%"
-                labelLine={false}
-                label={({ name, sales }) => `${name}: ${sales}`}
-                outerRadius={70}
-                fill="#8884d8"
-                dataKey="sales"
-              >
-                {data.topProducts.map((entry, index) => (
-                  <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                ))}
-              </Pie>
-              <Tooltip />
-            </PieChart>
+              <PieChart>
+                <Pie
+                  data={pieData}
+                  cx="50%"
+                  cy="50%"
+                  labelLine={false}
+                  label={({ name, value }) => `${name}: ${value}%`}
+                  outerRadius={100}
+                  fill="#8884d8"
+                  dataKey="value"
+                >
+                  {pieData.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                  ))}
+                </Pie>
+                <Tooltip />
+              </PieChart>
           </ResponsiveContainer>
         </Card>
       </div>

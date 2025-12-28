@@ -31,7 +31,7 @@ type SalesContextType = {
   deleteSale: (id: string) => Promise<boolean>;
   fetchYearlyStats: (year: number) => Promise<void>;
   fetchMonthlyRevenue: (year: number) => Promise<void>;
-  fetchTotalRevenueByYear: (year: Number) => Promise<number>;
+  fetchTotalRevenueByYear: (year: Number, month: number) => Promise<any>;
 };
 
 const SalesContext = createContext<SalesContextType>({} as SalesContextType);
@@ -135,16 +135,18 @@ export function SalesProvider({ children }: { children: ReactNode }) {
   };
 
 
-  const fetchTotalRevenueByYear = async (year: Number) => {
+  const fetchTotalRevenueByYear = async (year: number, month: number) => {
     try {
-      const res = await fetch(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/sales/total-revenue?year=${year}`
-      );
+      const query = month ? `?year=${year}&month=${month}` : `?year=${year}`;
+      const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/sales/total-revenue${query}`);
       const data = await res.json();
-      return data.totalRevenue || 0;
+      return {
+        totalRevenue: data.totalRevenue || 0,
+        percentageChange: data.percentageChange || 0,
+      };
     } catch (err) {
       console.error("Failed to fetch total revenue", err);
-      return 0;
+      return { totalRevenue: 0, percentageChange: 0 };
     }
   };
 
