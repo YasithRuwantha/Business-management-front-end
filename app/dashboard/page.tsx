@@ -2,6 +2,7 @@
 
 import { Card } from "@/components/ui/card"
 import { useProducts } from "@/lib/product-context"
+import { useRawMaterials } from "@/lib/raw-material-context"
 import { useEffect } from "react"
 import {
   LineChart,
@@ -43,12 +44,13 @@ const data = {
 const COLORS = ["#3b82f6", "#10b981", "#f59e0b", "#ef4444", "#8b5cf6"]
 
 export default function DashboardPage() {
-  const { fetchTopProductsAlltime, topProductsAlltime, getTotalAvailableProducts, totalAvailableProducts } = useProducts();
-  
+  const { fetchTopProductsAlltime, topProductsAlltime, getTotalAvailableProducts, totalAvailableProducts} = useProducts();
+  const { totalAvailableRawMaterials, getTotalAvailableRawMaterials } = useRawMaterials();
 
   useEffect(() => {
     fetchTopProductsAlltime();
     getTotalAvailableProducts();
+    getTotalAvailableRawMaterials();
   }, []);
 
   const pieData = (topProductsAlltime || [])
@@ -66,7 +68,7 @@ export default function DashboardPage() {
       <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-3 md:gap-4">
         <Card className="p-4 md:p-6">
           <p className="text-xs md:text-sm text-muted-foreground">Total Raw Materials</p>
-          <p className="text-2xl md:text-3xl font-bold text-primary mt-2">247</p>
+          <p className="text-2xl md:text-3xl font-bold text-primary mt-2">{totalAvailableRawMaterials}</p>
         </Card>
         <Card className="p-4 md:p-6">
           <p className="text-xs md:text-sm text-muted-foreground">Total Products</p>

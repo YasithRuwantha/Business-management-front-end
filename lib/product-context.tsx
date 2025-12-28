@@ -154,6 +154,7 @@ export const ProductProvider = ({ children }: { children: ReactNode }) => {
       } 
     };
 
+
     // useEffect(() => {
     //   fetchTopProductsAlltime();
     // }, []); 
