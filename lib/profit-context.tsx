@@ -25,9 +25,11 @@ export interface ProfitSummary {
 
 interface ProfitContextType {
   profit: ProfitSummary | null;
+  profitChart: ProfitSummary | null;
   loading: boolean;
   error: string | null;
   fetchProfitSummary: () => Promise<void>;
+getCurrentYearMonthlyProfitChart: () => Promise<void>;
 }
 
 /* ---------- CONTEXT ---------- */
@@ -107,9 +109,9 @@ export const ProfitProvider = ({ children }: { children: ReactNode }) => {
     };
 
 
-  useEffect(() => {
-    getCurrentYearMonthlyProfitChart();
-  }, []);
+//   useEffect(() => {
+//     getCurrentYearMonthlyProfitChart();
+//   }, []);
 
   return (
     <ProfitContext.Provider
@@ -117,6 +119,8 @@ export const ProfitProvider = ({ children }: { children: ReactNode }) => {
         profit,
         loading,
         error,
+        profitChart,
+        getCurrentYearMonthlyProfitChart,
         fetchProfitSummary,
       }}
     >

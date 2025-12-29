@@ -19,6 +19,7 @@ import {
   Legend,
   ResponsiveContainer,
 } from "recharts"
+import { get } from "http"
 
 const data = {
   monthlyData: [
@@ -49,7 +50,7 @@ export default function DashboardPage() {
   const { fetchTopProductsAlltime, topProductsAlltime, getTotalAvailableProducts, totalAvailableProducts} = useProducts();
   const { totalAvailableRawMaterials, getTotalAvailableRawMaterials } = useRawMaterials();
   const { monthlySales, yearlySales, fetchSalesTotalMonthYear } = useSales(); 
-  const { profit, fetchProfitSummary } = useProfit();
+  const { profit, fetchProfitSummary, profitChart, getCurrentYearMonthlyProfitChart } = useProfit();
 
   useEffect(() => {
     fetchTopProductsAlltime();
@@ -57,6 +58,7 @@ export default function DashboardPage() {
     getTotalAvailableRawMaterials();
     fetchSalesTotalMonthYear();
     fetchProfitSummary();
+    getCurrentYearMonthlyProfitChart();
   }, []);
 
   const pieData = (topProductsAlltime || [])
@@ -99,7 +101,7 @@ export default function DashboardPage() {
         <Card className="p-4 md:p-6">
           <h2 className="text-lg md:text-xl font-bold text-foreground mb-4">Monthly Sales</h2>
           <ResponsiveContainer width="100%" height={250}>
-            <LineChart data={data.monthlyData}>
+            <LineChart data={profitChart?.monthlyData}>
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis dataKey="month" tick={{ fontSize: 12 }} />
               <YAxis tick={{ fontSize: 12 }} />
