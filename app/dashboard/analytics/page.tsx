@@ -21,6 +21,7 @@ import { useCustomers } from "@/lib/customers-context"
 import { useEffect, useState } from "react"
 import { useProducts } from "@/lib/product-context"
 import { useProfit } from "@/lib/profit-context"
+import { useSalesHistory } from "@/lib/sales-history"
 
 const data = {
   monthlyRevenue: [
@@ -94,6 +95,7 @@ export default function AnalyticsPage() {
     fetchProfitSummary();
 
 
+
     const loadRevenue = async () => {
       const year = new Date().getFullYear();
       const month = new Date().getMonth() + 1; // 1-12
@@ -124,9 +126,9 @@ export default function AnalyticsPage() {
 
       {/* KPI Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <KPICard title="This Total Revenue" value={profit?.currentYear.revenue ?? 0} change="+12% from last month" icon={undefined}  />
-        <KPICard title="This Total Profit" value={profit?.currentYear.profit ?? 0} change="+8% from last month" icon={undefined} />
-        <KPICard title=" Items Sold" value={totalItems} change="+15% from last month" icon={undefined} />
+        <KPICard title="This Year Total Revenue" value={`Rs. ${profit?.currentYear.revenue ?? 0}`} change="" icon={undefined}  />
+        <KPICard title="This Year Total Profit" value={`Rs. ${profit?.currentYear.profit ?? 0}`} change="" icon={undefined} />
+        <KPICard title="This Year Cost" value={`Rs. ${profit?.currentYear.cost ?? 0}`} change="" icon={undefined} />
       </div>
 
       {/* Charts Section */}
