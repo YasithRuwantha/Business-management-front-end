@@ -145,7 +145,7 @@ export const ProductProvider = ({ children }: { children: ReactNode }) => {
         const res = await fetch(`${backendUrl}/api/products/total-available`);
         if (!res.ok) throw new Error(`Failed fetch total available product count (${res.status})`)
         const data = await res.json();
-        console.log("Fetched Total availble products :", data)
+        // console.log("Fetched Total availble products :", data)
         setTotalAvailableProducts(data?.totalProduct ?? []);
       } catch (err: any) {
         setError(err?.message ?? "Failed to fetch total available products");

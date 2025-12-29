@@ -4,6 +4,7 @@ import { Card } from "@/components/ui/card"
 import { useProducts } from "@/lib/product-context"
 import { useRawMaterials } from "@/lib/raw-material-context"
 import { useSales } from "@/lib/sales-context" 
+import { useProfit } from "@/lib/profit-context"
 import { useEffect } from "react"
 import {
   LineChart,
@@ -48,12 +49,14 @@ export default function DashboardPage() {
   const { fetchTopProductsAlltime, topProductsAlltime, getTotalAvailableProducts, totalAvailableProducts} = useProducts();
   const { totalAvailableRawMaterials, getTotalAvailableRawMaterials } = useRawMaterials();
   const { monthlySales, yearlySales, fetchSalesTotalMonthYear } = useSales(); 
+  const { profit, fetchProfitSummary } = useProfit();
 
   useEffect(() => {
     fetchTopProductsAlltime();
     getTotalAvailableProducts();
     getTotalAvailableRawMaterials();
     fetchSalesTotalMonthYear();
+    fetchProfitSummary();
   }, []);
 
   const pieData = (topProductsAlltime || [])
@@ -86,8 +89,8 @@ export default function DashboardPage() {
           <p className="text-2xl md:text-3xl font-bold text-primary mt-2">Rs. {yearlySales}</p>
         </Card>
         <Card className="p-4 md:p-6">
-          <p className="text-xs md:text-sm text-muted-foreground">Total Profit</p>
-          <p className="text-2xl md:text-3xl font-bold text-green-600 mt-2">$85,240</p>
+          <p className="text-xs md:text-sm text-muted-foreground">Total Profit All time</p>
+          <p className="text-2xl md:text-3xl font-bold text-green-600 mt-2">${profit?.allTime.profit ?? 0}</p>
         </Card>
       </div>
 

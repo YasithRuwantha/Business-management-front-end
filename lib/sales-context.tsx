@@ -162,7 +162,7 @@ export function SalesProvider({ children }: { children: ReactNode }) {
         const res = await fetch(`${backendUrl}/api/sales/total-month-year`);
         if (!res.ok) throw new Error("Failed to fetch sales totals");
         const data = await res.json();
-        console.log("Fetched monthly and yearly sales :", data);
+        // console.log("Fetched monthly and yearly sales :", data);
         setMonthlySales(data.monthlySales);
         setYearlySales(data.yearlySales);
         setError(null);
