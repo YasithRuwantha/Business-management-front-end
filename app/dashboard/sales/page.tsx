@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -23,7 +23,8 @@ interface ProductItem {
 }
 
 export default function SalesPage() {
-  const { sales, loading, error, addSale, deleteSale } = useSales();
+  const { sales, loading, error, addSale, deleteSale, fetchSales } = useSales();
+  // const { topCustomers, fetchTopCustomers } = useCustomers();
   const { customers, loading: loadingCustomers, fetchCustomers } = useCustomers();
   const { products, loading: loadingProducts, fetchProducts } = useProducts();
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -43,6 +44,10 @@ export default function SalesPage() {
   // Tab state: 0 = Sales Orders, 1 = Sales History
   const [activeTab, setActiveTab] = useState(0);
 
+  useEffect(() => {
+    fetchSales();
+    fetchCustomers();
+  }, [])
 
   // Calculate total price for a sale
   const calculateTotal = (items) => {

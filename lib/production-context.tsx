@@ -47,6 +47,8 @@ type ProductionContextType = {
     date?: string;
   }) => Promise<Production | null>;
   deleteProduction: (id: string) => Promise<boolean>;
+  handleDeleteAndRestore: (id: string) => Promise<boolean>;
+  deleteProductionHistory: (id: string) => Promise<boolean>;
 };
 
 const ProductionContext = createContext<ProductionContextType>({} as ProductionContextType);
@@ -119,13 +121,47 @@ export function ProductionProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  const handleDeleteAndRestore = async (id: string) => {
+    try {
+      setLoading(true);
+      setError(null);
+      const res = await fetch(`${backendUrl}/api/productions/restore/${id}`, { method: "DELETE" });
+      if (!res.ok) throw new Error(`Failed to delete production and restore stock (${res.status})`);
+      setProductions((prev) => prev.filter((p) => p._id !== id));
+      return true;
+    } catch (err: any) {
+      setError(err?.message || "Failed to delete production and restore stock");
+      console.error(err);
+      return false;
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const deleteProductionHistory = async (id: string) => {
+    try {
+      setLoading(true);
+      setError(null);
+      const res = await fetch(`${backendUrl}/api/productions/history/${id}`, { method: "DELETE" });
+      if (!res.ok) throw new Error(`Failed to delete production history (${res.status})`);
+      setProductions((prev) => prev.filter((p) => p._id !== id));
+      return true;
+    } catch (err: any) {
+      setError(err?.message || "Failed to delete production history");
+      console.error(err);
+      return false;
+    } finally {
+      setLoading(false);
+    } 
+  };
+
   // useEffect(() => {
   //   fetchProductions();
   // }, []);
 
   return (
     <ProductionContext.Provider
-      value={{ productions, loading, error, fetchProductions, addProduction, deleteProduction }}
+      value={{ productions, loading, error, fetchProductions, addProduction, deleteProduction, handleDeleteAndRestore, deleteProductionHistory }}
     >
       {children}
     </ProductionContext.Provider>

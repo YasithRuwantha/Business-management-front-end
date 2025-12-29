@@ -33,10 +33,13 @@ interface RawMaterialContextType {
   loading: boolean;
   error: string | null;
 
+  totalAvailableRawMaterials: Number
+
   fetchRawMaterials: () => Promise<void>;
   addMaterial: (data: any) => Promise<void>;
   updateMaterial: (id: string, data: any) => Promise<void>;
   deleteMaterial: (id: string) => Promise<void>;
+  getTotalAvailableRawMaterials: () => Promise<void>;
 }
 
 // ===============================
@@ -54,6 +57,7 @@ export const useRawMaterials = () => useContext(RawMaterialContext);
 // ===============================
 export const RawMaterialProvider = ({ children }: { children: ReactNode }) => {
   const [materials, setMaterials] = useState<RawMaterial[]>([]);
+  const [totalAvailableRawMaterials, setTotalAvailableRawMaterials ] = useState<Number>(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -134,16 +138,41 @@ export const RawMaterialProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
+  const getTotalAvailableRawMaterials = async () => {
+    try {
+      const res = await fetch(`${backendUrl}/api/raw-materials/total-available`, {
+        method: "GET",
+      });
+
+      if (!res.ok) throw new Error("Failed to get available raw material");
+
+      const data = await res.json(); 
+      // console.log("get total available raw material : ", data);
+      setTotalAvailableRawMaterials(data.totalRawMaterial);
+
+    } catch (err: any) {
+      setError(err.message);
+    }
+  };
+
+
+  useEffect(() => {
+    getTotalAvailableRawMaterials();
+  }, [])
+
+
   return (
     <RawMaterialContext.Provider
       value={{
         materials,
         loading,
         error,
+        totalAvailableRawMaterials,
         fetchRawMaterials,
         addMaterial,
         updateMaterial,
         deleteMaterial,
+        getTotalAvailableRawMaterials
       }}
     >
       {children}

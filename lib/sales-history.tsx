@@ -28,6 +28,7 @@ export interface SalesHistoryItem {
 
 export function useSalesHistory() {
   const [history, setHistory] = useState<SalesHistoryItem[]>([]);
+  const [totalItemsSold, setTotalItemsSold] = useState<number>(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -56,11 +57,24 @@ export function useSalesHistory() {
     }
   };
 
+
+  const fetchTotalItemsSoldCurrentYear = async () => {
+    try {
+      const res = await fetch(`${backendUrl}/api/sales/total-items-sold-current-year`);
+      if (!res.ok) throw new Error("Failed to fetch total items sold");
+      const data = await res.json();
+      setTotalItemsSold(data.totalQuantity);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+
   useEffect(() => {
     fetchHistory();
   }, []);
 
-  return { history, loading, error, fetchHistory, deleteSalesHistory };
+  return { history, loading, error, totalItemsSold, fetchHistory, deleteSalesHistory, fetchTotalItemsSoldCurrentYear };
 }
 
 export default function SalesHistory() {

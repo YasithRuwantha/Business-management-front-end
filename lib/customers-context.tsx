@@ -10,15 +10,19 @@ export type Customer = {
   phone: string;
   address?: string;
   totalSpent: number;
+  orderCount: number;
 };
 
 type CustomersContextType = {
   customers: Customer[];
+  yearlyTopCustomers: Customer[];
   loading: boolean;
   error: string | null;
   fetchCustomers: () => Promise<void>;
   addCustomer: (data: Pick<Customer, "name" | "phone" | "address">) => Promise<Customer | null>;
   deleteCustomer: (id: string) => Promise<void>;
+  fetchYearlyTopCustomers: (limit?: number) => Promise<void>; 
+
 };
 
 const CustomersContext = createContext<CustomersContextType>({} as CustomersContextType);
@@ -27,6 +31,7 @@ export const useCustomers = () => useContext(CustomersContext);
 
 export function CustomersProvider({ children }: { children: ReactNode }) {
   const [customers, setCustomers] = useState<Customer[]>([]);
+  const [yearlyTopCustomers, setYearlyTopCustomers] = useState<Customer[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -83,13 +88,25 @@ export function CustomersProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  useEffect(() => {
-    fetchCustomers();
-  }, []);
+  const fetchYearlyTopCustomers = async (limit: number = 5) => {
+    try {
+      setLoading(true);
+      setError(null);
+      const res = await fetch(`${backendUrl}/api/customers/getTopSpendCustomersYearly`, );
+      if (!res.ok) throw new Error(`Failed to fetch top customers (${res.status})`);
+      const data = await res.json();
+      // console.log("Fetched Yearly Top Customers:", data);
+      setYearlyTopCustomers(Array.isArray(data) ? data : data?.customers ?? []);
+    } catch (err: any) {
+      setError(err?.message ?? "Failed to load top customers");
+    } finally {
+      setLoading(false);
+    }
+  }
 
   return (
     <CustomersContext.Provider
-      value={{ customers, loading, error, fetchCustomers, addCustomer, deleteCustomer }}
+      value={{ customers, yearlyTopCustomers, loading, error, fetchCustomers, addCustomer, deleteCustomer, fetchYearlyTopCustomers }}
     >
       {children}
     </CustomersContext.Provider>

@@ -1,6 +1,11 @@
 "use client"
 
 import { Card } from "@/components/ui/card"
+import { useProducts } from "@/lib/product-context"
+import { useRawMaterials } from "@/lib/raw-material-context"
+import { useSales } from "@/lib/sales-context" 
+import { useProfit } from "@/lib/profit-context"
+import { useEffect } from "react"
 import {
   LineChart,
   Line,
@@ -14,6 +19,7 @@ import {
   Legend,
   ResponsiveContainer,
 } from "recharts"
+import { get } from "http"
 
 const data = {
   monthlyData: [
@@ -41,6 +47,27 @@ const data = {
 const COLORS = ["#3b82f6", "#10b981", "#f59e0b", "#ef4444", "#8b5cf6"]
 
 export default function DashboardPage() {
+  const { fetchTopProductsAlltime, topProductsAlltime, getTotalAvailableProducts, totalAvailableProducts} = useProducts();
+  const { totalAvailableRawMaterials, getTotalAvailableRawMaterials } = useRawMaterials();
+  const { monthlySales, yearlySales, fetchSalesTotalMonthYear } = useSales(); 
+  const { profit, fetchProfitSummary, profitChart, getCurrentYearMonthlyProfitChart } = useProfit();
+
+  useEffect(() => {
+    fetchTopProductsAlltime();
+    getTotalAvailableProducts();
+    getTotalAvailableRawMaterials();
+    fetchSalesTotalMonthYear();
+    fetchProfitSummary();
+    getCurrentYearMonthlyProfitChart();
+  }, []);
+
+  const pieData = (topProductsAlltime || [])
+    .map(p => ({
+      name: p.product,
+      value: Number(p.percentage) || 0,
+      }
+    ));
+
   return (
     <div className="p-4 md:p-8 space-y-6 md:space-y-8">
       <h1 className="text-2xl md:text-4xl font-bold text-foreground">Dashboard</h1>
@@ -49,23 +76,23 @@ export default function DashboardPage() {
       <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-3 md:gap-4">
         <Card className="p-4 md:p-6">
           <p className="text-xs md:text-sm text-muted-foreground">Total Raw Materials</p>
-          <p className="text-2xl md:text-3xl font-bold text-primary mt-2">247</p>
+          <p className="text-2xl md:text-3xl font-bold text-primary mt-2">{totalAvailableRawMaterials}</p>
         </Card>
         <Card className="p-4 md:p-6">
           <p className="text-xs md:text-sm text-muted-foreground">Total Products</p>
-          <p className="text-2xl md:text-3xl font-bold text-primary mt-2">52</p>
+          <p className="text-2xl md:text-3xl font-bold text-primary mt-2">{totalAvailableProducts}</p>
         </Card>
         <Card className="p-4 md:p-6">
-          <p className="text-xs md:text-sm text-muted-foreground">Sales Today</p>
-          <p className="text-2xl md:text-3xl font-bold text-primary mt-2">$12,450</p>
+          <p className="text-xs md:text-sm text-muted-foreground">Sales Month</p>
+          <p className="text-2xl md:text-3xl font-bold text-primary mt-2">Rs. {monthlySales}</p>
         </Card>
         <Card className="p-4 md:p-6">
-          <p className="text-xs md:text-sm text-muted-foreground">Sales This Month</p>
-          <p className="text-2xl md:text-3xl font-bold text-primary mt-2">$284,650</p>
+          <p className="text-xs md:text-sm text-muted-foreground">Sales This Year</p>
+          <p className="text-2xl md:text-3xl font-bold text-primary mt-2">Rs. {yearlySales}</p>
         </Card>
         <Card className="p-4 md:p-6">
-          <p className="text-xs md:text-sm text-muted-foreground">Total Profit</p>
-          <p className="text-2xl md:text-3xl font-bold text-green-600 mt-2">$85,240</p>
+          <p className="text-xs md:text-sm text-muted-foreground">Total Profit All time</p>
+          <p className="text-2xl md:text-3xl font-bold text-green-600 mt-2">${profit?.allTime.profit ?? 0}</p>
         </Card>
       </div>
 
@@ -74,7 +101,7 @@ export default function DashboardPage() {
         <Card className="p-4 md:p-6">
           <h2 className="text-lg md:text-xl font-bold text-foreground mb-4">Monthly Sales</h2>
           <ResponsiveContainer width="100%" height={250}>
-            <LineChart data={data.monthlyData}>
+            <LineChart data={profitChart?.monthlyData}>
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis dataKey="month" tick={{ fontSize: 12 }} />
               <YAxis tick={{ fontSize: 12 }} />
@@ -90,23 +117,23 @@ export default function DashboardPage() {
         <Card className="p-4 md:p-6">
           <h2 className="text-lg md:text-xl font-bold text-foreground mb-4">Top Selling Products</h2>
           <ResponsiveContainer width="100%" height={250}>
-            <PieChart>
-              <Pie
-                data={data.topProducts}
-                cx="50%"
-                cy="50%"
-                labelLine={false}
-                label={({ name, sales }) => `${name}: ${sales}`}
-                outerRadius={70}
-                fill="#8884d8"
-                dataKey="sales"
-              >
-                {data.topProducts.map((entry, index) => (
-                  <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                ))}
-              </Pie>
-              <Tooltip />
-            </PieChart>
+              <PieChart>
+                <Pie
+                  data={pieData}
+                  cx="50%"
+                  cy="50%"
+                  labelLine={false}
+                  label={({ name, value }) => `${name}: ${value}%`}
+                  outerRadius={100}
+                  fill="#8884d8"
+                  dataKey="value"
+                >
+                  {pieData.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                  ))}
+                </Pie>
+                <Tooltip />
+              </PieChart>
           </ResponsiveContainer>
         </Card>
       </div>

@@ -16,6 +16,13 @@ import {
   ResponsiveContainer,
 } from "recharts"
 
+import { useSales } from "@/lib/sales-context" 
+import { useCustomers } from "@/lib/customers-context"
+import { useEffect, useState } from "react"
+import { useProducts } from "@/lib/product-context"
+import { useProfit } from "@/lib/profit-context"
+import { useSalesHistory } from "@/lib/sales-history"
+
 const data = {
   monthlyRevenue: [
     { month: "Jan", revenue: 12000 },
@@ -66,9 +73,48 @@ const KPICard = ({ title, value, change, icon }) => (
 )
 
 export default function AnalyticsPage() {
+  const { profitChart, getCurrentYearMonthlyProfitChart, fetchProfitSummary, profit } = useProfit();
+
   const totalRevenue = "$127,450"
   const totalProfit = "$29,550"
   const totalItems = "1,847"
+
+  const [ revenue, setRevenue ] = useState<Number>(0);
+  const [ revenueChange ,setRevenueChange] = useState<Number>(0)
+
+  const { fetchSales, fetchYearlyStats, fetchMonthlyRevenue, monthlyRevenue, fetchTotalRevenueByYear } = useSales();
+  const { yearlyTopCustomers, fetchYearlyTopCustomers } = useCustomers();
+  const { fetchTopProductsAlltime, topProductsAlltime } = useProducts();
+
+  useEffect(() => {
+    fetchYearlyTopCustomers()
+    fetchYearlyStats(new Date().getFullYear());
+    fetchMonthlyRevenue(new Date().getFullYear());
+    fetchTopProductsAlltime();
+    getCurrentYearMonthlyProfitChart();
+    fetchProfitSummary();
+
+
+
+    const loadRevenue = async () => {
+      const year = new Date().getFullYear();
+      const month = new Date().getMonth() + 1; // 1-12
+
+      const { totalRevenue, percentageChange } = await fetchTotalRevenueByYear(year, month);
+      setRevenue(totalRevenue);
+      setRevenueChange(percentageChange);
+    };
+
+    loadRevenue();
+      
+  }, [])
+
+  const pieData = (topProductsAlltime || [])
+    .map(p => ({
+      name: p.product,
+      value: Number(p.percentage) || 0,
+    }));
+
 
   return (
     <div className="p-6 lg:p-8 space-y-8 bg-background min-h-screen">
@@ -80,9 +126,9 @@ export default function AnalyticsPage() {
 
       {/* KPI Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <KPICard title="Total Revenue" value={totalRevenue} change="+12% from last month"  />
-        <KPICard title="Total Profit" value={totalProfit} change="+8% from last month"  />
-        <KPICard title="Items Sold" value={totalItems} change="+15% from last month"  />
+        <KPICard title="This Year Total Revenue" value={`Rs. ${profit?.currentYear.revenue ?? 0}`} change="" icon={undefined}  />
+        <KPICard title="This Year Total Profit" value={`Rs. ${profit?.currentYear.profit ?? 0}`} change="" icon={undefined} />
+        <KPICard title="This Year Cost" value={`Rs. ${profit?.currentYear.cost ?? 0}`} change="" icon={undefined} />
       </div>
 
       {/* Charts Section */}
@@ -92,10 +138,10 @@ export default function AnalyticsPage() {
           <div className="space-y-6">
             <div>
               <h2 className="text-lg font-bold text-foreground">Monthly Revenue</h2>
-              <p className="text-sm text-muted-foreground mt-1">Revenue trend over the last 6 months</p>
+              <p className="text-sm text-muted-foreground mt-1">Revenue trend over the year</p>
             </div>
             <ResponsiveContainer width="100%" height={320}>
-              <BarChart data={data.monthlyRevenue} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
+              <BarChart data={monthlyRevenue} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
                 <XAxis dataKey="month" stroke="#9ca3af" />
                 <YAxis stroke="#9ca3af" />
@@ -106,7 +152,7 @@ export default function AnalyticsPage() {
                     borderRadius: "8px",
                   }}
                 />
-                <Bar dataKey="revenue" fill="#3b82f6" radius={[8, 8, 0, 0]} />
+                <Bar dataKey="totalRevenue" fill="#3b82f6" radius={[8, 8, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
           </div>
@@ -120,7 +166,7 @@ export default function AnalyticsPage() {
               <p className="text-sm text-muted-foreground mt-1">Profit trend over the last 6 months</p>
             </div>
             <ResponsiveContainer width="100%" height={320}>
-              <LineChart data={data.monthlyProfit} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
+              <LineChart data={profitChart?.monthlyData} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
                 <XAxis dataKey="month" stroke="#9ca3af" />
                 <YAxis stroke="#9ca3af" />
@@ -156,7 +202,7 @@ export default function AnalyticsPage() {
             <ResponsiveContainer width="100%" height={300}>
               <PieChart>
                 <Pie
-                  data={data.topProducts}
+                  data={pieData}
                   cx="50%"
                   cy="50%"
                   labelLine={false}
@@ -165,7 +211,7 @@ export default function AnalyticsPage() {
                   fill="#8884d8"
                   dataKey="value"
                 >
-                  {data.topProducts.map((entry, index) => (
+                  {pieData.map((entry, index) => (
                     <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                   ))}
                 </Pie>
@@ -183,16 +229,16 @@ export default function AnalyticsPage() {
               <p className="text-sm text-muted-foreground mt-1">Your best customers by total spending</p>
             </div>
             <div className="space-y-4">
-              {data.topCustomers.map((customer, index) => (
+              {yearlyTopCustomers.map((customer, index) => (
                 <div
                   key={index}
                   className="flex items-center justify-between p-4 bg-secondary rounded-lg hover:bg-secondary/80 transition-colors"
                 >
                   <div className="flex-1">
                     <p className="font-semibold text-foreground">{customer.name}</p>
-                    <p className="text-sm text-muted-foreground">{customer.orders} orders</p>
+                    <p className="text-sm text-muted-foreground">{customer.orderCount} orders</p>
                   </div>
-                  <p className="text-lg font-bold text-blue-600">${customer.spent.toLocaleString()}</p>
+                  <p className="text-lg font-bold text-blue-600">${customer.totalSpent.toLocaleString()}</p>
                 </div>
               ))}
             </div>
