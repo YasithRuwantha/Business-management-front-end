@@ -1,5 +1,6 @@
 "use client"
 
+import { useLanguage } from "@/lib/auth-context"
 import type React from "react"
 import { useEffect, useState } from "react"
 import { Card } from "@/components/ui/card"
@@ -35,6 +36,57 @@ type ProductPurchase = {
 const today = new Date().toISOString().split("T")[0]
 
 export default function ProductsPage() {
+  const { language } = useLanguage();
+  // Hardcoded translations for Sinhala
+  const t = (key: string) => {
+    if (language === "sinhala") {
+      const si: Record<string, string> = {
+        products: "නිෂ්පාදන",
+        addProduct: "නිෂ්පාදනය එක් කරන්න",
+        currentInventory: "වත්මන් තොගය",
+        productHistory: "නිෂ්පාදන ඉතිහාසය",
+        productsInventory: "නිෂ්පාදන තොගය",
+        productName: "නිෂ්පාදන නම",
+        quantity: "ප්‍රමාණය",
+        actions: "ක්‍රියාමාර්ග",
+        adjustInventory: "තොගය සකසන්න",
+        currentQuantity: "වත්මන් ප්‍රමාණය:",
+        adjustAmount: "ප්‍රමාණය වෙනස් කරන්න (+ එකතු / - ඉවත්)",
+        applyChange: "වෙනස යොදන්න",
+        deletePurchase: "මිලදී ගැනීම මකන්න",
+        deleteHistoryOnly: "ඉතිහාසය පමණක් මකන්න",
+        doYouWantToDeduct: "ඔබට තොගයද අඩු කිරීමට අවශ්‍යද, නැතහොත් ඉතිහාසය පමණක් මකන්නද?",
+        product: "නිෂ්පාදනය",
+        qty: "ප්‍රමාණය",
+        date: "දිනය",
+        cancel: "අවලංගු කරන්න",
+      };
+      return si[key] || key;
+    }
+    // English fallback
+    const en: Record<string, string> = {
+      products: "Products",
+      addProduct: "Add Product",
+      currentInventory: "Current Inventory",
+      productHistory: "Product History",
+      productsInventory: "Products Inventory",
+      productName: "Product Name",
+      quantity: "Quantity",
+      actions: "Actions",
+      adjustInventory: "Adjust Inventory",
+      currentQuantity: "Current Quantity:",
+      adjustAmount: "Adjust Amount (+ add / - remove)",
+      applyChange: "Apply Change",
+      deletePurchase: "Delete Purchase",
+      deleteHistoryOnly: "Delete History Only",
+      doYouWantToDeduct: "Do you want to deduct stock as well, or delete only the purchase history?",
+      product: "Product",
+      qty: "Qty",
+      date: "Date",
+      cancel: "Cancel",
+    };
+    return en[key] || key;
+  };
   const [activeTab, setActiveTab] = useState<"inventory" | "history">("inventory")
 
   // const [products, setProducts] = useState<Product[]>(initialProducts)
@@ -99,13 +151,13 @@ export default function ProductsPage() {
   return (
     <div className="p-4 md:p-8 space-y-6 md:space-y-8">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <h1 className="text-2xl md:text-4xl font-bold text-foreground">Products</h1>
+        <h1 className="text-2xl md:text-4xl font-bold text-foreground">{t("products")}</h1>
         <Link
           href="/dashboard/production" 
           className="inline-flex items-center w-full sm:w-auto bg-primary hover:bg-primary/90 text-primary-foreground gap-2 justify-center py-2 px-4 rounded"
         >
           <Plus size={20} />
-          Add Product
+          {t("addProduct")}
         </Link>
       </div>
 
@@ -116,7 +168,7 @@ export default function ProductsPage() {
             activeTab === "inventory" ? "text-primary border-b-2 border-primary" : "text-foreground/60 hover:text-foreground"
           }`}
         >
-          Current Inventory
+          {t("currentInventory")}
         </button>
         <button
           onClick={() => setActiveTab("history")}
@@ -125,7 +177,7 @@ export default function ProductsPage() {
           }`}
         >
           <History size={16} />
-          Product History
+          {t("productHistory")}
         </button>
       </div>
 
@@ -133,28 +185,28 @@ export default function ProductsPage() {
       <ModalOverlay
         isOpen={isEditModalOpen}
         onClose={() => setIsEditModalOpen(false)}
-        title="Adjust Inventory"
+        title={t("adjustInventory")}
       >
         <form onSubmit={handleApplyInventoryChange} className="space-y-4">
           <div className="text-sm">
-            Current Quantity:
+            {t("currentQuantity")}
             <span className="font-semibold ml-2">{editState?.currentQty}</span>
           </div>
           <div>
-            <label className="block text-sm font-medium mb-2">Adjust Amount (+ add / - remove)</label>
+            <label className="block text-sm font-medium mb-2">{t("adjustAmount")}</label>
             <Input
               type="number"
-              placeholder="+10 or -5"
+              placeholder={language === "sinhala" ? "+10 හෝ -5" : "+10 or -5"}
               value={editState?.changeQty || ""}
               onChange={(e) => editState && setEditState({ ...editState, changeQty: e.target.value })}
             />
           </div>
           <div className="flex gap-3 pt-4">
             <Button type="button" onClick={() => setIsEditModalOpen(false)} className="flex-1 bg-secondary">
-              Cancel
+              {t("cancel")}
             </Button>
             <Button type="submit" className="flex-1 bg-primary">
-              Apply Change
+              {t("applyChange")}
             </Button>
           </div>
         </form>
@@ -167,10 +219,10 @@ export default function ProductsPage() {
           setIsDeleteModalOpen(false)
           setDeletePurchaseId(null)
         }}
-        title="Delete Purchase"
+        title={t("deletePurchase")}
       >
         <p className="text-sm text-muted-foreground mb-4">
-          Do you want to deduct stock as well, or delete only the purchase history?
+          {t("doYouWantToDeduct")}
         </p>
         <div className="flex flex-col gap-3">
           <Button
@@ -181,34 +233,24 @@ export default function ProductsPage() {
               // setIsDeleteModalOpen(false)
             }}
           >
-            Delete History Only
+            {t("deleteHistoryOnly")}
           </Button>
-          {/* <Button
-            onClick={async () => {
-              if (!deletePurchaseId) return
-              await handleDeleteAndDeduct(deletePurchaseId)
-              setIsDeleteModalOpen(false)
-            }}
-          >
-            Delete & Deduct Stock
-          </Button> */}
           <Button variant="secondary" onClick={() => setIsDeleteModalOpen(false)}>
-            Cancel
+            {t("cancel")}
           </Button>
         </div>
       </ModalOverlay>
 
       {activeTab === "inventory" && (
         <Card className="p-4 md:p-6">
-          <h2 className="text-lg md:text-xl font-bold text-foreground mb-4 md:mb-6">Products Inventory</h2>
+          <h2 className="text-lg md:text-xl font-bold text-foreground mb-4 md:mb-6">{t("productsInventory")}</h2>
           <div className="overflow-x-auto -mx-4 md:mx-0">
             <table className="w-full min-w-max md:min-w-full">
               <thead>
                 <tr className="border-b">
-                  <th className="text-left py-3 px-4 text-xs md:text-sm font-semibold text-foreground">Product Name</th>
-                  <th className="text-left py-3 px-4 text-xs md:text-sm font-semibold text-foreground">Quantity</th>
-                  {/* <th className="text-left py-3 px-4 text-xs md:text-sm font-semibold text-foreground">Cost</th> */}
-                  <th className="text-left py-3 px-4 text-xs md:text-sm font-semibold text-foreground">Actions</th>
+                  <th className="text-left py-3 px-4 text-xs md:text-sm font-semibold text-foreground">{t("productName")}</th>
+                  <th className="text-left py-3 px-4 text-xs md:text-sm font-semibold text-foreground">{t("quantity")}</th>
+                  <th className="text-left py-3 px-4 text-xs md:text-sm font-semibold text-foreground">{t("actions")}</th>
                 </tr>
               </thead>
               <tbody>
@@ -216,7 +258,6 @@ export default function ProductsPage() {
                   <tr key={product._id} className="border-b hover:bg-secondary/50 transition-colors">
                     <td className="py-3 px-4 text-xs md:text-sm">{product.typeId.name}</td>
                     <td className="py-3 px-4 text-xs md:text-sm font-semibold">{product.quantity}</td>
-                    {/* <td className="py-3 px-4 text-xs md:text-sm">$</td> */}
                     <td className="py-3 px-4 text-xs md:text-sm space-x-3">
                       <button
                         onClick={() => handleDeleteProduct(product._id)}
@@ -241,17 +282,15 @@ export default function ProductsPage() {
 
       {activeTab === "history" && (
         <Card className="p-4 md:p-6">
-          <h2 className="text-lg md:text-xl font-bold text-foreground mb-4 md:mb-6">Product History</h2>
+          <h2 className="text-lg md:text-xl font-bold text-foreground mb-4 md:mb-6">{t("productHistory")}</h2>
           <div className="overflow-x-auto -mx-4 md:mx-0">
             <table className="w-full min-w-max md:min-w-full">
               <thead>
                 <tr className="border-b">
-                  <th className="text-left py-3 px-4 text-xs md:text-sm font-semibold text-foreground">Product</th>
-                  <th className="text-left py-3 px-4 text-xs md:text-sm font-semibold text-foreground">Qty</th>
-                  {/* <th className="text-left py-3 px-4 text-xs md:text-sm font-semibold text-foreground">Cost/Unit</th>
-                  <th className="text-left py-3 px-4 text-xs md:text-sm font-semibold text-foreground">Total</th> */}
-                  <th className="text-left py-3 px-4 text-xs md:text-sm font-semibold text-foreground">Date</th>
-                  <th className="text-left py-3 px-4 text-xs md:text-sm font-semibold text-foreground">Actions</th>
+                  <th className="text-left py-3 px-4 text-xs md:text-sm font-semibold text-foreground">{t("product")}</th>
+                  <th className="text-left py-3 px-4 text-xs md:text-sm font-semibold text-foreground">{t("qty")}</th>
+                  <th className="text-left py-3 px-4 text-xs md:text-sm font-semibold text-foreground">{t("date")}</th>
+                  <th className="text-left py-3 px-4 text-xs md:text-sm font-semibold text-foreground">{t("actions")}</th>
                 </tr>
               </thead>
               <tbody>
@@ -259,8 +298,6 @@ export default function ProductsPage() {
                   <tr key={entry._id} className="border-b hover:bg-secondary/50 transition-colors">
                     <td className="py-3 px-4 text-xs md:text-sm font-medium">{entry.type.name}</td>
                     <td className="py-3 px-4 text-xs md:text-sm">{entry.quantity}</td>
-                    {/* <td className="py-3 px-4 text-xs md:text-sm">${entry.costPerUnit.toFixed(2)}</td>
-                    <td className="py-3 px-4 text-xs md:text-sm font-semibold text-primary">${entry.cost.toFixed(2)}</td> */}
                     <td className="py-3 px-4 text-xs md:text-sm">  {new Date(entry.date).toISOString().split("T")[0]}</td>
                     <td className="py-3 px-4 text-xs md:text-sm">
                       <button

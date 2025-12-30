@@ -3,6 +3,7 @@
 import type React from "react"
 
 import { useEffect, useState } from "react"
+import { useLanguage } from "@/lib/auth-context"
 import { Card } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
@@ -20,6 +21,58 @@ type Customer = {
 
 
 export default function CustomersPage() {
+  const { language } = useLanguage();
+
+  // Hardcoded translations for Sinhala
+  const t = (key: string) => {
+    if (language === "sinhala") {
+      const si: Record<string, string> = {
+        customers: "පාරිභෝගිකයින්",
+        addCustomer: "පාරිභෝගිකයා එක් කරන්න",
+        name: "නම",
+        phone: "දුරකථන අංකය",
+        address: "ලිපිනය",
+        totalSpent: "මුළු වියදම",
+        actions: "ක්‍රියාමාර්ග",
+        customerList: "පාරිභෝගික ලැයිස්තුව",
+        loading: "පූරණය වෙමින්...",
+        cancel: "අවලංගු කරන්න",
+        add: "එක් කරන්න",
+        delete: "මකන්න",
+        deleteCustomer: "පාරිභෝගිකයා මකන්න",
+        areYouSure: "ඔබට විශ්වාසද මැකීමට?",
+        cannotUndo: "මෙම ක්‍රියාව ආපසු හැරවිය නොහැක.",
+        addressOptional: "ලිපිනය (විකල්ප)",
+        nameRequired: "නම *",
+        phoneRequired: "දුරකථන අංකය *",
+        addNewCustomer: "නව පාරිභෝගිකයා එක් කරන්න",
+      };
+      return si[key] || key;
+    }
+    // English fallback
+    const en: Record<string, string> = {
+      customers: "Customers",
+      addCustomer: "Add Customer",
+      name: "Name",
+      phone: "Phone",
+      address: "Address",
+      totalSpent: "Total Spent",
+      actions: "Actions",
+      customerList: "Customer List",
+      loading: "Loading...",
+      cancel: "Cancel",
+      add: "Add Customer",
+      delete: "Delete",
+      deleteCustomer: "Delete Customer",
+      areYouSure: "Are you sure you want to delete",
+      cannotUndo: "This action cannot be undone.",
+      addressOptional: "Address (optional)",
+      nameRequired: "Name *",
+      phoneRequired: "Phone *",
+      addNewCustomer: "Add New Customer",
+    };
+    return en[key] || key;
+  };
   const { customers, loading, error, addCustomer, deleteCustomer, fetchCustomers } = useCustomers()
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [formData, setFormData] = useState({ name: "", phone: "", address: "" })
@@ -62,13 +115,13 @@ export default function CustomersPage() {
   return (
     <div className="p-4 md:p-8 space-y-6 md:space-y-8">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <h1 className="text-2xl md:text-4xl font-bold text-foreground">Customers</h1>
+        <h1 className="text-2xl md:text-4xl font-bold text-foreground">{t("customers")}</h1>
         <Button
           onClick={() => setIsModalOpen(true)}
           className="w-full sm:w-auto bg-primary hover:bg-primary/90 text-primary-foreground gap-2"
         >
           <Plus size={20} />
-          Add Customer
+          {t("addCustomer")}
         </Button>
       </div>
 
@@ -78,30 +131,30 @@ export default function CustomersPage() {
           setIsModalOpen(false)
           setFormData({ name: "", phone: "", address: "" })
         }}
-        title="Add New Customer"
+        title={t("addNewCustomer")}
       >
         <form onSubmit={handleAddCustomer} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-foreground mb-2">Name *</label>
+            <label className="block text-sm font-medium text-foreground mb-2">{t("nameRequired")}</label>
             <Input
-              placeholder="Customer name"
+              placeholder={language === "sinhala" ? "පාරිභෝගික නම" : "Customer name"}
               value={formData.name}
               onChange={(e) => setFormData({ ...formData, name: e.target.value })}
               autoFocus
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-foreground mb-2">Phone *</label>
+            <label className="block text-sm font-medium text-foreground mb-2">{t("phoneRequired")}</label>
             <Input
-              placeholder="Phone number"
+              placeholder={language === "sinhala" ? "දුරකථන අංකය" : "Phone number"}
               value={formData.phone}
               onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-foreground mb-2">Address</label>
+            <label className="block text-sm font-medium text-foreground mb-2">{t("address")}</label>
             <Input
-              placeholder="Address (optional)"
+              placeholder={t("addressOptional")}
               value={formData.address}
               onChange={(e) => setFormData({ ...formData, address: e.target.value })}
             />
@@ -115,10 +168,10 @@ export default function CustomersPage() {
               }}
               className="sm:flex-1 bg-secondary hover:bg-secondary/80 text-foreground"
             >
-              Cancel
+              {t("cancel")}
             </Button>
             <Button type="submit" className="sm:flex-1 bg-primary hover:bg-primary/90 text-primary-foreground">
-              Add Customer
+              {t("addCustomer")}
             </Button>
           </div>
         </form>
@@ -132,14 +185,14 @@ export default function CustomersPage() {
           setPendingDeleteId(null)
           setPendingDeleteName("")
         }}
-        title="Delete Customer"
+        title={t("deleteCustomer")}
       >
         <div className="space-y-4">
           <p className="text-sm text-foreground">
-            Are you sure you want to delete
+            {t("areYouSure")}
             {" "}
-            <span className="font-semibold">{pendingDeleteName}</span>?
-            This action cannot be undone.
+            <span className="font-semibold">{pendingDeleteName}</span>?<br />
+            {t("cannotUndo")}
           </p>
           <div className="flex flex-col sm:flex-row gap-3 pt-2">
             <Button
@@ -151,36 +204,36 @@ export default function CustomersPage() {
               }}
               className="sm:flex-1 bg-secondary hover:bg-secondary/80 text-foreground"
             >
-              Cancel
+              {t("cancel")}
             </Button>
             <Button
               type="button"
               onClick={handleDelete}
               className="sm:flex-1 bg-red-600 hover:bg-red-700 text-white"
             >
-              Delete
+              {t("delete")}
             </Button>
           </div>
         </div>
       </ModalOverlay>
 
       <Card className="p-4 md:p-6">
-        <h2 className="text-lg md:text-xl font-bold text-foreground mb-4 md:mb-6">Customer List</h2>
+        <h2 className="text-lg md:text-xl font-bold text-foreground mb-4 md:mb-6">{t("customerList")}</h2>
         {error && (
           <div className="mb-4 text-sm text-red-600">{error}</div>
         )}
         {loading && (
-          <div className="mb-4 text-sm text-muted-foreground">Loading...</div>
+          <div className="mb-4 text-sm text-muted-foreground">{t("loading")}</div>
         )}
         <div className="overflow-x-auto -mx-4 md:mx-0">
           <table className="w-full min-w-max md:min-w-full">
             <thead>
               <tr className="border-b">
-                <th className="text-left py-3 px-4 text-xs md:text-sm font-semibold text-foreground">Name</th>
-                <th className="text-left py-3 px-4 text-xs md:text-sm font-semibold text-foreground">Phone</th>
-                <th className="text-left py-3 px-4 text-xs md:text-sm font-semibold text-foreground">Address</th>
-                <th className="text-left py-3 px-4 text-xs md:text-sm font-semibold text-foreground">Total Spent</th>
-                <th className="text-left py-3 px-4 text-xs md:text-sm font-semibold text-foreground">Actions</th>
+                <th className="text-left py-3 px-4 text-xs md:text-sm font-semibold text-foreground">{t("name")}</th>
+                <th className="text-left py-3 px-4 text-xs md:text-sm font-semibold text-foreground">{t("phone")}</th>
+                <th className="text-left py-3 px-4 text-xs md:text-sm font-semibold text-foreground">{t("address")}</th>
+                <th className="text-left py-3 px-4 text-xs md:text-sm font-semibold text-foreground">{t("totalSpent")}</th>
+                <th className="text-left py-3 px-4 text-xs md:text-sm font-semibold text-foreground">{t("actions")}</th>
               </tr>
             </thead>
             <tbody>

@@ -1,5 +1,6 @@
 "use client"
 
+import { useLanguage } from "@/lib/auth-context";
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
 import {
@@ -20,28 +21,71 @@ interface SidebarProps {
 }
 
 const menuItems = [
-  { label: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
-  { label: "Customers", href: "/dashboard/customers", icon: Users },
-  { label: "Raw Materials", href: "/dashboard/raw-materials", icon: Layers },
-  { label: "Raw Materials Type", href: "/dashboard/raw-materials-type", icon: Layers},
-  { label: "Products", href: "/dashboard/products", icon: Package },
-  { label: "Product Type", href: "/dashboard/product-type", icon: Package },
-  { label: "Production", href: "/dashboard/production", icon: Zap },
-  { label: "Sales", href: "/dashboard/sales", icon: ShoppingCart },
-  { label: "Monthly Summary", href: "/dashboard/daily-summary", icon: Calendar },
-  { label: "Analytics", href: "/dashboard/analytics", icon: BarChart3 },
-  { label: "Settings", href: "/dashboard/settings", icon: Settings },
-]
+  { key: "dashboard", href: "/dashboard", icon: LayoutDashboard },
+  { key: "customers", href: "/dashboard/customers", icon: Users },
+  { key: "rawMaterials", href: "/dashboard/raw-materials", icon: Layers },
+  { key: "rawMaterialsType", href: "/dashboard/raw-materials-type", icon: Layers },
+  { key: "products", href: "/dashboard/products", icon: Package },
+  { key: "productType", href: "/dashboard/product-type", icon: Package },
+  { key: "production", href: "/dashboard/production", icon: Zap },
+  { key: "sales", href: "/dashboard/sales", icon: ShoppingCart },
+  { key: "monthlySummary", href: "/dashboard/daily-summary", icon: Calendar },
+  { key: "analytics", href: "/dashboard/analytics", icon: BarChart3 },
+  { key: "settings", href: "/dashboard/settings", icon: Settings },
+];
+
 
 export default function Sidebar({ onClose }: SidebarProps) {
-  const pathname = usePathname()
-  const router = useRouter()
+  const { language } = useLanguage();
+  const pathname = usePathname();
+  const router = useRouter();
+
+  // Hardcoded translations for Sinhala
+  const t = (key: string) => {
+    if (language === "sinhala") {
+      const si: Record<string, string> = {
+        dashboard: "පුවරුව",
+        customers: "පාරිභෝගිකයින්",
+        rawMaterials: "අමුද්‍රව්‍ය",
+        rawMaterialsType: "අමුද්‍රව්‍ය වර්ගය",
+        products: "නිෂ්පාදන",
+        productType: "නිෂ්පාදන වර්ගය",
+        production: "නිෂ්පාදනය",
+        sales: "විකුණුම්",
+        monthlySummary: "මාසික සාරාංශය",
+        analytics: "විශ්ලේෂණ",
+        settings: "සැකසුම්",
+        // businessManager: "ව්‍යාපාර කළමනාකරු",
+        adminPanel: "පරිපාලක පුවරුව",
+        logout: "ඉවත් වන්න",
+      };
+      return si[key] || key;
+    }
+    // English fallback
+    const en: Record<string, string> = {
+      dashboard: "Dashboard",
+      customers: "Customers",
+      rawMaterials: "Raw Materials",
+      rawMaterialsType: "Raw Materials Type",
+      products: "Products",
+      productType: "Product Type",
+      production: "Production",
+      sales: "Sales",
+      monthlySummary: "Monthly Summary",
+      analytics: "Analytics",
+      settings: "Settings",
+      // businessManager: "Business Manager",
+      adminPanel: "Admin Panel",
+      logout: "Logout",
+    };
+    return en[key] || key;
+  };
 
   const handleLogout = () => {
-    sessionStorage.removeItem("auth")
-    sessionStorage.removeItem("user")
-    router.push("/login")
-  }
+    sessionStorage.removeItem("auth");
+    sessionStorage.removeItem("user");
+    router.push("/login");
+  };
 
   return (
     <aside className="w-full bg-card border-r border-border h-full flex flex-col overflow-hidden">
@@ -52,8 +96,8 @@ export default function Sidebar({ onClose }: SidebarProps) {
 
       <nav className="flex-1 p-2 md:p-4 space-y-1 md:space-y-2 overflow-y-scroll scrollbar-hide">
         {menuItems.map((item) => {
-          const Icon = item.icon
-          const isActive = pathname === item.href
+          const Icon = item.icon;
+          const isActive = pathname === item.href;
           return (
             <Link
               key={item.href}
@@ -64,9 +108,9 @@ export default function Sidebar({ onClose }: SidebarProps) {
               }`}
             >
               <Icon size={20} className="flex-shrink-0" />
-              <span className="font-medium">{item.label}</span>
+              <span className="font-medium">{t(item.key)}</span>
             </Link>
-          )
+          );
         })}
       </nav>
 
@@ -76,7 +120,7 @@ export default function Sidebar({ onClose }: SidebarProps) {
           className="flex items-center gap-3 w-full px-3 md:px-4 py-2 rounded-lg text-foreground hover:bg-secondary transition-colors text-sm md:text-base"
         >
           <LogOut size={20} className="flex-shrink-0" />
-          <span className="font-medium">Logout</span>
+          <span className="font-medium">{t("logout")}</span>
         </button>
       </div>
     </aside>

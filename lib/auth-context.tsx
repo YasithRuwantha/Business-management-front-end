@@ -1,6 +1,41 @@
 "use client";
 
 import { createContext, useContext, useState, useEffect, ReactNode } from "react";
+// Language context for global language state
+type LanguageContextType = {
+  language: string;
+  setLanguage: (lang: string) => void;
+};
+
+const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
+
+export function LanguageProvider({ children }: { children: ReactNode }) {
+  const [language, setLanguage] = useState<string>(
+    typeof window !== "undefined" && localStorage.getItem("language")
+      ? localStorage.getItem("language")!
+      : "english"
+  );
+
+  // Persist language selection
+  const setLang = (lang: string) => {
+    setLanguage(lang);
+    if (typeof window !== "undefined") {
+      localStorage.setItem("language", lang);
+    }
+  };
+
+  return (
+    <LanguageContext.Provider value={{ language, setLanguage: setLang }}>
+      {children}
+    </LanguageContext.Provider>
+  );
+}
+
+export function useLanguage() {
+  const ctx = useContext(LanguageContext);
+  if (!ctx) throw new Error("useLanguage must be used within a LanguageProvider");
+  return ctx;
+}
 import { useRouter } from "next/navigation";
 
 // Define the shape of your auth context

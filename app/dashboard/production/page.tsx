@@ -1,5 +1,6 @@
 "use client"
 
+import { useLanguage } from "@/lib/auth-context"
 import type React from "react"
 import { useState, useEffect } from "react"
 import { Card } from "@/components/ui/card"
@@ -25,6 +26,91 @@ interface ProductItem {
 }
 
 export default function ProductionPage() {
+  const { language } = useLanguage();
+  // Hardcoded translations for Sinhala
+  const t = (key: string) => {
+    if (language === "sinhala") {
+      const si: Record<string, string> = {
+        production: "නිෂ්පාදනය",
+        recordProduction: "නිෂ්පාදනය සටහන් කරන්න",
+        recordProductionDesc: "බහු අමුද්‍රව්‍ය සමඟ නිෂ්පාදනය සටහන් කරන්න",
+        productsToRecord: "සටහන් කිරීමට නිෂ්පාදන",
+        product: "නිෂ්පාදනය",
+        productName: "නිෂ්පාදන නම",
+        selectProductType: "නිෂ්පාදන වර්ගය තෝරන්න...",
+        quantityMade: "නිෂ්පාදනය කළ ප්‍රමාණය",
+        materialsUsed: "භාවිතා කළ අමුද්‍රව්‍ය",
+        addMaterial: "අමුද්‍රව්‍ය එක් කරන්න",
+        selectMaterial: "අමුද්‍රව්‍ය තෝරන්න...",
+        qty: "ප්‍රමාණය",
+        currentStock: "වත්මන් තොගය:",
+        afterUse: "භාවිතයෙන් පසු:",
+        insufficient: "ප්‍රමාණය ප්‍රමාණවත් නොවේ!",
+        productionDate: "නිෂ්පාදන දිනය",
+        addAnotherProduct: "තවත් නිෂ්පාදනයක් එක් කරන්න",
+        cancel: "අවලංගු කරන්න",
+        recording: "සටහන් වෙමින්...",
+        productionDetails: "නිෂ්පාදන විස්තර",
+        productionId: "නිෂ්පාදන අංකය",
+        quantity: "ප්‍රමාණය",
+        materials: "අමුද්‍රව්‍ය",
+        qtyUsed: "භාවිත කළ ප්‍රමාණය",
+        close: "වසන්න",
+        productionHistory: "නිෂ්පාදන ඉතිහාසය",
+        noProductionRecords: "නිෂ්පාදන සටහන් නොමැත. ඔබේ පළමු නිෂ්පාදනය සටහන් කිරීම ආරම්භ කරන්න!",
+        id: "අංකය",
+        date: "දිනය",
+        actions: "ක්‍රියාමාර්ග",
+        view: "බලන්න",
+        delete: "මකන්න",
+        deletePurchase: "මිලදී ගැනීම මකන්න",
+        doYouWantToRestore: "ඔබට තොගය නැවත ලබා ගැනීමට අවශ්‍යද, නැතහොත් ඉතිහාසය පමණක් මකන්නද?",
+        deleteHistoryOnly: "ඉතිහාසය පමණක් මකන්න",
+        deleteAndRestore: "මකන්න සහ තොගය නැවත ලබා ගන්න",
+      };
+      return si[key] || key;
+    }
+    // English fallback
+    const en: Record<string, string> = {
+      production: "Production",
+      recordProduction: "Record Production",
+      recordProductionDesc: "Record production with multiple materials used",
+      productsToRecord: "Products to Record",
+      product: "Product",
+      productName: "Product Name *",
+      selectProductType: "Select a product type...",
+      quantityMade: "Quantity Made *",
+      materialsUsed: "Materials Used *",
+      addMaterial: "Add Material",
+      selectMaterial: "Select material...",
+      qty: "Qty",
+      currentStock: "Current Stock:",
+      afterUse: "After Use:",
+      insufficient: "Insufficient!",
+      productionDate: "Production Date",
+      addAnotherProduct: "Add Another Product",
+      cancel: "Cancel",
+      recording: "Recording...",
+      productionDetails: "Production Details",
+      productionId: "Production ID",
+      quantity: "Quantity",
+      materials: "Materials",
+      qtyUsed: "Qty Used",
+      close: "Close",
+      productionHistory: "Production History",
+      noProductionRecords: "No production records found. Start by recording your first production!",
+      id: "ID",
+      date: "Date",
+      actions: "Actions",
+      view: "View",
+      delete: "Delete",
+      deletePurchase: "Delete Purchase",
+      doYouWantToRestore: "Do you want to restore stock as well, or delete only the product history?",
+      deleteHistoryOnly: "Delete History Only",
+      deleteAndRestore: "Delete & restore Stock",
+    };
+    return en[key] || key;
+  };
   const { productions, loading, error, addProduction, deleteProduction, fetchProductions, handleDeleteAndRestore, deleteProductionHistory } = useProduction()
   const { types: productTypes, loading: loadingTypes, fetchTypes } = useProductTypes()
   const { materials: rawMaterials, loading: loadingMaterials, fetchRawMaterials } = useRawMaterials()
@@ -221,8 +307,8 @@ export default function ProductionPage() {
     <div className="p-8 space-y-8">
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-4xl font-bold text-foreground">Production</h1>
-          <p className="text-muted-foreground mt-1">Record production with multiple materials used</p>
+          <h1 className="text-4xl font-bold text-foreground">{t("production")}</h1>
+          <p className="text-muted-foreground mt-1">{t("recordProductionDesc")}</p>
         </div>
         <Button
           onClick={() => setIsModalOpen(true)}
@@ -230,7 +316,7 @@ export default function ProductionPage() {
           className="bg-primary hover:bg-primary/90 text-primary-foreground gap-2 shadow-lg"
         >
           <Plus size={20} />
-          Record Production
+          {t("recordProduction")}
         </Button>
       </div>
 
@@ -253,7 +339,7 @@ export default function ProductionPage() {
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
           <Card className="w-full max-w-2xl max-h-[90vh] overflow-y-auto shadow-2xl">
             <div className="sticky top-0 bg-card p-4 md:p-6 border-b flex justify-between items-center">
-              <h2 className="text-xl md:text-2xl font-bold text-foreground">Record Production</h2>
+              <h2 className="text-xl md:text-2xl font-bold text-foreground">{t("recordProduction")}</h2>
               <button
                 onClick={() => setIsModalOpen(false)}
                 className="text-muted-foreground hover:text-foreground transition-colors"
@@ -264,13 +350,13 @@ export default function ProductionPage() {
 
             <form onSubmit={handleAddProduction} className="p-4 md:p-6 space-y-6">
               <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 mb-4">
-                <h3 className="text-lg font-bold text-foreground">Products to Record</h3>
+                <h3 className="text-lg font-bold text-foreground">{t("productsToRecord")}</h3>
               </div>
 
               {formData.products.map((productItem, productIndex) => (
                 <div key={productIndex} className="border border-border rounded-lg p-4 space-y-4 bg-secondary/20">
                   <div className="flex justify-between items-center">
-                    <h4 className="font-semibold text-foreground">Product #{productIndex + 1}</h4>
+                    <h4 className="font-semibold text-foreground">{t("product")} #{productIndex + 1}</h4>
                     {formData.products.length > 1 && (
                       <button
                         type="button"
@@ -284,13 +370,13 @@ export default function ProductionPage() {
                   </div>
 
                   <div>
-                    <label className="block text-sm font-semibold text-foreground mb-2">Product Name *</label>
+                    <label className="block text-sm font-semibold text-foreground mb-2">{t("productName")}</label>
                     <select
                       value={productItem.product}
                       onChange={(e) => updateProduct(productIndex, "product", e.target.value)}
                       className="w-full px-3 py-2 border border-input rounded-md bg-background text-foreground placeholder-foreground/40 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all text-base"
                     >
-                      <option value="">Select a product type...</option>
+                      <option value="">{t("selectProductType")}</option>
                       {productTypes.map((type) => (
                         <option key={type._id} value={type.name}>
                           {type.name} ({type.unit})
@@ -300,7 +386,7 @@ export default function ProductionPage() {
                   </div>
 
                   <div>
-                    <label className="block text-sm font-semibold text-foreground mb-2">Quantity Made *</label>
+                    <label className="block text-sm font-semibold text-foreground mb-2">{t("quantityMade")}</label>
                     <Input
                       type="number"
                       placeholder="0"
@@ -312,14 +398,14 @@ export default function ProductionPage() {
 
                   <div className="space-y-3">
                     <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
-                      <h5 className="text-sm font-semibold text-foreground">Materials Used *</h5>
+                      <h5 className="text-sm font-semibold text-foreground">{t("materialsUsed")}</h5>
                       <button
                         type="button"
                         onClick={() => addMaterialField(productIndex)}
                         className="flex items-center gap-1 text-primary hover:text-primary/80 font-medium text-xs"
                       >
                         <Plus size={16} />
-                        Add Material
+                        {t("addMaterial")}
                       </button>
                     </div>
 
@@ -360,7 +446,7 @@ export default function ProductionPage() {
                               onChange={(e) => updateMaterial(productIndex, materialIndex, "material", e.target.value)}
                               className="col-span-1 sm:col-span-6 px-3 py-2 border border-input rounded-md bg-background text-foreground placeholder-foreground/40 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all text-sm"
                             >
-                              <option value="">Select material...</option>
+                              <option value="">{t("selectMaterial")}</option>
                               {rawMaterials.map((rm) => (
                                 <option key={rm._id} value={rm.rawMaterialType.name}>
                                   {rm.rawMaterialType.name} ({rm.rawMaterialType.unit})
@@ -370,7 +456,7 @@ export default function ProductionPage() {
                             <Input
                               type="number"
                               step="0.01"
-                              placeholder="Qty"
+                              placeholder={t("qty")}
                               value={material.quantity}
                               onChange={(e) => updateMaterial(productIndex, materialIndex, "quantity", e.target.value)}
                               className={`col-span-1 sm:col-span-4 text-sm ${isInsufficient ? 'border-red-500 focus:ring-red-500' : ''}`}
@@ -388,7 +474,7 @@ export default function ProductionPage() {
                           {material.material && (
                             <div className="text-xs pl-1 space-y-0.5">
                               <div className="text-muted-foreground">
-                                Current Stock: <span className={`font-semibold ${availableQty < 10 ? 'text-orange-600' : 'text-blue-600'}`}>
+                                {t("currentStock")} <span className={`font-semibold ${availableQty < 10 ? 'text-orange-600' : 'text-blue-600'}`}>
                                   {availableQty} {selectedMaterial?.rawMaterialType.unit || ''}
                                 </span>
                               </div>
@@ -396,11 +482,11 @@ export default function ProductionPage() {
                                 <div className="text-muted-foreground">
                                   {isInsufficient ? (
                                     <span className="font-semibold text-red-600">
-                                      ⚠️ Insufficient! Need {Math.abs(remainingQty).toFixed(2)} {selectedMaterial?.rawMaterialType.unit || ''} more
+                                      ⚠️ {t("insufficient")} {Math.abs(remainingQty).toFixed(2)} {selectedMaterial?.rawMaterialType.unit || ''} more
                                     </span>
                                   ) : (
                                     <>
-                                      After Use: <span className={`font-semibold ${availableQty < 10 ? 'text-orange-600' : 'text-blue-600'}`}>
+                                      {t("afterUse")}: <span className={`font-semibold ${availableQty < 10 ? 'text-orange-600' : 'text-blue-600'}`}>
                                         {remainingQty.toFixed(2)} {selectedMaterial?.rawMaterialType.unit || ''} remaining
                                       </span>
                                     </>
@@ -415,7 +501,7 @@ export default function ProductionPage() {
                   </div>
 
                   <div>
-                    <label className="block text-sm font-semibold text-foreground mb-2">Production Date</label>
+                    <label className="block text-sm font-semibold text-foreground mb-2">{t("productionDate")}</label>
                     <Input
                       type="date"
                       value={productItem.date}
@@ -432,7 +518,7 @@ export default function ProductionPage() {
                   className="flex items-center gap-2 text-primary hover:text-primary/80 font-medium text-sm"
                 >
                   <Plus size={20} />
-                  Add Another Product
+                  {t("addAnotherProduct")}
                 </button>
               </div>
 
@@ -445,10 +531,10 @@ export default function ProductionPage() {
                   {submitting ? (
                     <>
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Recording...
+                      {t("recording")}
                     </>
                   ) : (
-                    "Record Production"
+                    t("recordProduction")
                   )}
                 </Button>
                 <Button
@@ -457,7 +543,7 @@ export default function ProductionPage() {
                   disabled={submitting}
                   className="sm:flex-1 bg-secondary hover:bg-muted text-foreground"
                 >
-                  Cancel
+                  {t("cancel")}
                 </Button>
               </div>
             </form>
@@ -470,7 +556,7 @@ export default function ProductionPage() {
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
           <Card className="w-full max-w-2xl shadow-2xl max-h-[90vh] overflow-y-auto">
             <div className="p-4 md:p-6 border-b flex justify-between items-center sticky top-0 bg-card">
-              <h2 className="text-xl md:text-2xl font-bold text-foreground">Production Details</h2>
+              <h2 className="text-xl md:text-2xl font-bold text-foreground">{t("productionDetails")}</h2>
               <button
                 onClick={() => setShowDetailsModal(false)}
                 className="text-muted-foreground hover:text-foreground transition-colors"
@@ -482,32 +568,32 @@ export default function ProductionPage() {
             <div className="p-4 md:p-6 space-y-6">
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 md:gap-6">
                 <div>
-                  <p className="text-sm text-muted-foreground">Production ID</p>
+                  <p className="text-sm text-muted-foreground">{t("productionId")}</p>
                   <p className="text-lg md:text-xl font-semibold text-foreground">
                     #{selectedProduction?._id?.slice(-6) || "------"}
                   </p>
                 </div>
                 <div>
-                  <p className="text-sm text-muted-foreground">Product</p>
+                  <p className="text-sm text-muted-foreground">{t("product")}</p>
                   <p className="text-lg md:text-xl font-semibold text-foreground">{selectedProduction.product.name}</p>
                 </div>
                 <div>
-                  <p className="text-sm text-muted-foreground">Quantity</p>
+                  <p className="text-sm text-muted-foreground">{t("quantity")}</p>
                   <p className="text-lg md:text-xl font-semibold text-foreground">{selectedProduction.producedQuantity}</p>
                 </div>
               </div>
 
               <div>
-                <h3 className="text-lg font-bold text-foreground mb-4">Materials Used</h3>
+                <h3 className="text-lg font-bold text-foreground mb-4">{t("materialsUsed")}</h3>
                 <div className="overflow-x-auto -mx-4 md:mx-0">
                   <table className="w-full min-w-max md:min-w-full text-sm">
                     <thead>
                       <tr className="border-b">
                         <th className="text-left py-2 px-3 font-semibold text-foreground text-xs md:text-sm">
-                          Material
+                          {t("materials")}
                         </th>
                         <th className="text-right py-2 px-3 font-semibold text-foreground text-xs md:text-sm">
-                          Qty Used
+                          {t("qtyUsed")}
                         </th>
                       </tr>
                     </thead>
@@ -532,7 +618,7 @@ export default function ProductionPage() {
                   onClick={() => setShowDetailsModal(false)}
                   className="flex-1 bg-primary hover:bg-primary/90 text-primary-foreground"
                 >
-                  Close
+                  {t("close")}
                 </Button>
               </div>
             </div>
@@ -543,22 +629,22 @@ export default function ProductionPage() {
       {/* Production History */}
       {!loading && (
         <Card className="p-4 md:p-6">
-          <h2 className="text-lg md:text-xl font-bold text-foreground mb-4 md:mb-6">Production History</h2>
+          <h2 className="text-lg md:text-xl font-bold text-foreground mb-4 md:mb-6">{t("productionHistory")}</h2>
           {productions.length === 0 ? (
             <div className="text-center py-12 text-muted-foreground">
-              No production records found. Start by recording your first production!
+              {t("noProductionRecords")}
             </div>
           ) : (
             <div className="overflow-x-auto -mx-4 md:mx-0">
               <table className="w-full min-w-max md:min-w-full">
                 <thead>
                   <tr className="border-b">
-                    <th className="text-left py-3 px-4 text-xs md:text-sm font-semibold text-foreground">ID</th>
-                    <th className="text-left py-3 px-4 text-xs md:text-sm font-semibold text-foreground">Product</th>
-                    <th className="text-left py-3 px-4 text-xs md:text-sm font-semibold text-foreground">Qty</th>
-                    <th className="text-left py-3 px-4 text-xs md:text-sm font-semibold text-foreground">Materials</th>
-                    <th className="text-left py-3 px-4 text-xs md:text-sm font-semibold text-foreground">Date</th>
-                    <th className="text-left py-3 px-4 text-xs md:text-sm font-semibold text-foreground">Actions</th>
+                    <th className="text-left py-3 px-4 text-xs md:text-sm font-semibold text-foreground">{t("id")}</th>
+                    <th className="text-left py-3 px-4 text-xs md:text-sm font-semibold text-foreground">{t("product")}</th>
+                    <th className="text-left py-3 px-4 text-xs md:text-sm font-semibold text-foreground">{t("qty")}</th>
+                    <th className="text-left py-3 px-4 text-xs md:text-sm font-semibold text-foreground">{t("materials")}</th>
+                    <th className="text-left py-3 px-4 text-xs md:text-sm font-semibold text-foreground">{t("date")}</th>
+                    <th className="text-left py-3 px-4 text-xs md:text-sm font-semibold text-foreground">{t("actions")}</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -580,7 +666,7 @@ export default function ProductionPage() {
                             className="inline-flex items-center gap-1 text-blue-600 hover:text-blue-700 font-medium transition-colors whitespace-nowrap"
                           >
                             <Eye size={16} />
-                            View
+                            {t("view")}
                           </button>
                           <button
                             onClick={() =>{
@@ -590,6 +676,7 @@ export default function ProductionPage() {
                             className="inline-flex items-center gap-1 text-red-600 hover:text-red-700 transition-colors"
                           >
                             <Trash2 size={16} />
+                            {t("delete")}
                           </button>
                         </div>
                       </td>
@@ -609,10 +696,10 @@ export default function ProductionPage() {
               setIsDeleteModalOpen(false)
               // setDeletePurchaseId(null)
             }}
-            title="Delete Purchase"
+            title={t("deletePurchase")}
           >
             <p className="text-sm text-muted-foreground mb-4">
-              Do you want to restore stock as well, or delete only the product history?
+              {t("doYouWantToRestore")}
             </p>
             <div className="flex flex-col gap-3">
               <Button
@@ -623,7 +710,7 @@ export default function ProductionPage() {
                   setIsDeleteModalOpen(false)
                 }}
               >
-                Delete History Only
+                {t("deleteHistoryOnly")}
               </Button>
               <Button
                 onClick={async () => {
@@ -632,10 +719,10 @@ export default function ProductionPage() {
                   setIsDeleteModalOpen(false)
                 }}
               >
-                Delete & restore Stock
+                {t("deleteAndRestore")}
               </Button>
               <Button variant="secondary" onClick={() => setIsDeleteModalOpen(false)}>
-                Cancel
+                {t("cancel")}
               </Button>
             </div>
           </ModalOverlay>

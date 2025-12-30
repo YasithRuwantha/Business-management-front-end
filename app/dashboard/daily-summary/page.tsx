@@ -1,5 +1,6 @@
 "use client"
 
+import { useLanguage } from "@/lib/auth-context";
 import { Card } from "@/components/ui/card"
 import { useCustomers } from "@/lib/customers-context"
 import { useEffect, useState } from "react"
@@ -38,6 +39,55 @@ const calculatePercentChange = (current: number, previous: number) => {
 }
 
 export default function MonthlySummaryPage() {
+  const { language } = useLanguage();
+  // Hardcoded translations for Sinhala
+  const t = (key: string) => {
+    if (language === "sinhala") {
+      const si: Record<string, string> = {
+        monthlySalesSummary: "මාසික විකුණුම් සාරාංශය",
+        overview: "මෙම මාසයේ විකුණුම් කාර්ය සාධනය සහ මැට්‍රික්ස් සාරාංශය.",
+        thisMonthSales: "මෙම මාසයේ විකුණුම්",
+        fromLastMonth: "පසුගිය මාසයෙන්",
+        totalProfit: "මුළු ලාභය",
+        itemsSold: "විකුණුම් කළ අයිතම",
+        topCustomers: "ඉහළම පාරිභෝගිකයින්",
+        weeklyPerformance: "සතිපතා කාර්ය සාධනය",
+        week: "සතිය",
+        sales: "විකුණුම්",
+        profit: "ලාභය",
+        items: "අයිතම",
+        avgOrderValue: "සාමාන්‍ය ඇණවුම් වටිනාකම",
+        monthlyBreakdown: "මාසික විස්තරය",
+        salesUSD: "විකුණුම් ($)",
+        profitUSD: "ලාභය ($)",
+        itemsSoldCol: "විකුණුම් කළ අයිතම",
+        avgOrderValueCol: "සාමාන්‍ය ඇණවුම් වටිනාකම ($)",
+      };
+      return si[key] || key;
+    }
+    // English fallback
+    const en: Record<string, string> = {
+      monthlySalesSummary: "Monthly Sales Summary",
+      overview: "Overview of this month's sales performance and metrics.",
+      thisMonthSales: "This Month's Sales",
+      fromLastMonth: "% from last month",
+      totalProfit: "Total Profit",
+      itemsSold: "Items Sold",
+      topCustomers: "Top Customers",
+      weeklyPerformance: "Weekly Performance",
+      week: "Week",
+      sales: "Sales",
+      profit: "Profit",
+      items: "Items",
+      avgOrderValue: "Avg. Order Value",
+      monthlyBreakdown: "Monthly Breakdown",
+      salesUSD: "Sales",
+      profitUSD: "Profit",
+      itemsSoldCol: "Items Sold",
+      avgOrderValueCol: "Avg. Order Value",
+    };
+    return en[key] || key;
+  };
   const salesChange = calculatePercentChange(currentMonthData.totalSales, currentMonthData.lastMonthSales)
   const profitChange = calculatePercentChange(currentMonthData.totalProfit, currentMonthData.lastMonthProfit)
   const itemsChange = calculatePercentChange(currentMonthData.totalItems, currentMonthData.lastMonthItems)
@@ -54,39 +104,39 @@ export default function MonthlySummaryPage() {
     <div className="p-4 space-y-8">
       {/* Header */}
       <div>
-        <h1 className="text-4xl font-bold text-foreground">Monthly Sales Summary</h1>
-        <p className="text-muted-foreground mt-2">Overview of this month's sales performance and metrics.</p>
+        <h1 className="text-4xl font-bold text-foreground">{t("monthlySalesSummary")}</h1>
+        <p className="text-muted-foreground mt-2">{t("overview")}</p>
       </div>
 
       <div className="w-full gap-6">
         {/* This Month's Sales */}
         <Card className="p-6 border border-gray-200 hover:shadow-lg transition-shadow">
-          <p className="text-sm font-semibold text-gray-600">This Month's Sales</p>
+          <p className="text-sm font-semibold text-gray-600">{t("thisMonthSales")}</p>
           <p className="text-4xl font-bold text-blue-600 mt-3">${currentMonthData.totalSales.toLocaleString()}</p>
           <p className={`text-sm font-semibold mt-2 ${salesChange.isPositive ? "text-green-600" : "text-red-600"}`}>
             {salesChange.isPositive ? "+" : ""}
-            {salesChange.percentage}% from last month
+            {salesChange.percentage}{t("fromLastMonth")}
           </p>
         </Card>
       </div>
       <div className="grid grid-cols-2 md:grid-cols-2 gap-6">
         {/* Total Profit */}
         <Card className="p-6 border border-gray-200 hover:shadow-lg transition-shadow">
-          <p className="text-sm font-semibold text-gray-600">Total Profit</p>
+          <p className="text-sm font-semibold text-gray-600">{t("totalProfit")}</p>
           <p className="text-4xl font-bold text-blue-600 mt-3">${currentMonthData.totalProfit.toLocaleString()}</p>
           <p className={`text-sm font-semibold mt-2 ${profitChange.isPositive ? "text-green-600" : "text-red-600"}`}>
             {profitChange.isPositive ? "+" : ""}
-            {profitChange.percentage}% from last month
+            {profitChange.percentage}{t("fromLastMonth")}
           </p>
         </Card>
 
         {/* Items Sold */}
         <Card className="p-6 border border-gray-200 hover:shadow-lg transition-shadow">
-          <p className="text-sm font-semibold text-gray-600">Items Sold</p>
+          <p className="text-sm font-semibold text-gray-600">{t("itemsSold")}</p>
           <p className="text-4xl font-bold text-blue-600 mt-3">{currentMonthData.totalItems.toLocaleString()}</p>
           <p className={`text-sm font-semibold mt-2 ${itemsChange.isPositive ? "text-green-600" : "text-red-600"}`}>
             {itemsChange.isPositive ? "+" : ""}
-            {itemsChange.percentage}% from last month
+            {itemsChange.percentage}{t("fromLastMonth")}
           </p>
         </Card>
       </div>
@@ -94,7 +144,7 @@ export default function MonthlySummaryPage() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Top Customers */}
         <Card className="p-6 border border-gray-200">
-          <h2 className="text-2xl font-bold text-foreground mb-6">Top Customers</h2>
+          <h2 className="text-2xl font-bold text-foreground mb-6">{t("topCustomers")}</h2>
           <div className="space-y-3">
             {/* {topCustomers.map((customer, index) => (
               <div
@@ -113,20 +163,20 @@ export default function MonthlySummaryPage() {
 
         {/* Weekly Performance */}
         <Card className="p-6 border border-gray-200">
-          <h2 className="text-2xl font-bold text-foreground mb-6">Weekly Performance</h2>
+          <h2 className="text-2xl font-bold text-foreground mb-6">{t("weeklyPerformance")}</h2>
           <div className="space-y-3">
             {currentMonthData.weeks.map((week, index) => (
               <div key={index} className="p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
                 <div className="flex items-center justify-between mb-2">
-                  <p className="font-semibold text-foreground">Week {week.week}</p>
+                  <p className="font-semibold text-foreground">{t("week")} {week.week}</p>
                   <p className="text-lg font-bold text-blue-600">${week.sales.toLocaleString()}</p>
                 </div>
                 <div className="flex justify-between text-sm text-gray-600">
                   <span>
-                    Profit: <span className="font-semibold text-gray-800">${week.profit.toLocaleString()}</span>
+                    {t("profit")}: <span className="font-semibold text-gray-800">${week.profit.toLocaleString()}</span>
                   </span>
                   <span>
-                    Items: <span className="font-semibold text-gray-800">{week.items}</span>
+                    {t("items")}: <span className="font-semibold text-gray-800">{week.items}</span>
                   </span>
                 </div>
               </div>
@@ -136,22 +186,22 @@ export default function MonthlySummaryPage() {
       </div>
 
       <Card className="p-6 border border-gray-200">
-        <h2 className="text-2xl font-bold text-foreground mb-6">Monthly Breakdown</h2>
+        <h2 className="text-2xl font-bold text-foreground mb-6">{t("monthlyBreakdown")}</h2>
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead>
               <tr className="border-b-2 border-gray-200 bg-gray-50">
-                <th className="text-left py-4 px-4 font-semibold text-foreground">Week</th>
-                <th className="text-right py-4 px-4 font-semibold text-foreground">Sales</th>
-                <th className="text-right py-4 px-4 font-semibold text-foreground">Profit</th>
-                <th className="text-right py-4 px-4 font-semibold text-foreground">Items Sold</th>
-                <th className="text-right py-4 px-4 font-semibold text-foreground">Avg. Order Value</th>
+                <th className="text-left py-4 px-4 font-semibold text-foreground">{t("week")}</th>
+                <th className="text-right py-4 px-4 font-semibold text-foreground">{t("salesUSD")}</th>
+                <th className="text-right py-4 px-4 font-semibold text-foreground">{t("profitUSD")}</th>
+                <th className="text-right py-4 px-4 font-semibold text-foreground">{t("itemsSoldCol")}</th>
+                <th className="text-right py-4 px-4 font-semibold text-foreground">{t("avgOrderValueCol")}</th>
               </tr>
             </thead>
             <tbody>
               {currentMonthData.weeks.map((week, index) => (
                 <tr key={index} className="border-b border-gray-200 hover:bg-gray-50 transition-colors">
-                  <td className="py-4 px-4 font-semibold text-foreground">Week {week.week}</td>
+                  <td className="py-4 px-4 font-semibold text-foreground">{t("week")} {week.week}</td>
                   <td className="text-right py-4 px-4 font-semibold text-blue-600">${week.sales.toLocaleString()}</td>
                   <td className="text-right py-4 px-4 font-semibold text-green-600">${week.profit.toLocaleString()}</td>
                   <td className="text-right py-4 px-4 text-foreground">{week.items}</td>

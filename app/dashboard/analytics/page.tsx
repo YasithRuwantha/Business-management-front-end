@@ -1,5 +1,6 @@
 "use client"
 
+import { useLanguage } from "@/lib/auth-context";
 import { Card } from "@/components/ui/card"
 import {
   BarChart,
@@ -73,6 +74,61 @@ const KPICard = ({ title, value, change, icon }) => (
 )
 
 export default function AnalyticsPage() {
+  const { language } = useLanguage();
+  // Hardcoded translations for Sinhala
+  const t = (key: string) => {
+    if (language === "sinhala") {
+      const si: Record<string, string> = {
+        analytics: "විශ්ලේෂණ",
+        overview: "ඔබගේ විකුණුම් කාර්ය සාධනය සහ මැට්‍රික්ස් සාරාංශය",
+        thisYearTotalRevenue: "මෙම වසරේ මුළු ආදායම",
+        thisYearTotalProfit: "මෙම වසරේ මුළු ලාභය",
+        thisYearCost: "මෙම වසරේ වියදම",
+        monthlyRevenue: "මාසික ආදායම",
+        revenueTrend: "වසර පුරා ආදායම් ප්‍රවණතාවය",
+        monthlyProfit: "මාසික ලාභය",
+        profitTrend: "පසුගිය මාස 6ක ලාභ ප්‍රවණතාවය",
+        mostSoldProducts: "වැඩිම විකුණුම් වූ නිෂ්පාදන",
+        productDistribution: "විකුණුම් ප්‍රමාණය අනුව නිෂ්පාදන බෙදාහැරීම",
+        topCustomers: "ඉහළම පාරිභෝගිකයින්",
+        bestCustomers: "ඔබගේ හොඳම පාරිභෝගිකයින්ගේ මුළු වියදම",
+        customerDetails: "පාරිභෝගික විස්තර",
+        customerMetrics: "සම්පූර්ණ පාරිභෝගික මැට්‍රික්ස් සහ ක්‍රියාකාරකම්",
+        customerName: "පාරිභෝගික නම",
+        totalOrders: "මුළු ඇණවුම්",
+        totalSpent: "මුළු වියදම",
+        avgOrderValue: "සාමාන්‍ය ඇණවුම් වටිනාකම",
+        orders: "ඇණවුම්",
+        spent: "වියදම",
+      };
+      return si[key] || key;
+    }
+    // English fallback
+    const en: Record<string, string> = {
+      analytics: "Analytics",
+      overview: "Overview of your sales performance and metrics",
+      thisYearTotalRevenue: "This Year Total Revenue",
+      thisYearTotalProfit: "This Year Total Profit",
+      thisYearCost: "This Year Cost",
+      monthlyRevenue: "Monthly Revenue",
+      revenueTrend: "Revenue trend over the year",
+      monthlyProfit: "Monthly Profit",
+      profitTrend: "Profit trend over the last 6 months",
+      mostSoldProducts: "Most Sold Products",
+      productDistribution: "Product distribution by sales volume",
+      topCustomers: "Top Customers",
+      bestCustomers: "Your best customers by total spending",
+      customerDetails: "Customer Details",
+      customerMetrics: "Comprehensive customer metrics and activity",
+      customerName: "Customer Name",
+      totalOrders: "Total Orders",
+      totalSpent: "Total Spent",
+      avgOrderValue: "Avg Order Value",
+      orders: "orders",
+      spent: "spent",
+    };
+    return en[key] || key;
+  };
   const { profitChart, getCurrentYearMonthlyProfitChart, fetchProfitSummary, profit } = useProfit();
 
   const totalRevenue = "$127,450"
@@ -120,15 +176,15 @@ export default function AnalyticsPage() {
     <div className="p-6 lg:p-8 space-y-8 bg-background min-h-screen">
       {/* Header */}
       <div className="space-y-2">
-        <h1 className="text-3xl lg:text-4xl font-bold text-foreground">Analytics</h1>
-        <p className="text-muted-foreground">Overview of your sales performance and metrics</p>
+        <h1 className="text-3xl lg:text-4xl font-bold text-foreground">{t("analytics")}</h1>
+        <p className="text-muted-foreground">{t("overview")}</p>
       </div>
 
       {/* KPI Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <KPICard title="This Year Total Revenue" value={`Rs. ${profit?.currentYear.revenue ?? 0}`} change="" icon={undefined}  />
-        <KPICard title="This Year Total Profit" value={`Rs. ${profit?.currentYear.profit ?? 0}`} change="" icon={undefined} />
-        <KPICard title="This Year Cost" value={`Rs. ${profit?.currentYear.cost ?? 0}`} change="" icon={undefined} />
+        <KPICard title={t("thisYearTotalRevenue")} value={`Rs. ${profit?.currentYear.revenue ?? 0}`} change="" icon={undefined}  />
+        <KPICard title={t("thisYearTotalProfit")} value={`Rs. ${profit?.currentYear.profit ?? 0}`} change="" icon={undefined} />
+        <KPICard title={t("thisYearCost")} value={`Rs. ${profit?.currentYear.cost ?? 0}`} change="" icon={undefined} />
       </div>
 
       {/* Charts Section */}
@@ -137,8 +193,8 @@ export default function AnalyticsPage() {
         <Card className="p-6 lg:p-8 border-0 shadow-sm">
           <div className="space-y-6">
             <div>
-              <h2 className="text-lg font-bold text-foreground">Monthly Revenue</h2>
-              <p className="text-sm text-muted-foreground mt-1">Revenue trend over the year</p>
+              <h2 className="text-lg font-bold text-foreground">{t("monthlyRevenue")}</h2>
+              <p className="text-sm text-muted-foreground mt-1">{t("revenueTrend")}</p>
             </div>
             <ResponsiveContainer width="100%" height={320}>
               <BarChart data={monthlyRevenue} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
@@ -162,8 +218,8 @@ export default function AnalyticsPage() {
         <Card className="p-6 lg:p-8 border-0 shadow-sm">
           <div className="space-y-6">
             <div>
-              <h2 className="text-lg font-bold text-foreground">Monthly Profit</h2>
-              <p className="text-sm text-muted-foreground mt-1">Profit trend over the last 6 months</p>
+              <h2 className="text-lg font-bold text-foreground">{t("monthlyProfit")}</h2>
+              <p className="text-sm text-muted-foreground mt-1">{t("profitTrend")}</p>
             </div>
             <ResponsiveContainer width="100%" height={320}>
               <LineChart data={profitChart?.monthlyData} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
@@ -196,8 +252,8 @@ export default function AnalyticsPage() {
         <Card className="p-6 lg:p-8 border-0 shadow-sm">
           <div className="space-y-6">
             <div>
-              <h2 className="text-lg font-bold text-foreground">Most Sold Products</h2>
-              <p className="text-sm text-muted-foreground mt-1">Product distribution by sales volume</p>
+              <h2 className="text-lg font-bold text-foreground">{t("mostSoldProducts")}</h2>
+              <p className="text-sm text-muted-foreground mt-1">{t("productDistribution")}</p>
             </div>
             <ResponsiveContainer width="100%" height={300}>
               <PieChart>
@@ -225,8 +281,8 @@ export default function AnalyticsPage() {
         <Card className="p-6 lg:p-8 border-0 shadow-sm">
           <div className="space-y-6">
             <div>
-              <h2 className="text-lg font-bold text-foreground">Top Customers</h2>
-              <p className="text-sm text-muted-foreground mt-1">Your best customers by total spending</p>
+              <h2 className="text-lg font-bold text-foreground">{t("topCustomers")}</h2>
+              <p className="text-sm text-muted-foreground mt-1">{t("bestCustomers")}</p>
             </div>
             <div className="space-y-4">
               {yearlyTopCustomers.map((customer, index) => (
@@ -236,7 +292,7 @@ export default function AnalyticsPage() {
                 >
                   <div className="flex-1">
                     <p className="font-semibold text-foreground">{customer.name}</p>
-                    <p className="text-sm text-muted-foreground">{customer.orderCount} orders</p>
+                    <p className="text-sm text-muted-foreground">{customer.orderCount} {t("orders")}</p>
                   </div>
                   <p className="text-lg font-bold text-blue-600">${customer.totalSpent.toLocaleString()}</p>
                 </div>
@@ -250,17 +306,17 @@ export default function AnalyticsPage() {
       <Card className="p-6 lg:p-8 border-0 shadow-sm">
         <div className="space-y-6">
           <div>
-            <h2 className="text-lg font-bold text-foreground">Customer Details</h2>
-            <p className="text-sm text-muted-foreground mt-1">Comprehensive customer metrics and activity</p>
+            <h2 className="text-lg font-bold text-foreground">{t("customerDetails")}</h2>
+            <p className="text-sm text-muted-foreground mt-1">{t("customerMetrics")}</p>
           </div>
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead>
                 <tr className="border-b border-border">
-                  <th className="text-left py-4 px-4 text-sm font-semibold text-foreground">Customer Name</th>
-                  <th className="text-left py-4 px-4 text-sm font-semibold text-foreground">Total Orders</th>
-                  <th className="text-left py-4 px-4 text-sm font-semibold text-foreground">Total Spent</th>
-                  <th className="text-left py-4 px-4 text-sm font-semibold text-foreground">Avg Order Value</th>
+                  <th className="text-left py-4 px-4 text-sm font-semibold text-foreground">{t("customerName")}</th>
+                  <th className="text-left py-4 px-4 text-sm font-semibold text-foreground">{t("totalOrders")}</th>
+                  <th className="text-left py-4 px-4 text-sm font-semibold text-foreground">{t("totalSpent")}</th>
+                  <th className="text-left py-4 px-4 text-sm font-semibold text-foreground">{t("avgOrderValue")}</th>
                 </tr>
               </thead>
               <tbody>

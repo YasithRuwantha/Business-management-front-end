@@ -2,6 +2,7 @@
 
 import type React from "react"
 import { useState, useEffect } from "react"
+import { useLanguage } from "@/lib/auth-context"
 import { Card } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
@@ -16,6 +17,78 @@ const today = new Date().toISOString().split("T")[0];
 
 
 export default function RawMaterialsPage() {
+  const { language } = useLanguage();
+
+  // Hardcoded translations for Sinhala
+  const t = (key: string) => {
+    if (language === "sinhala") {
+      const si: Record<string, string> = {
+        rawMaterials: "අමුද්‍රව්‍ය",
+        addMaterial: "අමුද්‍රව්‍ය එක් කරන්න",
+        addNewRawMaterial: "නව අමුද්‍රව්‍යයක් එක් කරන්න",
+        materialName: "ද්‍රව්‍යයේ නම",
+        selectType: "වර්ගය තෝරන්න",
+        quantity: "ප්‍රමාණය",
+        unit: "ඒකකය",
+        cost: "වියදම",
+        date: "දිනය",
+        cancel: "අවලංගු කරන්න",
+        add: "එක් කරන්න",
+        currentInventory: "වත්මන් තොගය",
+        purchaseHistory: "මිලදී ගැනීම් ඉතිහාසය",
+        materialsInventory: "අමුද්‍රව්‍ය තොගය",
+        actions: "ක්‍රියාමාර්ග",
+        name: "නම",
+        qty: "ප්‍රමාණය",
+        adjustInventory: "තොගය සකසන්න",
+        currentQuantity: "වත්මන් ප්‍රමාණය:",
+        adjustAmount: "ප්‍රමාණය වෙනස් කරන්න (+ එකතු / - ඉවත්)",
+        applyChange: "වෙනස යොදන්න",
+        deletePurchase: "මිලදී ගැනීම මකන්න",
+        deleteHistoryOnly: "ඉතිහාසය පමණක් මකන්න",
+        deleteAndDeduct: "මකන්න සහ තොගය අඩු කරන්න",
+        doYouWantToDeduct: "ඔබට තොගයද අඩු කිරීමට අවශ්‍යද, නැතහොත් ඉතිහාසය පමණක් මකන්නද?",
+        purchaseHistoryTitle: "මිලදී ගැනීම් ඉතිහාසය",
+        material: "ද්‍රව්‍යය",
+        total: "මුළු වියදම",
+        loading: "පූරණය වෙමින්...",
+      };
+      return si[key] || key;
+    }
+    // English fallback
+    const en: Record<string, string> = {
+      rawMaterials: "Raw Materials",
+      addMaterial: "Add Material",
+      addNewRawMaterial: "Add New Raw Material",
+      materialName: "Material Name *",
+      selectType: "Select type",
+      quantity: "Quantity *",
+      unit: "Unit",
+      cost: "Cost ",
+      date: "Date ",
+      cancel: "Cancel",
+      add: "Add Material",
+      currentInventory: "Current Inventory",
+      purchaseHistory: "Purchase History",
+      materialsInventory: "Materials Inventory",
+      actions: "Actions",
+      name: "Name",
+      qty: "Qty",
+      adjustInventory: "Adjust Inventory",
+      currentQuantity: "Current Quantity:",
+      adjustAmount: "Adjust Amount (+ add / - remove)",
+      applyChange: "Apply Change",
+      deletePurchase: "Delete Purchase",
+      deleteHistoryOnly: "Delete History Only",
+      deleteAndDeduct: "Delete & Deduct Stock",
+      doYouWantToDeduct: "Do you want to deduct stock as well, or delete only the purchase history?",
+      purchaseHistoryTitle: "Purchase History",
+      material: "Material",
+      total: "Total",
+      loading: "Loading materials...",
+    };
+    return en[key] || key;
+  };
   const [activeTab, setActiveTab] = useState("inventory")
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [formData, setFormData] = useState({ name: "", quantity: "", unit: "", cost: "", date: today })
@@ -104,18 +177,18 @@ export default function RawMaterialsPage() {
   }, [activeTab])
 
 
-  if (loading) return <p className="p-6 text-lg">Loading materials...</p>
+  if (loading) return <p className="p-6 text-lg">{t("loading")}</p>
 
   return (
     <div className="p-4 md:p-8 space-y-6 md:space-y-8">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <h1 className="text-2xl md:text-4xl font-bold text-foreground">Raw Materials</h1>
+        <h1 className="text-2xl md:text-4xl font-bold text-foreground">{t("rawMaterials")}</h1>
         <Button
           onClick={() => setIsModalOpen(true)}
           className="w-full sm:w-auto bg-primary hover:bg-primary/90 text-primary-foreground gap-2"
         >
           <Plus size={20} />
-          Add Material
+          {t("addMaterial")}
         </Button>
       </div>
 
@@ -128,7 +201,7 @@ export default function RawMaterialsPage() {
               : "text-foreground/60 hover:text-foreground"
           }`}
         >
-          Current Inventory
+          {t("currentInventory")}
         </button>
         <button
           onClick={() => setActiveTab("history")}
@@ -139,7 +212,7 @@ export default function RawMaterialsPage() {
           }`}
         >
           <History size={16} />
-          Purchase History
+          {t("purchaseHistory")}
         </button>
       </div>
 
@@ -149,13 +222,13 @@ export default function RawMaterialsPage() {
           setIsModalOpen(false)
           setFormData({ name: "", quantity: "", unit: "", cost: "", date: "" })
         }}
-        title="Add New Raw Material"
+        title={t("addNewRawMaterial")}
       >
         <form onSubmit={handleAddMaterial} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-foreground mb-2">Material Name *</label>
+            <label className="block text-sm font-medium text-foreground mb-2">{t("materialName")}</label>
             <Input
-              placeholder="Select type"
+              placeholder={t("selectType")}
               list="material-types"
               value={formData.name}
               onChange={(e) => setFormData({ ...formData, name: e.target.value })}
@@ -170,7 +243,7 @@ export default function RawMaterialsPage() {
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <label className="block text-sm font-medium text-foreground mb-2">Quantity *</label>
+              <label className="block text-sm font-medium text-foreground mb-2">{t("quantity")}</label>
               <Input
                 type="number"
                 placeholder="0"
@@ -179,14 +252,14 @@ export default function RawMaterialsPage() {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-foreground mb-2">Unit</label>
+              <label className="block text-sm font-medium text-foreground mb-2">{t("unit")}</label>
               <Input value={types.find((t) => t.name === formData.name)?.unit || ""} disabled />
             </div>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <label className="block text-sm font-medium text-foreground mb-2">Cost </label>
+              <label className="block text-sm font-medium text-foreground mb-2">{t("cost")}</label>
               <Input
                 type="number"
                 placeholder="0"
@@ -195,7 +268,7 @@ export default function RawMaterialsPage() {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-foreground mb-2">Date </label>
+              <label className="block text-sm font-medium text-foreground mb-2">{t("date")}</label>
               <Input
                 type="date"
                 value={formData.date}
@@ -213,118 +286,109 @@ export default function RawMaterialsPage() {
               }}
               className="sm:flex-1 bg-secondary hover:bg-secondary/80 text-foreground"
             >
-              Cancel
+              {t("cancel")}
             </Button>
             <Button type="submit" className="sm:flex-1 bg-primary hover:bg-primary/90 text-primary-foreground">
-              Add Material
+              {t("addMaterial")}
             </Button>
           </div>
         </form>
       </ModalOverlay>
 
       <ModalOverlay
-  isOpen={isEditModalOpen}
-  onClose={() => setIsEditModalOpen(false)}
-  title="Adjust Inventory"
->
-  <form onSubmit={handleUpdateMaterial} className="space-y-4">
-
-    <div className="text-sm">
-      Current Quantity:
-      <span className="font-semibold ml-2">
-        {editMaterial?.currentQty}
-      </span>
-    </div>
-
-    <div>
-      <label className="block text-sm font-medium mb-2">
-        Adjust Amount (+ add / - remove)
-      </label>
-      <Input
-        type="number"
-        placeholder="+10 or -5"
-        value={editMaterial?.changeQty || ""}
-        onChange={(e) =>
-          setEditMaterial({ ...editMaterial, changeQty: e.target.value })
-        }
-      />
-    </div>
-
-    <div className="flex gap-3 pt-4">
-      <Button
-        type="button"
-        onClick={() => setIsEditModalOpen(false)}
-        className="flex-1 bg-secondary"
+        isOpen={isEditModalOpen}
+        onClose={() => setIsEditModalOpen(false)}
+        title={t("adjustInventory")}
       >
-        Cancel
-      </Button>
-      <Button type="submit" className="flex-1 bg-primary">
-        Apply Change
-      </Button>
-    </div>
+        <form onSubmit={handleUpdateMaterial} className="space-y-4">
+          <div className="text-sm">
+            {t("currentQuantity")}
+            <span className="font-semibold ml-2">
+              {editMaterial?.currentQty}
+            </span>
+          </div>
+          <div>
+            <label className="block text-sm font-medium mb-2">
+              {t("adjustAmount")}
+            </label>
+            <Input
+              type="number"
+              placeholder={language === "sinhala" ? "+10 හෝ -5" : "+10 or -5"}
+              value={editMaterial?.changeQty || ""}
+              onChange={(e) =>
+                setEditMaterial({ ...editMaterial, changeQty: e.target.value })
+              }
+            />
+          </div>
+          <div className="flex gap-3 pt-4">
+            <Button
+              type="button"
+              onClick={() => setIsEditModalOpen(false)}
+              className="flex-1 bg-secondary"
+            >
+              {t("cancel")}
+            </Button>
+            <Button type="submit" className="flex-1 bg-primary">
+              {t("applyChange")}
+            </Button>
+          </div>
+        </form>
+      </ModalOverlay>
 
-  </form>
-</ModalOverlay>
-
-<ModalOverlay
-  isOpen={isDeleteModalOpen}
-  onClose={() => {
-    setIsDeleteModalOpen(false)
-    setDeletePurchaseId(null)
-  }}
-  title="Delete Purchase"
->
-  <p className="text-sm text-muted-foreground mb-4">
-    Do you want to deduct stock as well, or delete only the purchase history?
-  </p>
-
-  <div className="flex flex-col gap-3">
-    <Button
-      variant="destructive"
-      onClick={async () => {
-        if (!deletePurchaseId) return
-        await deletePurchase(deletePurchaseId)
-        setIsDeleteModalOpen(false)
-      }}
-    >
-      Delete History Only
-    </Button>
-
-    <Button
-      onClick={async () => {
-        if (!deletePurchaseId) return
-        await deletePurchaseWithStock(deletePurchaseId)
-        setIsDeleteModalOpen(false)
-      }}
-    >
-      Delete & Deduct Stock
-    </Button>
-
-    <Button
-      variant="secondary"
-      onClick={() => setIsDeleteModalOpen(false)}
-    >
-      Cancel
-    </Button>
-  </div>
-</ModalOverlay>
+      <ModalOverlay
+        isOpen={isDeleteModalOpen}
+        onClose={() => {
+          setIsDeleteModalOpen(false)
+          setDeletePurchaseId(null)
+        }}
+        title={t("deletePurchase")}
+      >
+        <p className="text-sm text-muted-foreground mb-4">
+          {t("doYouWantToDeduct")}
+        </p>
+        <div className="flex flex-col gap-3">
+          <Button
+            variant="destructive"
+            onClick={async () => {
+              if (!deletePurchaseId) return
+              await deletePurchase(deletePurchaseId)
+              setIsDeleteModalOpen(false)
+            }}
+          >
+            {t("deleteHistoryOnly")}
+          </Button>
+          <Button
+            onClick={async () => {
+              if (!deletePurchaseId) return
+              await deletePurchaseWithStock(deletePurchaseId)
+              setIsDeleteModalOpen(false)
+            }}
+          >
+            {t("deleteAndDeduct")}
+          </Button>
+          <Button
+            variant="secondary"
+            onClick={() => setIsDeleteModalOpen(false)}
+          >
+            {t("cancel")}
+          </Button>
+        </div>
+      </ModalOverlay>
 
 
 
 
       {activeTab === "inventory" && (
         <Card className="p-4 md:p-6">
-          <h2 className="text-lg md:text-xl font-bold text-foreground mb-4 md:mb-6">Materials Inventory</h2>
+          <h2 className="text-lg md:text-xl font-bold text-foreground mb-4 md:mb-6">{t("materialsInventory")}</h2>
           <div className="overflow-x-auto -mx-4 md:mx-0">
             <table className="w-full min-w-max md:min-w-full">
               <thead>
                 <tr className="border-b">
-                  <th className="text-left py-3 px-4 text-xs md:text-sm font-semibold text-foreground">Name</th>
-                  <th className="text-left py-3 px-4 text-xs md:text-sm font-semibold text-foreground">Qty</th>
-                  <th className="text-left py-3 px-4 text-xs md:text-sm font-semibold text-foreground">Unit</th>
-                  {/* <th className="text-left py-3 px-4 text-xs md:text-sm font-semibold text-foreground">Cost/Unit</th> */}
-                  {/* <th className="text-left py-3 px-4 text-xs md:text-sm font-semibold text-foreground">Total</th> */}
-                  <th className="text-left py-3 px-4 text-xs md:text-sm font-semibold text-foreground">Actions</th>
+                  <th className="text-left py-3 px-4 text-xs md:text-sm font-semibold text-foreground">{t("name")}</th>
+                  <th className="text-left py-3 px-4 text-xs md:text-sm font-semibold text-foreground">{t("qty")}</th>
+                  <th className="text-left py-3 px-4 text-xs md:text-sm font-semibold text-foreground">{t("unit")}</th>
+                  <th className="text-left py-3 px-4 text-xs md:text-sm font-semibold text-foreground">{t("actions")}</th>
                 </tr>
               </thead>
               <tbody>
@@ -333,10 +397,6 @@ export default function RawMaterialsPage() {
                     <td className="py-3 px-4 text-xs md:text-sm">{material.rawMaterialType.name}</td>
                     <td className="py-3 px-4 text-xs md:text-sm">{material.quantity}</td>
                     <td className="py-3 px-4 text-xs md:text-sm">{material.rawMaterialType.unit}</td>
-                    {/* <td className="py-3 px-4 text-xs md:text-sm">${material.costPerUnit}</td> */}
-                    {/* <td className="py-3 px-4 text-xs md:text-sm font-semibold text-primary">
-                      ${(material.quantity * material.costPerUnit).toFixed(2)}
-                    </td> */}
                     <td className="py-3 px-4 text-xs md:text-sm space-x-3">
                       <button
                         onClick={() => handleDelete(material._id)}
@@ -361,18 +421,17 @@ export default function RawMaterialsPage() {
 
       {activeTab === "history" && (
         <Card className="p-4 md:p-6">
-          <h2 className="text-lg md:text-xl font-bold text-foreground mb-4 md:mb-6">Purchase History</h2>
+          <h2 className="text-lg md:text-xl font-bold text-foreground mb-4 md:mb-6">{t("purchaseHistoryTitle")}</h2>
           <div className="overflow-x-auto -mx-4 md:mx-0">
             <table className="w-full min-w-max md:min-w-full">
               <thead>
                 <tr className="border-b">
-                  <th className="text-left py-3 px-4 text-xs md:text-sm font-semibold text-foreground">Material</th>
-                  <th className="text-left py-3 px-4 text-xs md:text-sm font-semibold text-foreground">Qty</th>
-                  <th className="text-left py-3 px-4 text-xs md:text-sm font-semibold text-foreground">Unit</th>
-                  {/* <th className="text-left py-3 px-4 text-xs md:text-sm font-semibold text-foreground">Cost/Unit</th> */}
-                  <th className="text-left py-3 px-4 text-xs md:text-sm font-semibold text-foreground">Total</th>
-                  <th className="text-left py-3 px-4 text-xs md:text-sm font-semibold text-foreground">Date</th>
-                  <th className="text-left py-3 px-4 text-xs md:text-sm font-semibold text-foreground">Actions</th>
+                  <th className="text-left py-3 px-4 text-xs md:text-sm font-semibold text-foreground">{t("material")}</th>
+                  <th className="text-left py-3 px-4 text-xs md:text-sm font-semibold text-foreground">{t("qty")}</th>
+                  <th className="text-left py-3 px-4 text-xs md:text-sm font-semibold text-foreground">{t("unit")}</th>
+                  <th className="text-left py-3 px-4 text-xs md:text-sm font-semibold text-foreground">{t("total")}</th>
+                  <th className="text-left py-3 px-4 text-xs md:text-sm font-semibold text-foreground">{t("date")}</th>
+                  <th className="text-left py-3 px-4 text-xs md:text-sm font-semibold text-foreground">{t("actions")}</th>
                 </tr>
               </thead>
               <tbody>
@@ -381,7 +440,6 @@ export default function RawMaterialsPage() {
                     <td className="py-3 px-4 text-xs md:text-sm font-medium">{entry.typeId.name}</td>
                     <td className="py-3 px-4 text-xs md:text-sm">{entry.purchaseQuantity}</td>
                     <td className="py-3 px-4 text-xs md:text-sm">{entry.typeId.unit}</td>
-                    {/* <td className="py-3 px-4 text-xs md:text-sm">$</td> */}
                     <td className="py-3 px-4 text-xs md:text-sm font-semibold text-primary">
                       ${entry.cost}
                     </td>
@@ -396,8 +454,6 @@ export default function RawMaterialsPage() {
                       >
                         <Trash2 size={16} />
                       </button>
-
-
                     </td>
                   </tr>
                 ))}

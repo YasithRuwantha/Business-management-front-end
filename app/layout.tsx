@@ -3,7 +3,7 @@ import type { Metadata } from "next"
 import { Geist, Geist_Mono } from "next/font/google"
 import { Analytics } from "@vercel/analytics/next"
 import "./globals.css"
-import { AuthProvider } from "@/lib/auth-context"
+import { AuthProvider, LanguageProvider } from "@/lib/auth-context"
 import { RawMaterialTypeProvider } from "@/lib/raw-material-type-context"
 import { ProductTypeProvider } from "@/lib/product-type-context"
 import { RawMaterialProvider } from "@/lib/raw-material-context"
@@ -48,23 +48,25 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`font-sans antialiased`}>
-        <AuthProvider>
-          <RawMaterialTypeProvider>
-            <ProductTypeProvider>
-              <RawMaterialProvider>
-                <RawMaterialPurchaseProvider>
-                  <ProductProvider>
-                    <ProductHistoryProvider>
-                      <ProfitProvider>
-                        {children}
-                      </ProfitProvider>
-                    </ProductHistoryProvider>
-                  </ProductProvider>
-                </RawMaterialPurchaseProvider>
-              </RawMaterialProvider>
-            </ProductTypeProvider>
-          </RawMaterialTypeProvider>
-        </AuthProvider>
+        <LanguageProvider>
+          <AuthProvider>
+            <RawMaterialTypeProvider>
+              <ProductTypeProvider>
+                <RawMaterialProvider>
+                  <RawMaterialPurchaseProvider>
+                    <ProductProvider>
+                      <ProductHistoryProvider>
+                        <ProfitProvider>
+                          {children}
+                        </ProfitProvider>
+                      </ProductHistoryProvider>
+                    </ProductProvider>
+                  </RawMaterialPurchaseProvider>
+                </RawMaterialProvider>
+              </ProductTypeProvider>
+            </RawMaterialTypeProvider>
+          </AuthProvider>
+        </LanguageProvider>
         <Analytics />
       </body>
     </html>
