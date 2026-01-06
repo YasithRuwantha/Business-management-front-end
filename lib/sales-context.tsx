@@ -11,6 +11,7 @@ export type SaleItem = {
   total: number;
 };
 
+
 export type Sale = {
   id: string;
   customerId: string;
@@ -28,6 +29,7 @@ type SalesContextType = {
   monthlyRevenue: any[];
   monthlySales: Number;
   yearlySales: Number;
+  monthlyStat: any[];
   fetchSales: () => Promise<void>;
   addSale: (data: { customerId: string; items: { product: string; quantity: number; price: number }[]; note?: string; date?: string }) => Promise<Sale | null>;
   deleteSale: (id: string) => Promise<boolean>;
@@ -35,6 +37,8 @@ type SalesContextType = {
   fetchMonthlyRevenue: (year: number) => Promise<void>;
   fetchTotalRevenueByYear: (year: Number, month: number) => Promise<any>;
   fetchSalesTotalMonthYear: () => Promise<void>;
+  fetchSalesMonthlyStat: () => Promise<void>;
+  
 };
 
 const SalesContext = createContext<SalesContextType>({} as SalesContextType);
@@ -49,6 +53,7 @@ export function SalesProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [stats, setStats] = useState<any[]>([]);
+  const [monthlyStat,setMonthlyStat] = useState<any[]>([])
 
   const fetchSales = async () => {
     try {
@@ -173,9 +178,26 @@ export function SalesProvider({ children }: { children: ReactNode }) {
       }
     };
 
+    // get current month salary stats 
+    const fetchSalesMonthlyStat = async () => {
+      try {
+        setLoading(true);
+        const res = await fetch(`${backendUrl}/api/sales/monthly-stats`);
+        if (!res.ok) throw new Error("Failed to fetch current month sales");
+        const data = await res.json();
+        console.log("Fetched current month sales stats :", data);
+        setMonthlyStat(data)
+        setError(null)
+      } catch (err : any) {
+        setError(err.message)
+      } finally {
+        setLoading(false)
+      }
+    }
+
 
   // useEffect(() => {
-  //   fetchMonthlyRevenue(2025);
+  //   fetchSalesTotalsMonthYear();
   // }, []); 
   
 
@@ -187,6 +209,7 @@ export function SalesProvider({ children }: { children: ReactNode }) {
         error, 
         monthlySales,
         yearlySales,
+        monthlyStat,
         fetchSales, 
         addSale, 
         deleteSale, 
@@ -194,7 +217,8 @@ export function SalesProvider({ children }: { children: ReactNode }) {
         fetchMonthlyRevenue, 
         monthlyRevenue,
         fetchTotalRevenueByYear,
-        fetchSalesTotalMonthYear     
+        fetchSalesTotalMonthYear,
+        fetchSalesMonthlyStat   
       }
     }>
       {children}

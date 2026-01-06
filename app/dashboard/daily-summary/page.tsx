@@ -42,13 +42,22 @@ export default function MonthlySummaryPage() {
   const profitChange = calculatePercentChange(currentMonthData.totalProfit, currentMonthData.lastMonthProfit)
   const itemsChange = calculatePercentChange(currentMonthData.totalItems, currentMonthData.lastMonthItems)
 
+  const { fetchSalesMonthlyStat, monthlyStat, loading } = useSales();
+
   // const { fetchSales, fetchYearlyStats } = useSales();
   // const { yearlyTopCustomers, fetchYearlyTopCustomers } = useCustomers()
 
-  // useEffect(() => {
-  //   fetchYearlyTopCustomers()
-  //   fetchYearlyStats(2025); // add relevent year
-  // }, [])
+  useEffect(() => {
+    fetchSalesMonthlyStat();
+  }, [])
+
+  if (loading || !monthlyStat) {
+    return (
+      <div className="p-4">
+        <p className="text-muted-foreground">Loading monthly sales summary...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="p-4 space-y-8">
@@ -62,7 +71,7 @@ export default function MonthlySummaryPage() {
         {/* This Month's Sales */}
         <Card className="p-6 border border-gray-200 hover:shadow-lg transition-shadow">
           <p className="text-sm font-semibold text-gray-600">This Month's Sales</p>
-          <p className="text-4xl font-bold text-blue-600 mt-3">${currentMonthData.totalSales.toLocaleString()}</p>
+          <p className="text-4xl font-bold text-blue-600 mt-3">${monthlyStat.monthly.totalSalesAmount}</p>
           <p className={`text-sm font-semibold mt-2 ${salesChange.isPositive ? "text-green-600" : "text-red-600"}`}>
             {salesChange.isPositive ? "+" : ""}
             {salesChange.percentage}% from last month
@@ -83,7 +92,7 @@ export default function MonthlySummaryPage() {
         {/* Items Sold */}
         <Card className="p-6 border border-gray-200 hover:shadow-lg transition-shadow">
           <p className="text-sm font-semibold text-gray-600">Items Sold</p>
-          <p className="text-4xl font-bold text-blue-600 mt-3">{currentMonthData.totalItems.toLocaleString()}</p>
+          <p className="text-4xl font-bold text-blue-600 mt-3">{monthlyStat.monthly.totalItemsSold}</p>
           <p className={`text-sm font-semibold mt-2 ${itemsChange.isPositive ? "text-green-600" : "text-red-600"}`}>
             {itemsChange.isPositive ? "+" : ""}
             {itemsChange.percentage}% from last month
@@ -93,10 +102,10 @@ export default function MonthlySummaryPage() {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Top Customers */}
-        <Card className="p-6 border border-gray-200">
+        {/* <Card className="p-6 border border-gray-200">
           <h2 className="text-2xl font-bold text-foreground mb-6">Top Customers</h2>
           <div className="space-y-3">
-            {/* {topCustomers.map((customer, index) => (
+            {topCustomers.map((customer, index) => (
               <div
                 key={index}
                 className="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
@@ -107,32 +116,46 @@ export default function MonthlySummaryPage() {
                 </div>
                 <p className="text-lg font-bold text-blue-600">${customer.totalSpent}</p>
               </div>
-            ))} */}
+            ))}
           </div>
-        </Card>
+        </Card> */}
 
         {/* Weekly Performance */}
         <Card className="p-6 border border-gray-200">
-          <h2 className="text-2xl font-bold text-foreground mb-6">Weekly Performance</h2>
+          <h2 className="text-2xl font-bold text-foreground mb-6">
+            Weekly Performance
+          </h2>
+
           <div className="space-y-3">
-            {currentMonthData.weeks.map((week, index) => (
-              <div key={index} className="p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
-                <div className="flex items-center justify-between mb-2">
-                  <p className="font-semibold text-foreground">Week {week.week}</p>
-                  <p className="text-lg font-bold text-blue-600">${week.sales.toLocaleString()}</p>
+            {Object.entries(monthlyStat.weeklyPerformance).map(
+              ([weekKey, weekData], index) => (
+                <div
+                  key={weekKey}
+                  className="p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
+                >
+                  <div className="flex items-center justify-between mb-2">
+                    <p className="font-semibold text-foreground">
+                      Week {index + 1}
+                    </p>
+                    <p className="text-lg font-bold text-blue-600">
+                      ${weekData.totalAmount.toLocaleString()}
+                    </p>
+                  </div>
+
+                  <div className="flex justify-between text-sm text-gray-600">
+                    <span>
+                      Items:{" "}
+                      <span className="font-semibold text-gray-800">
+                        {weekData.totalItems}
+                      </span>
+                    </span>
+                  </div>
                 </div>
-                <div className="flex justify-between text-sm text-gray-600">
-                  <span>
-                    Profit: <span className="font-semibold text-gray-800">${week.profit.toLocaleString()}</span>
-                  </span>
-                  <span>
-                    Items: <span className="font-semibold text-gray-800">{week.items}</span>
-                  </span>
-                </div>
-              </div>
-            ))}
+              )
+            )}
           </div>
         </Card>
+
       </div>
 
       <Card className="p-6 border border-gray-200">
