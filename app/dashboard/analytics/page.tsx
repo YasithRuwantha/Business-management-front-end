@@ -247,7 +247,7 @@ export default function AnalyticsPage() {
       </div>
 
       {/* Detailed Customers Table */}
-      <Card className="p-6 lg:p-8 border-0 shadow-sm">
+      {/* <Card className="p-6 lg:p-8 border-0 shadow-sm">
         <div className="space-y-6">
           <div>
             <h2 className="text-lg font-bold text-foreground">Customer Details</h2>
@@ -280,7 +280,7 @@ export default function AnalyticsPage() {
             </table>
           </div>
         </div>
-      </Card>
+      </Card> */}
     </div>
   )
 }
